@@ -1,17 +1,33 @@
+import numpy as np
 import pandas as pd
+import re
 
 
-def first(series):
-    return next(series.iteritems())[1]
-
-
-def last(series):
-    l = None
+# Counts deletions
+# mode: all -> difference of lengths of strings
+#       line -> one per each shortened line
+#       bit -> one if shortened wherever
+def count_deletions(series, mode):
+    dels = 0
+    last = ""
     for item in series:
-        l = item
-    return l
+        if not isinstance(item, str):
+            item = ""
+        item = re.sub("[{}0123456789<>=!]", "", item)
+        last = re.sub("[{}0123456789<>=!]", "", last)
+        if len(item) < len(last):
+            if mode == "all":
+                dels += len(last) - len(item)
+            elif mode == "line":
+                dels += 1
+            elif mode == "bit":
+                dels = 1
+        last = item
+    return dels
 
 
+# Counts distinct blocks used in miniRobocode.
+# basic_block_types_number determines how many of "f", "l", "r" and "s" blocks collapse into the only one.
 def count_distinct_blocks(series, basic_block_types_number):
     colors = {"b", "k", "d", "g", "y"}
     if basic_block_types_number == 4:
@@ -62,20 +78,9 @@ def count_true(series):
     return count
 
 
-# Counts deletions (1 per shortened line)
-def count_deletions(series, consider_multideletions):
-    dels = 0
-    last = ""
-    for item in series:
-        if not isinstance(item, str):
-            item = ""
-        if len(item) < len(last):
-            if consider_multideletions:
-                pass  # TODO: dels += count_letters("flrsRIW/xdgybk", last) - count_letters("flrsRIW/xdgybk", item)
-            else:
-                dels += 1
-        last = item
-    return dels
+# Counts length of the last item of series
+def len_of_last(series):
+    return len(re.sub("[{}0123456789<>=!]", "", series.iloc[-1]))
 
 
 # Merges snapshots and ts together (left outer join) and returns the result.
@@ -98,6 +103,13 @@ def load_task_names_levels(tasks_path):
     return task_names_levels
 
 
+# Computes median of lengths of a string series
+def median_of_lens(series):
+    return np.median(list(map(lambda x: len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=x)), series)))
+
+
+# Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"
+# and saves the dataset
 def replace_red_by_d(tasks_path, output_path):
     data = pd.read_csv(tasks_path)
     for i in data.index:

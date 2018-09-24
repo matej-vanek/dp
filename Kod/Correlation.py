@@ -1,3 +1,4 @@
+from functools import partial
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -15,10 +16,10 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
                                    tasks_cols=["id", "solution", "mission"])
 
     all_sessions = data.groupby("task_session").agg({"task": "max",
-                                                     "solved": last,
+                                                     "solved": "last",
                                                      "granularity": count_submits,
                                                      "correct": count_true,
-                                                     "solution": last})
+                                                     "solution": "last"})
 
     # successfulness of sessions
     successful_sessions = all_sessions.loc[all_sessions["solved"]]
@@ -39,7 +40,7 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
     del submits_by_tasks
 
     # number of block types
-    block_types_by_task = all_sessions.groupby("task").agg({"solution": last})
+    block_types_by_task = all_sessions.groupby("task").agg({"solution": "last"})
     difficulty["block_types"] = count_distinct_blocks(block_types_by_task["solution"], 1)
     difficulty["block_types"] = difficulty["block_types"].astype("int64")
 
@@ -63,20 +64,45 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
                                    task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
                                    tasks_cols=["id", "solution", "mission"])
     data = data[data["solved"]]
+    data["granularity_submits"] = data["granularity"]
+    data["program_all"] = data["program"]
+    data["program_line"] = data["program"]
+    data["program_bit"] = data["program"]
 
-    all_sessions = data.groupby("task_session").agg({"task": "max",
-                                                     "spent_time": "max",
-                                                     "granularity": [count_edits, count_submits],
-                                                     "program": [last,
-                                                                 count_deletions(consider_multideletions=False), # TODO: partial application
-                                                                 count_deletions(consider_multideletions=True)], # TODO: partial application
-                                                     "solution": last},
-                                                     # TODO:??deletions??
-                                                    )
+    task_sessions = data.groupby("task_session").agg({"task": "max",
+                                                      "time_spent": "max",
+                                                      "solution": "last",
+                                                      "granularity": count_edits,
+                                                      "granularity_submits": count_submits,
+                                                      "program": "last",
+                                                      "program_all": partial(count_deletions, mode="all"),
+                                                      "program_line": partial(count_deletions, mode="line"),
+                                                      "program_bit": partial(count_deletions, mode="bit")})
 
-complexity_measures(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                    task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                    tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
+    tasks = task_sessions.groupby("task").agg({"time_spent": "median",
+                                               "granularity": "median",
+                                               "granularity_submits": "median",
+                                               "program": median_of_lens,
+                                               "solution": len_of_last,
+                                               "program_all": "median",
+                                               "program_line": "median",
+                                               "program_bit": ["median", "sum", "count"]})
+    tasks["deletion_ratio"] = tasks[("program_bit", "sum")] / tasks[("program_bit", "count")]
+
+    complexity = pd.DataFrame()
+    complexity["median_time"] = tasks[("time_spent", "median")]
+    complexity["median_edits"] = tasks[("granularity", "median")]
+    complexity["median_submits"] = tasks[("granularity_submits", "median")]
+    complexity["median_solution_length"] = tasks[("program", "median_of_lens")]
+    complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
+    complexity["deletion_ratio"] = tasks["deletion_ratio"]
+    complexity["median_deletions_all"] = tasks[("program_all", "median")]
+    complexity["median_deletions_line"] = tasks[("program_line", "median")]
+    complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
+
+    print(complexity)
+    return complexity
+
 
 # Computes correlation of task measures and creates heat table
 def tasks_measures_correlations(task_table, method, title):
@@ -101,6 +127,7 @@ def correlation_methods_correlations(pearson_tasks_measures_correlation, spearma
     elif full_or_triangle == "triangle":
         correlations = np.corrcoef(flattened_triangle_table(pearson_tasks_measures_correlation.as_matrix()),
                                    flattened_triangle_table(spearman_tasks_measures_correlation.as_matrix()))
+    correlations = pd.DataFrame(correlations, index=["Pearson", "Spearman"], columns=["Pearson", "Spearman"])
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
@@ -113,9 +140,11 @@ def correlation_methods_correlations(pearson_tasks_measures_correlation, spearma
     return correlations
 
 
+# Computes correlation between matrices resulting from full and triangle mode. Does not make sense while there are only 2x2 matrices -> always correlates totally linearly.
 def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_corr_tables, variable_group_title):
     correlations = np.corrcoef(np.ndarray.flatten(np.array(corr_of_full_corr_tables)),
                                np.ndarray.flatten(np.array(corr_of_triangle_corr_tables)))
+    correlations = pd.DataFrame(correlations, index=["full", "triangle"], columns=["full", "triangle"])
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
@@ -151,15 +180,23 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
                                          variable_group_title=variable_group_title,
                                          full_or_triangle="triangle")
 
+    """
     full_and_triangle_correlation(corr_of_full_corr_tables=corr_of_full_corr_tables,
                                   corr_of_triangle_corr_tables=corr_of_triangle_corr_tables,
                                   variable_group_title=variable_group_title)
+    """
 
 
-"""
 all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=difficulty_measures,
                  variable_group_title="difficulty measures")
+
+"""
+all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                 measures_function=complexity_measures,
+                 variable_group_title="complexity measures")
 """
