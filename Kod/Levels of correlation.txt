@@ -1,0 +1,13 @@
+feature matrix - tasksXfetures
+
+1st level corr (by Pearson or Spearman) - How are features related to each other?
+correlation matrix of features - featuresXfeatures
+
+2nd level corr (from full tables or triangle tables) - Does the difference between Pearson and Spearman at the 1st level play a role?
+Pearson correlation matrix of (Pearson correlation matrix of features) and (Spearman correlation matrix of features) - corr_methodsXcorr_methods
+
+3rd level corr - Does the difference between full matrices and triangle matrices at the 2nd level play a role?
+Pearson correlation of 
+    Pearson correlation matrix of (Pearson correlation matrix of features) and (Spearman correlation matrix of features) FROM FULL MATRICES
+    and
+    Pearson correlation matrix of (Pearson correlation matrix of features) and (Spearman correlation matrix of features) FROM TRIANGLE MATRICES

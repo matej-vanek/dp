@@ -1,0 +1,187 @@
+             
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% I, the copyright holder of this work, release this work into the
+%% public domain. This applies worldwide. In some countries this may
+%% not be legally possible; if so: i~grant anyone the right to use
+%% this work for any purpose, without any conditions, unless such
+%% conditions are required by law.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[
+  digital, %% This option enables the default options for the
+           %% digital version of a~document. Replace with `printed`
+           %% to enable the default options for the printed version
+           %% of a~document.
+  table,   %% Causes the coloring of tables. Replace with `notable`
+           %% to restore plain tables.
+  nolof,     %% Prints the List of Figures. Replace with `nolof` to
+           %% hide the List of Figures.
+  nolot,     %% Prints the List of Tables. Replace with `nolot` to
+           %% hide the List of Tables.
+  %% More options are listed in the user guide at
+  %% <http://mirrors.ctan.org/macros/latex/contrib/fithesis/guide/mu/fi.pdf>.
+]{fithesis3}
+%% The following section sets up the locales used in the thesis.
+\usepackage[resetfonts]{cmap} %% We need to load the T2A font encoding
+\usepackage[T1,T2A]{fontenc}  %% to use the Cyrillic fonts with Russian texts.
+\usepackage[
+  main=english, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the thesis
+                %% in either Czech or Slovak, respectively.
+  german, russian, czech, slovak %% The additional keys allow
+]{babel}        %% foreign texts to be typeset as follows:
+%%
+%%   \begin{otherlanguage}{german}  ... \end{otherlanguage}
+%%   \begin{otherlanguage}{russian} ... \end{otherlanguage}
+%%   \begin{otherlanguage}{english}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% For non-Latin scripts, it may be necessary to load additional
+%% fonts:
+\usepackage{paratype}
+\def\textrussian#1{{\usefont{T2A}{PTSerif-TLF}{m}{rm}#1}}
+%%
+%% The following section sets up the metadata of the thesis.
+\thesissetup{
+    date          = \the\year/\the\month/\the\day,
+    university    = mu,
+    faculty       = fi,
+    type          = mgr,
+    author        = Matěj Vaněk,
+    gender        = m,
+    advisor       = {doc. Mgr. Radek Pelánek, Ph.D.},
+    title         = {Teacher's Dashboard for Introductory Programming Educational Systems},
+    TeXtitle      = {Teacher's Dashboard for Introductory Programming Educational Systems},
+    keywords      = {introductory programming},
+    TeXkeywords   = {introductory programming},
+}
+
+\thesislong{abstract}{Text of my abstract
+}
+
+\thesislong{thanks}{
+    I would like to thank my supervisor, doc. Mgr. Radek Pelánek, Ph.D., and Mgr. Tomáš Effenberger. Also my parents and Zuzana Seménková.
+}
+
+%% The following section sets up the bibliography.
+\usepackage{csquotes}
+\usepackage[              %% When typesetting the bibliography, the
+  backend=biber,          %% `numeric` style will be used for the
+  style=numeric,          %% entries and the `numeric-comp` style
+  citestyle=iso-numeric, %% for the references to the entries. The
+  sorting=none,           %% entries will be sorted in cite order.
+  sortlocale=en_US,         %% For more unformation about the available
+  bibencoding=UTF8,
+  babel=other
+]{biblatex}               %% `style`s and `citestyles`, see:
+%% <http://mirrors.ctan.org/macros/latex/contrib/biblatex/doc/biblatex.pdf>.
+\addbibresource{Literatura.bib} %% The bibliograpic database within
+                          %% the file `example.bib` will be used.
+\usepackage{makeidx}      %% The `makeidx` package contains
+\makeindex                %% helper commands for index typesetting.
+%% These additional packages are used within the document:
+\usepackage{paralist}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{url}
+\usepackage{menukeys}
+
+\makeatletter\thesis@load
+\makeatletter
+\def\thesis@blocks@thanks{%
+\ifx\thesis@thanks\undefined\else
+\thesis@blocks@clear
+\begin{alwayssingle}%
+\chapter*{\thesis@@{thanksTitle}}%
+\thesis@thanks
+\end{alwayssingle}%
+\fi}
+\makeatother
+
+\begin{document}
+
+
+\chapter{Shrnutí práce}
+Minulý semestr:
+\begin{enumerate}
+	\item Graf četnosti slov v jednotlivých úlohách
+	\item Distance matrix vzorových řešení podle
+	\begin{enumerate}
+		\item bag of words
+		\item bag of words binární
+		\item bag of words logaritmované
+		\item bag of words tf-idf
+		\item levenshteinova vzdálenost
+		\item vlastní tree edit distance
+	\end{enumerate}
+	\item Korelace výše zmíněných metod podle
+	\begin{enumerate}
+		\item pearsona
+		\item spearmana
+		\item prumerny prunik na top 5 nejpodobnejsich ulohach pro kazdou ulohu
+		\item prumerny prunik na top 20 nejpodobnejsich ulohach pro kazdou ulohu
+	\end{enumerate}
+	\item Korelace (pearson) výše zmíněných metod
+	\item Výskyt slov v úlohách (feature matrix) podle
+	\begin{enumerate}
+		\item bag of words
+		\item bag of words binární
+		\item bag of words logaritmované
+		\item bag of words tf-idf
+	\end{enumerate}
+	\item Korelace (??) výskytu slov v úlohách (feature matrices) podle
+	\begin{enumerate}
+		\item bag of words
+		\item bag of words binární
+		\item bag of words logaritmované
+		\item bag of words tf-idf
+	\end{enumerate}
+\end{enumerate}
+
+Tento semestr:
+\begin{enumerate}
+	\item Korelace času a operací po levelech
+	\item Histogramy studentů podle úloh
+	\begin{enumerate}
+		\item časů
+		\item operací
+		\item poměru operace-čas
+		\item mazání
+		\item podíl častých stavů
+	\end{enumerate}
+	\item Scatter ploty času a editů (logaritmované)
+	\begin{enumerate}
+		\item obyč
+		\item nelogaritmované
+		\item ořezaná delta na 30 s
+		\item obyč s zafixovaným obarvením podle mediánů na dané úloze
+	\end{enumerate}
+	\item Trajektorie uživatelů skrz průchody (UDĚLAT I JEN NA ÚSPĚŠNÝCH)
+	\item Predikce do Ne/Pomalu/Rychle a Pomalu/Rychly 
+		
+
+\end{enumerate}
+
+
+\chapter{Úvod}
+
+
+
+\chapter{Závěr}
+
+
+\nocite{*}
+
+{\csname captions\languagename\endcsname %% Temporarily override
+%% the BibLaTeX localization with the original babel definitions.
+\makeatletter %% Use the correct localization of the quotations.
+  \thesis@selectLocale{\thesis@locale}\makeatother
+\printbibliography[heading=bibintoc]} %% Print the bibliography.
+
+
+
+\appendix %% Start the appendices.
+
+
+\end{document}
