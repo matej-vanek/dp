@@ -78,6 +78,25 @@ def count_true(series):
     return count
 
 
+def entropy(occurence_dict):
+    if len(occurence_dict[0]) == 1:
+        print(occurence_dict[0].values())
+        return 0
+    occurence_list = occurence_dict[0].values()
+    frequency_list = [i/sum(occurence_list) for i in occurence_list]
+    print("{} {} {}".format(occurence_list, frequency_list, 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))))
+    return 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))
+
+
+# Computes flattened lower triangle table (without main diagonal) from a square table
+def flattened_triangle_table(table):
+    reduced_table = []
+    for i in range(len(table)):
+        for j in range(i):
+            reduced_table.append(table[i][j])
+    return reduced_table
+
+
 # Counts length of the last item of series
 def len_of_last(series):
     return len(re.sub("[{}0123456789<>=!]", "", series.iloc[-1]))
@@ -93,7 +112,8 @@ def load_extended_snapshots(snapshots_path, task_sessions_path, tasks_path, task
     tasks.rename(index=str, columns={"id": "task"}, inplace=True)
 
     snapshots_with_tasks = pd.merge(snapshots, task_sessions, how="left", on="task_session")
-    snapshots_with_tasks = pd.merge(snapshots_with_tasks, tasks, how="left", on="task")
+    if tasks_cols:
+        snapshots_with_tasks = pd.merge(snapshots_with_tasks, tasks, how="left", on="task")
     return snapshots_with_tasks
 
 
@@ -117,13 +137,15 @@ def replace_red_by_d(tasks_path, output_path):
     data.to_csv(output_path, index=False)
 
 
-# Computes flattened lower triangle table (without main diagonal) from a square table
-def flattened_triangle_table(table):
-    reduced_table = []
-    for i in range(len(table)):
-        for j in range(i):
-            reduced_table.append(table[i][j])
-    return reduced_table
+# Creates dict of solutions and number of their occurences
+def solutions_dict(series):
+    solutions = {}
+    for item in series:
+        if item not in solutions:
+            solutions[item] = 0
+        solutions[item] += 1
+    print(solutions)
+    return [solutions]
 
 
 """

@@ -7,6 +7,7 @@ import re
 from functools import partial
 from Tools import *
 
+
 a = pd.DataFrame([[1, 91, 5], [0, 0, 65], [1, 16, 45], [0, 17, 5]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
@@ -26,7 +27,9 @@ q = [[ 1.,          0.99922828], [ 0.99922828,  1.        ]]
 w = [[ 1.,          0.99899567], [ 0.99899567,  1.        ]]
 print(np.corrcoef(np.ndarray.flatten(np.array(q)), np.ndarray.flatten(np.array(w))))
 """
-x = np.median(list(map(lambda x: len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=x)), d["one"])))
-#x = np.median(list(map(len, list(map(re.sub("[{}0123456789<>=!]", "", d["one"]))))))
-print(x)
-#print(median_of_lens(d["one"]))
+occ = [5,5,5,5]
+norm = [i/sum(occ) for i in occ]
+print(occ)
+print(norm)
+
+print(entropy(occ))

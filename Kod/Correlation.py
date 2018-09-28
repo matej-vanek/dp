@@ -13,7 +13,7 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
-                                   tasks_cols=["id", "solution", "mission"])
+                                   tasks_cols=["id", "solution"])
 
     all_sessions = data.groupby("task_session").agg({"task": "max",
                                                      "solved": "last",
@@ -62,7 +62,7 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
-                                   tasks_cols=["id", "solution", "mission"])
+                                   tasks_cols=["id", "solution"])
     data = data[data["solved"]]
     data["granularity_submits"] = data["granularity"]
     data["program_all"] = data["program"]
@@ -102,6 +102,49 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
 
     print(complexity)
     return complexity
+
+
+# ATTENTION! There are some strange relicts - e. g. last program of a solution may not correct but the whole session may be!
+# shotrer program, over_driving final line, empty blocks,
+def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path):
+    data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                   task_sessions_path=task_sessions_path,
+                                   tasks_path=tasks_path,
+                                   task_sessions_cols=["id", "task", "solved"],
+                                   tasks_cols=[])
+    data = data[data["solved"]]
+
+    print(data[data["task_session"] == 43798])
+    print(data[data["task_session"] == 45747])
+    print(data[data["task_session"] == 21817])
+
+    task_sessions = data.groupby("task_session").agg({"task": "max",
+                                                      "program": "last"})
+    #a = task_sessions[task_sessions["task"] == 11]
+    #a = a[a["program"] == "R10{sf}"]
+    #print(a)
+
+
+    tasks = task_sessions.groupby("task").agg({"program": solutions_dict})
+
+    uniqueness = pd.DataFrame(index=tasks.index)
+    uniqueness["entropy"] = list(map(entropy, tasks["program"]))
+    tasks["number_of_solutions"] = list(map(lambda x: len(x[0]), tasks["program"]))
+    uniqueness["number_of_solutions"] = tasks["number_of_solutions"]
+
+
+
+
+
+    print(tasks)
+    print(uniqueness)
+
+"""
+solution_uniqueness_measures(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                             task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                             tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
+"""
+
 
 
 # Computes correlation of task measures and creates heat table
@@ -157,6 +200,7 @@ def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_cor
     return correlations
 
 
+# Computes all levels of correlation
 def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_function, variable_group_title):
     tasks_measures_table = measures_function(snapshots_path=snapshots_path,
                                              task_sessions_path=task_sessions_path,
@@ -187,12 +231,13 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
     """
 
 
+"""
 all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=difficulty_measures,
                  variable_group_title="difficulty measures")
-
+"""
 """
 all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
