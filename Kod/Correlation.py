@@ -114,6 +114,7 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
                                    tasks_cols=[])
     data = data[data["solved"]]
 
+
     print(data[data["task_session"] == 43798])
     print(data[data["task_session"] == 45747])
     print(data[data["task_session"] == 21817])

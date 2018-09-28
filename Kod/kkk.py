@@ -1,12 +1,9 @@
 from matplotlib import pyplot as plt
-import numpy as np
-import pandas as pd
 import seaborn as sns
+from pandas.tests.io.test_sql import _EngineToConnMixin
 from scipy.stats import spearmanr
-import re
-from functools import partial
 from Tools import *
-
+import ast
 
 a = pd.DataFrame([[1, 91, 5], [0, 0, 65], [1, 16, 45], [0, 17, 5]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
@@ -27,9 +24,6 @@ q = [[ 1.,          0.99922828], [ 0.99922828,  1.        ]]
 w = [[ 1.,          0.99899567], [ 0.99899567,  1.        ]]
 print(np.corrcoef(np.ndarray.flatten(np.array(q)), np.ndarray.flatten(np.array(w))))
 """
-occ = [5,5,5,5]
-norm = [i/sum(occ) for i in occ]
-print(occ)
-print(norm)
 
-print(entropy(occ))
+if None:
+    execute()
