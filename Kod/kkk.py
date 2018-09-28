@@ -1,9 +1,9 @@
 from matplotlib import pyplot as plt
 import seaborn as sns
-from pandas.tests.io.test_sql import _EngineToConnMixin
 from scipy.stats import spearmanr
 from Tools import *
 import ast
+import random
 
 a = pd.DataFrame([[1, 91, 5], [0, 0, 65], [1, 16, 45], [0, 17, 5]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
@@ -25,5 +25,7 @@ w = [[ 1.,          0.99899567], [ 0.99899567,  1.        ]]
 print(np.corrcoef(np.ndarray.flatten(np.array(q)), np.ndarray.flatten(np.array(w))))
 """
 
-if None:
-    execute()
+q = {"A": [(1, 2), (5, 6)], "B": [(3, 4), (7, 8), (9, 10), (0, 1)]}
+w = (3, 4)
+for _ in range(15):
+    print(random.choice(list(set(q["A"]) - {(1, 2)})))
