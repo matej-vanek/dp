@@ -225,7 +225,6 @@ def repeat(row_pos, col_pos, game_plan, correct, square_sequence, pointer, progr
 
 
 def if_else(row_pos, col_pos, game_plan, correct, square_sequence, pointer, program, energy, wormholes, diamonds):
-
     mode, operator, test_position, test_color, begin_pointer, end_pointer = load_operator_and_test_variable(pointer, program)
 
     # loading Else part
@@ -234,17 +233,25 @@ def if_else(row_pos, col_pos, game_plan, correct, square_sequence, pointer, prog
             else_part = True
             else_begin_pointer = end_pointer + 4  # end_pointer, }, / {, else_begin_pointer
             else_end_pointer = else_begin_pointer + 1  # { else_begin_pointer, else_end_pointer
-            while program[else_end_pointer] != "}":
+            foreign_parentheses = 0
+            while program[else_end_pointer] != "}" or foreign_parentheses != 0:
+                if program[else_end_pointer] == "{":
+                    foreign_parentheses += 1
+                elif program[else_end_pointer] == "}":
+                    foreign_parentheses -= 1
                 else_end_pointer += 1
             else_end_pointer -= 1  # { else_begin_pointer, ..., else_end_pointer, }
         else:
             else_part = False
+            else_end_pointer = None
     else:
         else_part = False
-
+        else_end_pointer = None
     # execution
     if test(mode, operator, test_position, test_color, row_pos, col_pos, game_plan):
         row_pos, col_pos, game_plan, correct, square_sequence, energy, diamonds = run_instructions(row_pos, col_pos, game_plan, correct, square_sequence, program[begin_pointer: end_pointer + 1], energy, wormholes, diamonds)
+        if else_end_pointer:
+            end_pointer = else_end_pointer
     else:
         if else_part:
             row_pos, col_pos, game_plan, correct, square_sequence, energy, diamonds = run_instructions(row_pos, col_pos, game_plan, correct, square_sequence, program[else_begin_pointer: else_end_pointer + 1], energy, wormholes, diamonds)
@@ -301,19 +308,25 @@ def run_task(tasks_path, task_id, program):
                  "wormhole_z": search_in_game_plan("Z", game_plan)}
     diamonds = search_in_game_plan("D", game_plan)
 
-    print("Task_id: {}\nProgram: {}\nEnergy: {}\nLength: {}\n{}".format(task_id, program, energy, length, game_plan))
-    if not program or len(re.sub("[{}0123456789<>=!xbkygd]", "", program)) > length:
-        print("Correct: {}\nSquare sequence: {}\n{}\n".format(False, square_sequence, game_plan))
+    print("\nTask_id: {}\nProgram: {})".format(task_id, program))
+    #print("Energy: {}\nLength: {}\n{}".format(energy, length, game_plan))
+
+    if not program or len(re.sub("[{}0123456789<>=!xbkygd/]", "", program)) > length:
+        print("Correct: {}".format(False))
+        #print("Square sequence: {}\n{}\n".format(square_sequence, game_plan))
         return False, square_sequence
     row_pos, col_pos, game_plan, correct, square_sequence, energy, diamonds = run_instructions(row_pos, col_pos, game_plan, correct, square_sequence, program, energy, wormholes, diamonds)
 
     if correct == False:
-        print("Correct: {}\nSquare sequence: {}\n{}\n".format(False, square_sequence, game_plan))
+        print("Correct: {}".format(False))
+        #print("Square sequence: {}\n{}\n".format(square_sequence, game_plan))
         return False, square_sequence
     if is_completed(game_plan, row_pos, col_pos, diamonds):
-        print("Correct: {}\nSquare sequence: {}\n{}\n".format(True, square_sequence, game_plan))
+        print("Correct: {}".format(True))
+        #print("Square sequence: {}\n{}\n".format(square_sequence, game_plan))
         return True, square_sequence
-    print("Correct: {}\nSquare sequence: {}\n{}\n".format(False, square_sequence, game_plan))
+    print("Correct: {}".format(False))
+    #print("Square sequence: {}\n{}\n".format(square_sequence, game_plan))
     return False, square_sequence
 
 
@@ -325,6 +338,6 @@ for i in range(0, len(task_data.index)):
 
 """
 run_task(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-         task_id=85,
-         program="W!b{lIx=1{f}}")
+         task_id=80,
+         program="W!b{Ix=1{f}/{l}}")
 """
