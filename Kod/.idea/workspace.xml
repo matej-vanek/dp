@@ -18,7 +18,7 @@
       <file leaf-file-name="Correlation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
+            <state relative-caret-position="1428">
               <caret line="84" column="71" lean-forward="false" selection-start-line="84" selection-start-column="68" selection-end-line="84" selection-end-column="71" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
@@ -30,8 +30,20 @@
       <file leaf-file-name="MiniRoboCodeInterpreter.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="605">
-              <caret line="328" column="45" lean-forward="false" selection-start-line="328" selection-start-column="45" selection-end-line="328" selection-end-column="45" />
+            <state relative-caret-position="184">
+              <caret line="383" column="1" lean-forward="false" selection-start-line="383" selection-start-column="1" selection-end-line="383" selection-end-column="1" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InterpreterTools.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="297">
+              <caret line="222" column="64" lean-forward="false" selection-start-line="222" selection-start-column="64" selection-end-line="222" selection-end-column="64" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -42,8 +54,8 @@
       <file leaf-file-name="kkk.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kkk.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="443">
-              <caret line="30" column="54" lean-forward="false" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="54" />
+            <state relative-caret-position="442">
+              <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -54,8 +66,8 @@
       <file leaf-file-name="Tools.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
-              <caret line="101" column="65" lean-forward="false" selection-start-line="101" selection-start-column="11" selection-end-line="101" selection-end-column="65" />
+            <state relative-caret-position="323">
+              <caret line="118" column="0" lean-forward="false" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -67,7 +79,7 @@
         <entry file="file://$PROJECT_DIR$/../../9. semestr/RoboMise/kod/AST_TED.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="323">
-              <caret line="19" column="42" lean-forward="true" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
+              <caret line="19" column="42" lean-forward="false" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -96,25 +108,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>data2</find>
-      <find>count</find>
-      <find>genera</find>
-      <find>generate_t</find>
-      <find>dist</find>
-      <find>metho</find>
-      <find>prin</find>
-      <find>fla</find>
-      <find>ndarr</find>
-      <find>variable_g</find>
-      <find>variable_group</find>
-      <find>task_measures</find>
-      <find>app</find>
-      <find>Pearson co</find>
-      <find>dele</find>
-      <find>last</find>
-      <find>firs</find>
-      <find>part</find>
-      <find>R10</find>
       <find>y_pos</find>
       <find>corr</find>
       <find>len</find>
@@ -125,6 +118,25 @@
       <find>test(</find>
       <find>chec</find>
       <find>test_po</find>
+      <find>game_plan</find>
+      <find>is_</find>
+      <find>gameboard</find>
+      <find>game_board.</find>
+      <find>game_board.v</find>
+      <find>poin</find>
+      <find>poit</find>
+      <find>upda</find>
+      <find>Prog</find>
+      <find>shoo</find>
+      <find>012</find>
+      <find>10</find>
+      <find>param: be</find>
+      <find>param b</find>
+      <find>begin_po</find>
+      <find>operators</find>
+      <find>load</find>
+      <find>che</find>
+      <find>check</find>
       <find>print</find>
     </findStrings>
     <replaceStrings>
@@ -132,6 +144,8 @@
       <replace>variable_group_title</replace>
       <replace>tasks_measures</replace>
       <replace>col_pos</replace>
+      <replace>gameboard</replace>
+      <replace>game_board</replace>
     </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -145,6 +159,7 @@
         <option value="$PROJECT_DIR$/Correlation.py" />
         <option value="$PROJECT_DIR$/MiniRoboCodeInterpret.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
+        <option value="$PROJECT_DIR$/InterpreterTools.py" />
         <option value="$PROJECT_DIR$/MiniRoboCodeInterpreter.py" />
       </list>
     </option>
@@ -170,6 +185,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -198,8 +215,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -211,40 +226,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.MiniRoboCodeInterpreter">
-    <configuration default="false" name="Tools" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Kod" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Tools.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Correlation" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Kod" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Correlation.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="kkk" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -292,6 +273,47 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Kod" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MiniRoboCodeInterpreter.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="py.test in InterpreterTools.py" type="tests" factoryName="py.test" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Kod" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="$PROJECT_DIR$/InterpreterTools.py" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="InterpreterTools" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Kod" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/InterpreterTools.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -431,19 +453,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.Tools" />
-      <item index="1" class="java.lang.String" itemvalue="Python.Correlation" />
-      <item index="2" class="java.lang.String" itemvalue="Python.kkk" />
-      <item index="3" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpret" />
-      <item index="4" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpreter" />
+      <item index="0" class="java.lang.String" itemvalue="Python.kkk" />
+      <item index="1" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpret" />
+      <item index="2" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpreter" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test in InterpreterTools.py" />
+      <item index="4" class="java.lang.String" itemvalue="Python.InterpreterTools" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpreter" />
-        <item index="1" class="java.lang.String" itemvalue="Python.kkk" />
-        <item index="2" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpret" />
-        <item index="3" class="java.lang.String" itemvalue="Python.Correlation" />
-        <item index="4" class="java.lang.String" itemvalue="Python.Tools" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in InterpreterTools.py" />
+        <item index="2" class="java.lang.String" itemvalue="Python.InterpreterTools" />
+        <item index="3" class="java.lang.String" itemvalue="Python.kkk" />
+        <item index="4" class="java.lang.String" itemvalue="Python.MiniRoboCodeInterpret" />
       </list>
     </recent_temporary>
   </component>
@@ -460,9 +482,35 @@
     </task>
     <servers />
   </component>
+  <component name="TestHistory">
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 18h 55m 55s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 18h 56m 19s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 22h 54m 28s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 22h 55m 45s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 22h 57m 33s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 22h 58m 23s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 22h 59m 19s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_InterpreterTools_py - 2018.09.29 at 23h 00m 40s.xml">
+      <configuration name="py.test in InterpreterTools.py" configurationId="tests" />
+    </history-entry>
+  </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10748156" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -470,7 +518,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38786566" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4539545" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -510,6 +558,44 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/kkk.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="30" column="54" lean-forward="false" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="54" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1683">
+          <caret line="101" column="65" lean-forward="false" selection-start-line="101" selection-start-column="11" selection-end-line="101" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../9. semestr/RoboMise/kod/AST_TED.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" column="42" lean-forward="true" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jjj.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="39" column="0" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Correlation.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -860,14 +946,24 @@
     <entry file="file://$PROJECT_DIR$/../../9. semestr/RoboMise/kod/AST_TED.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
-          <caret line="19" column="42" lean-forward="true" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
+          <caret line="19" column="42" lean-forward="false" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="118" column="0" lean-forward="false" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
+        <state relative-caret-position="1428">
           <caret line="84" column="71" lean-forward="false" selection-start-line="84" selection-start-column="68" selection-end-line="84" selection-end-column="71" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
@@ -875,32 +971,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Tools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="101" column="65" lean-forward="false" selection-start-line="101" selection-start-column="11" selection-end-line="101" selection-end-column="65" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/kkk.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="443">
-          <caret line="30" column="54" lean-forward="false" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="54" />
+        <state relative-caret-position="442">
+          <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
+    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="605">
-          <caret line="328" column="45" lean-forward="false" selection-start-line="328" selection-start-column="45" selection-end-line="328" selection-end-column="45" />
+        <state relative-caret-position="297">
+          <caret line="222" column="64" lean-forward="false" selection-start-line="222" selection-start-column="64" selection-end-line="222" selection-end-column="64" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="383" column="1" lean-forward="false" selection-start-line="383" selection-start-column="1" selection-end-line="383" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>

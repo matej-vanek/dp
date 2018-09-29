@@ -25,7 +25,4 @@ w = [[ 1.,          0.99899567], [ 0.99899567,  1.        ]]
 print(np.corrcoef(np.ndarray.flatten(np.array(q)), np.ndarray.flatten(np.array(w))))
 """
 
-q = {"A": [(1, 2), (5, 6)], "B": [(3, 4), (7, 8), (9, 10), (0, 1)]}
-w = (3, 4)
-for _ in range(15):
-    print(random.choice(list(set(q["A"]) - {(1, 2)})))
+print("abcdefgh"[2:2])
