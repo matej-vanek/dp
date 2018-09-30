@@ -120,7 +120,7 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     print(data[data["task_session"] == 21817])
 
     task_sessions = data.groupby("task_session").agg({"task": "max",
-                                                      "program": "last"})
+                                                      "program": "last"}) # TODO: CHANGE TO ALL ACCEPTED SUBMITS!
     #a = task_sessions[task_sessions["task"] == 11]
     #a = a[a["program"] == "R10{sf}"]
     #print(a)
@@ -139,12 +139,13 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
 
     print(tasks)
     print(uniqueness)
+    print(tasks.loc[51]["program"])
 
-"""
+
 solution_uniqueness_measures(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                              task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                              tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
-"""
+
 
 
 

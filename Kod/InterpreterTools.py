@@ -253,10 +253,18 @@ def shoot_meteoroid(row_pos, col_pos, game_board):
     :param game_board: pd.DataFrame; game_board state
     :return: updated game_board
     """
-    for result in search_in_game_board("M", game_board):
-        if result[1] == col_pos:
-            if result[0] < row_pos:
-                game_board[result[1]][result[0]] = re.sub("M", "", game_board[result[1]][result[0]])
+    diamonds_ahead = []
+    for diamond in search_in_game_board("D", game_board):
+        if diamond[1] == col_pos:
+            if diamond[0] < row_pos:
+                diamonds_ahead.append(diamond)
+    for meteoroid in search_in_game_board("M", game_board):
+        if meteoroid[1] == col_pos:
+            if meteoroid[0] < row_pos:
+                for diamond in diamonds_ahead:
+                    if diamond[0] > meteoroid[0]:  # shoot to diamond
+                        return game_board
+                game_board[meteoroid[1]][meteoroid[0]] = re.sub("M", "", game_board[meteoroid[1]][meteoroid[0]])  # shoot to meteoroid
                 return game_board
     return game_board
 
