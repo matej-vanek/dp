@@ -120,7 +120,7 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     print(data[data["task_session"] == 21817])
 
     task_sessions = data.groupby("task_session").agg({"task": "max",
-                                                      "program": "last"}) # TODO: CHANGE TO ALL ACCEPTED SUBMITS!
+                                                      "program": "last"}) # TODO: CHANGE TO ALL NEW_CORRECT SUBMITS!
     #a = task_sessions[task_sessions["task"] == 11]
     #a = a[a["program"] == "R10{sf}"]
     #print(a)

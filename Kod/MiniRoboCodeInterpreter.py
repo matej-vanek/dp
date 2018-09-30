@@ -314,7 +314,7 @@ def run_task(tasks_path, task_id, program, verbose=False):
     :return correct: bool; correctness of task session
     :return square_sequence: list of 2-int-tuples; sequence of visited squares
     """
-    program = re.sub("r{", "d{", program)
+    program = re.sub("r{", "d{", str(program))
     game_board, length, energy = it.load_game_board(tasks_path=tasks_path, task_id=task_id)
     row_pos, col_pos = it.search_in_game_board("S", game_board, True)
     square_sequence = [(row_pos, col_pos)]
@@ -368,7 +368,6 @@ def run_task(tasks_path, task_id, program, verbose=False):
 
 """
 import random
-from Tools import load_extended_snapshots
 
 submits = load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                                   task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
@@ -377,8 +376,8 @@ submits = load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplom
                                   tasks_cols=["id", "setting", "solution"])
 submits = submits[submits["granularity"] == "execution"]
 submits = submits[["id", "program", "correct", "task"]]
-test_ids = submits["id"].values
-#test_ids = [757400, 762592, 767341, 767985, 774710, 775089, 776795, 779527, 782755, 784397, 787518, 797896, 798711, 798724, 804072, 804295, 805143, 811228, 816342, 820636]
+#test_ids = submits["id"].values
+test_ids = [816342, 820636]
 print(len(test_ids))
 wrong = []
 for test_id in test_ids:
@@ -389,7 +388,7 @@ for test_id in test_ids:
     run_correct, _ = run_task(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                               task_id=task_id,
                               program=program,
-                              verbose=False)
+                              verbose=True)
     agreement = correct == run_correct
     #print("AGREEMENT: {}\n\n".format(agreement))
     if not agreement:

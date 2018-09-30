@@ -1,6 +1,28 @@
 import numpy as np
 import pandas as pd
 import re
+from MiniRoboCodeInterpreter import run_task
+
+
+def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_path, output_snapshots_path):
+    data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                   task_sessions_path=task_sessions_path,
+                                   tasks_path=tasks_path,
+                                   task_sessions_cols=["id", "task"],
+                                   tasks_cols=[])
+    data["new_correct"] = None
+    data["square_sequence"] = None
+    for i in data.index:
+        if data.loc[i]["granularity"] == "execution":
+            print(data.loc[i]["program"])
+            correct, square_sequence = run_task(tasks_path=tasks_path,
+                                                task_id=data.loc[i]["task"],
+                                                program=data.loc[i]["program"],
+                                                verbose=False)
+            data.set_value(i, "new_correct", str(correct))
+            data.set_value(i, "square_sequence", square_sequence)
+    data = data.drop(["task"], axis=1)
+    data.to_csv(output_snapshots_path, index=False)
 
 
 # Counts deletions
@@ -106,13 +128,12 @@ def len_of_last(series):
 def load_extended_snapshots(snapshots_path, task_sessions_path, tasks_path, task_sessions_cols, tasks_cols):
     snapshots = pd.read_csv(snapshots_path)
     task_sessions = pd.read_csv(task_sessions_path, usecols=task_sessions_cols)
-    tasks = pd.read_csv(tasks_path, usecols=tasks_cols)
-
     task_sessions.rename(index=str, columns={"id": "task_session"}, inplace=True)
-    tasks.rename(index=str, columns={"id": "task"}, inplace=True)
-
     snapshots_with_tasks = pd.merge(snapshots, task_sessions, how="left", on="task_session")
+
     if tasks_cols:
+        tasks = pd.read_csv(tasks_path, usecols=tasks_cols)
+        tasks.rename(index=str, columns={"id": "task"}, inplace=True)
         snapshots_with_tasks = pd.merge(snapshots_with_tasks, tasks, how="left", on="task")
     return snapshots_with_tasks
 
@@ -156,4 +177,9 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
                         task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                         task_sessions_cols=None)
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
+
+add_new_run_and_square_sequence(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                                task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                                tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                                output_snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_2.csv")
 """
