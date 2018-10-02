@@ -195,7 +195,7 @@ def if_else(row_pos, col_pos, game_board, correct, square_sequence, pointer,
         if else_end_pointer:
             end_pointer = else_end_pointer
     else:
-        if it.test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
+        if it.condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
             row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps = \
                 run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
                                  program[begin_pointer: end_pointer + 1], energy, wormholes, diamonds, steps, verbose)
@@ -234,7 +234,7 @@ def while_robo(row_pos, col_pos, game_board, correct, square_sequence, pointer,
         it.load_operator_and_test_variable(pointer, program)
 
     if mode is not None:
-        while steps > 0 and correct != False and it.test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
+        while steps > 0 and correct != False and it.condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
             steps -= 1
             row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps = \
                 run_instructions(row_pos, col_pos, game_board, correct, square_sequence,

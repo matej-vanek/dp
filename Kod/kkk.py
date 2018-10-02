@@ -5,7 +5,7 @@ from Tools import *
 import ast
 import random
 
-a = pd.DataFrame([[1, 91, 5], [0, 0, 65], [1, 16, 45], [0, 17, 5]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
+a = pd.DataFrame([[1, 91, 8], [6, 0, 0], [1, np.nan, 0], [5, 17, 9]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["056123!>/", 1, 1], ["Ir///", 3, 2]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
@@ -24,5 +24,4 @@ q = [[ 1.,          0.99922828], [ 0.99922828,  1.        ]]
 w = [[ 1.,          0.99899567], [ 0.99899567,  1.        ]]
 print(np.corrcoef(np.ndarray.flatten(np.array(q)), np.ndarray.flatten(np.array(w))))
 """
-
-print("abcdefgh"[2:2])
+q, w, e = 1, 2

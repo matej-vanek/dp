@@ -269,7 +269,7 @@ def shoot_meteoroid(row_pos, col_pos, game_board):
     return game_board
 
 
-def test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
+def condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
     """
     Tests condition.
     :param mode: string; "position" or "color"

@@ -14,7 +14,7 @@ def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_pa
     data["square_sequence"] = None
     for i in data.index:
         if data.loc[i]["granularity"] == "execution":
-            print(data.loc[i]["program"])
+            #print(data.loc[i]["program"])
             correct, square_sequence = run_task(tasks_path=tasks_path,
                                                 task_id=data.loc[i]["task"],
                                                 program=data.loc[i]["program"],
@@ -23,6 +23,10 @@ def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_pa
             data.set_value(i, "square_sequence", square_sequence)
     data = data.drop(["task"], axis=1)
     data.to_csv(output_snapshots_path, index=False)
+
+
+def contains_true(series):
+    return series
 
 
 # Counts deletions
@@ -100,13 +104,24 @@ def count_true(series):
     return count
 
 
+# Creates dict of solutions and number of their occurences
+def dict_of_counts(series):
+    solutions = {}
+    for item in series:
+        if item not in solutions:
+            solutions[item] = 0
+        solutions[item] += 1
+    #print(solutions)
+    return [solutions]
+
+
 def entropy(occurence_dict):
     if len(occurence_dict[0]) == 1:
-        print(occurence_dict[0].values())
+        #print(occurence_dict[0].values())
         return 0
     occurence_list = occurence_dict[0].values()
     frequency_list = [i/sum(occurence_list) for i in occurence_list]
-    print("{} {} {}".format(occurence_list, frequency_list, 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))))
+    #print("{} {} {}".format(occurence_list, frequency_list, 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))))
     return 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))
 
 
@@ -124,7 +139,7 @@ def len_of_last(series):
     return len(re.sub("[{}0123456789<>=!]", "", series.iloc[-1]))
 
 
-# Merges snapshots and ts together (left outer join) and returns the result.
+# Merges snapshots, task_sessions and tasks together (left outer join) and returns the result.
 def load_extended_snapshots(snapshots_path, task_sessions_path, tasks_path, task_sessions_cols, tasks_cols):
     snapshots = pd.read_csv(snapshots_path)
     task_sessions = pd.read_csv(task_sessions_path, usecols=task_sessions_cols)
@@ -138,6 +153,15 @@ def load_extended_snapshots(snapshots_path, task_sessions_path, tasks_path, task
     return snapshots_with_tasks
 
 
+# Merges snapshots and ts together (left outer join) and returns the result.
+def load_extended_task_sessions(task_sessions_path, snapshots_path, snapshots_cols):
+    task_sessions = pd.read_csv(task_sessions_path)
+    snapshots = pd.read_csv(snapshots_path, usecols=snapshots_cols)
+    snapshots.rename(index=str, columns={"id": "snapshot", "task_session": "id"}, inplace=True)
+    task_sessions_with_snapshots = pd.merge(task_sessions, snapshots, how="left", on="task_session")
+    return task_sessions_with_snapshots
+
+
 def load_task_names_levels(tasks_path):
     tasks = pd.read_csv(tasks_path, usecols=["id", "name", "level"])
     task_names_levels = {task[1].id: {"name": task[1].loc["name"], "level": task[1].level} for task in tasks.iterrows()}
@@ -146,33 +170,39 @@ def load_task_names_levels(tasks_path):
 
 # Computes median of lengths of a string series
 def median_of_lens(series):
-    return np.median(list(map(lambda x: len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=x)), series)))
+    return np.median(list(map(lambda x: len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=str(x))), series)))
 
 
 # Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"
 # and saves the dataset
-def replace_red_by_d(tasks_path, output_path):
+def replace_red_by_d(tasks_path, output_path, column_name):
     data = pd.read_csv(tasks_path)
     for i in data.index:
-        data["solution"].loc[i] = data["solution"].loc[i].replace("r{", "d{")
+        if isinstance(data[column_name].loc[i], str):
+            #print(data[column_name].loc[i])
+            data[column_name].loc[i] = data[column_name].loc[i].replace("r{", "d{")
     data.to_csv(output_path, index=False)
 
 
-# Creates dict of solutions and number of their occurences
-def solutions_dict(series):
-    solutions = {}
-    for item in series:
-        if item not in solutions:
-            solutions[item] = 0
-        solutions[item] += 1
-    print(solutions)
-    return [solutions]
+# Determines whether the sample solution is the most used correct solution
+def sample_solution_most_frequent(solutions, programs):
+    output = pd.Series(index=solutions.index)
+    for i in solutions.index:
+        #print(max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
+        if solutions.loc[i] == max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]).replace("r{", "d{"):
+            output.loc[i] = True
+        else:
+            print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
+            output.loc[i] = False
+    return output
 
 
 """
-replace_red_by_d(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-                 output_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks4.csv")
-
+replace_red_by_d(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 output_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots2.csv",
+                 column_name="program")
+"""
+"""
 load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                         task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                         task_sessions_cols=None)
