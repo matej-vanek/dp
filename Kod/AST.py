@@ -1,4 +1,5 @@
 import betterast
+import zss
 
 
 def add_level(tree_description, current_tree_i, current_level, levels, char):
@@ -105,7 +106,7 @@ def process_equals_x123456789fslrybkdg(tree_description, current_tree_i, current
         tree_description.append([0, "position"])
         skip_next = 0
     else:
-        if len(code_string) > char_i + 1 and code_string[char_i + 1] in "0123456789":
+        if code_string[char_i] in "0123456789" and len(code_string) > char_i + 1 and code_string[char_i + 1] in "0123456789":
             tree_description.append([0, str(int(code_string[char_i]) * 10 + int(code_string[char_i + 1]))])
             skip_next = 1
         else:
@@ -193,10 +194,14 @@ def build_ast(code_string, verbose=False):
 
 
 def ast_ted(a_tree, b_tree):
-    import zss
-    return(zss.simple_distance(a_tree, b_tree))
+    def binary_dist(a, b):
+        if a == b:
+            return 0
+        return 1
+    return(zss.simple_distance(a_tree, b_tree, label_dist=binary_dist))
 
 
+"""
 def ast_ted_matrix_from_file(data_abs_path):
     tasks = []
     with open(data_abs_path, mode="r") as f:
@@ -212,7 +217,7 @@ def ast_ted_matrix_from_file(data_abs_path):
         for j in num_tasks:
             matrix[i][j] = ast_ted(tasks[i][2], tasks[j][2])
     return tasks, matrix
-
+"""
 
 
 #my_tasks, my_matrix = ast_ted_matrix_from_file("C:/Dokumenty/Matej/MUNI/9. semestr/RoboMise/new_short-solutions-red-d.csv",)

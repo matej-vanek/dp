@@ -1,6 +1,10 @@
+from functools import partial
 import numpy as np
 import pandas as pd
 import re
+from scipy.cluster.hierarchy import fcluster, linkage
+
+from AST import *
 from MiniRoboCodeInterpreter import run_task
 
 
@@ -50,6 +54,33 @@ def count_deletions(series, mode):
                 dels = 1
         last = item
     return dels
+
+
+def count_program_clusters(programs):
+    clusters_count = pd.Series(index=programs.index)
+    for task in programs.index:
+        if len(programs.loc[task][0].keys()) > 1:
+            condensed_dist_matrix = []
+            program_list = list(programs.loc[task][0].keys())
+            print(program_list)
+            program_list = np.array(list(map(partial(build_ast), program_list)))
+            #print(program_list)
+            for i in range(len(program_list)):
+                for j in range(len(program_list)):
+                    if i < j:
+                        condensed_dist_matrix.append(ast_ted(program_list[i], program_list[j]))
+            print(condensed_dist_matrix)
+            condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
+        else:
+            condensed_dist_matrix = [0]
+        hier_clust = linkage(condensed_dist_matrix)
+        print(hier_clust)
+
+        cluster_assign = fcluster(hier_clust, 5, criterion="distance")
+        print(cluster_assign)
+        print("Number of found clusters: ", len(set(cluster_assign)))
+        clusters_count.loc[task] = len(set(cluster_assign))
+    return clusters_count
 
 
 # Counts distinct blocks used in miniRobocode.
@@ -192,7 +223,7 @@ def sample_solution_most_frequent(solutions, programs):
         if solutions.loc[i] == max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]).replace("r{", "d{"):
             output.loc[i] = True
         else:
-            print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
+            #print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
             output.loc[i] = False
     return output
 

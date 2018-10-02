@@ -1,7 +1,7 @@
 from functools import partial
+from matplotlib import pyplot as plt
 import numpy as np
 import seaborn as sns
-from matplotlib import pyplot as plt
 
 from Tools import *
 
@@ -16,7 +16,6 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
                                    tasks_cols=["id", "solution"])
 
     data = data[data["correct"] == data["new_correct"]]
-
 
     all_sessions = data.groupby("task_session").agg({"task": "max",
                                                      "granularity": count_submits,
@@ -58,7 +57,6 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(difficulty)
     return difficulty
-
 
 
 # Computes task difficulty dataframe
@@ -208,8 +206,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     return difficulty_and_complexity
 
 
-# ATTENTION! There are some strange relicts - e. g. last program of a solution may not correct but the whole session may be!
-# shotrer program, over_driving final line, empty blocks,
+
 def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -234,6 +231,7 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     uniqueness["distinct_sequences"] = tasks["distinct_sequences"]
     uniqueness["sample_solution_most_frequent"] = tasks["sample_solution_most_frequent"]
 
+    uniqueness["program_clusters_count"] = count_program_clusters(tasks["program"])
     return uniqueness
 
 
@@ -340,16 +338,18 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  measures_function=complexity_measures,
                  variable_group_title="complexity measures")
 """
+"""
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty_and_complexity measures")
 """
+
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
-"""
-# TODO SHLUKOVANI PRES AST, KORELACNI GRAFY
+
+# TODO: zkontrolovat AST TED clustery, KORELACNI GRAFY, napsat Tomovi o nevzorovych nejcastejsich resenich
