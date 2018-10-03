@@ -29,8 +29,22 @@ def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_pa
     data.to_csv(output_snapshots_path, index=False)
 
 
-def contains_true(series):
-    return series
+def bag_of_blocks(series):
+    blocks = {"f": 0, "l": 1, "r": 2, "s": 3, "R": 4, "W": 5, "I": 6, "/": 7, "x": 8,
+              "y": 9, "b": 9, "k": 9, "d": 9, "g": 9}
+    output = []
+    for i in series.index:
+        program = series.loc[i]
+        block_counts = [0 for _ in range(10)]
+        for char in program:
+            if char in blocks:
+                block_counts[blocks[char]] += 1
+
+
+        output.append(block_counts)
+        #output.loc[i] = {0: block_counts} ############ERROR ValueError: setting an array element with a sequence.
+    output = pd.Series(output, index=series.index)
+    return output
 
 
 # Counts deletions
@@ -56,6 +70,8 @@ def count_deletions(series, mode):
     return dels
 
 
+# Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
+# prunes where cophenetic dist is > 5, returns number of clusters
 def count_program_clusters(programs):
     clusters_count = pd.Series(index=programs.index)
     for task in programs.index:
@@ -223,7 +239,7 @@ def sample_solution_most_frequent(solutions, programs):
         if solutions.loc[i] == max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]).replace("r{", "d{"):
             output.loc[i] = True
         else:
-            #print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
+            print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
             output.loc[i] = False
     return output
 

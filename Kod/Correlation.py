@@ -1,7 +1,10 @@
+from collections import Counter
+import editdistance
 from functools import partial
 from matplotlib import pyplot as plt
 import numpy as np
 import seaborn as sns
+from scipy.spatial.distance import euclidean
 
 from Tools import *
 
@@ -112,6 +115,7 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
     return complexity
 
 
+# joined difficulty and complexity
 def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -164,7 +168,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "solution"])
     data = data.fillna(False)
-    data = data[data["new_correct"] == data["correct"]]  # = snapshots which actual correctness agree with system
+    data = data[data["new_correct"] == data["correct"]]  # = snapshots which actual correctness agree with the system's one
 
     data["granularity_submits"] = data["granularity"]
     data["program_all"] = data["program"]
@@ -206,7 +210,10 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     return difficulty_and_complexity
 
 
-
+# Computes task solution uniqueness dataframe
+# Creates task dataframe of distinct solutions, distinct visited squares sequences,
+# solutions distribution entropy, visited squares sequence distribution entropy,
+# sample solution most frequent flag and count of program AST clusters by TED hier. clustering
 def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -235,6 +242,64 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     return uniqueness
 
 
+def task_similarity_measures(tasks_path):
+    tasks = pd.read_csv(tasks_path, index_col="id")
+    sample_solutions = tasks["solution"]
+    asts = pd.Series(list(map(build_ast, sample_solutions)), index=sample_solutions.index)
+    bags_of_blocks = bag_of_blocks(sample_solutions)
+
+    ast_ted_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
+    levenshtein_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
+    bag_of_blocks_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
+
+    for i in sorted(sample_solutions.index):
+        print(i)
+        for j in sorted(sample_solutions.index):
+            if i < j:
+                ast_ted_matrix.loc[i][j] = ast_ted(asts.loc[i], asts.loc[j])
+                levenshtein_matrix.loc[i][j] = editdistance.eval(sample_solutions.loc[i], sample_solutions.loc[j])
+                bag_of_blocks_matrix.loc[i][j] = euclidean(bags_of_blocks.loc[i], bags_of_blocks.loc[j])
+            elif i == j:
+                ast_ted_matrix.loc[i][j] = 0
+                levenshtein_matrix.loc[i][j] = 0
+                bag_of_blocks_matrix.loc[i][j] = 0
+            else:
+
+                ast_ted_matrix.loc[i][j] = ast_ted_matrix.loc[j][i]
+                levenshtein_matrix.loc[i][j] = levenshtein_matrix.loc[j][i]
+                bag_of_blocks_matrix.loc[i][j] = bag_of_blocks_matrix.loc[j][i]
+    #print(ast_ted_matrix)
+
+    print(ast_ted_matrix)
+    frequencies = dict(Counter(ast_ted_matrix.values.flatten()))
+    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
+    plt.title("AST TED distances distribution")
+    plt.xlabel("distance")
+    plt.ylabel("count")
+    plt.show()
+
+    print(levenshtein_matrix)
+    frequencies = dict(Counter(levenshtein_matrix.values.flatten()))
+    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
+    plt.title("Levenshtein distances distribution")
+    plt.xlabel("distance")
+    plt.ylabel("count")
+    plt.show()
+
+    print(bag_of_blocks_matrix)
+    frequencies = dict(Counter(bag_of_blocks_matrix.values.flatten()))
+    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
+    plt.title("Bag-of-blocks distances distribution")
+    plt.xlabel("distance")
+    plt.ylabel("count")
+    plt.show()
+
+"""
+task_similarity_measures(tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
+"""
+
+
+
 
 # Computes correlation of task measures and creates heat table
 def tasks_measures_correlations(task_table, method, title):
@@ -250,7 +315,6 @@ def tasks_measures_correlations(task_table, method, title):
     plt.show()
 
     return correlations
-# TODO: think about how to perform by_levels correlation
 
 
 # Computes correlation of correlation methods and creates heat table
@@ -343,13 +407,13 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=difficulty_and_complexity_measures,
-                 variable_group_title="difficulty_and_complexity measures")
+                 variable_group_title="difficulty and complexity measures")
 """
-
+"""
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
-
-# TODO: zkontrolovat AST TED clustery, KORELACNI GRAFY, napsat Tomovi o nevzorovych nejcastejsich resenich
+"""
+# TODO: KORELACNI GRAFY, napsat Tomovi o nevzorovych nejcastejsich resenich

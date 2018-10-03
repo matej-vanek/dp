@@ -1,3 +1,4 @@
+import editdistance
 from Tools import *
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from AST import *
@@ -10,14 +11,25 @@ c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', '
 d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["056123!>/", 1, 1], ["Ir///", 3, 2]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 """
 
-condensed_dist_matrix = [0]
-hier_clust = linkage(condensed_dist_matrix)
-print(hier_clust)
+a = [[1,2,3], [6,7,8], [9, None, 14], [6,9,2]]
+b = pd.DataFrame(a)
+c = b.values.flatten()
 
-cluster_assign = fcluster(hier_clust, 5, criterion="distance")
-print(cluster_assign)
-print("Number of found clusters: ", len(set(cluster_assign)))
-print(len(set(cluster_assign)))
+import collections
+d = collections.Counter(c)
+e = dict(d)
+
+bins = np.arange(0, 30, 1)
+
+plt.xlim([0, 35])
+
+plt.hist(e, bins=bins, alpha=0.5)
+"""
+plt.title('Random Gaussian data (fixed bin size)')
+plt.xlabel('variable X (bin size = 5)')
+plt.ylabel('count')
+"""
+plt.show()
 
 
 
