@@ -67,7 +67,6 @@ def is_crashed(row_pos, col_pos, game_board, verbose):
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param steps: int; number of remaining steps
     :param verbose: bool; verbosity
     :return bool;
     """
@@ -100,9 +99,9 @@ def load_game_board(tasks_path, task_id):
     :return energy: int; maximal shoots
     """
     tasks = pd.read_csv(tasks_path)
-    task = ast.literal_eval(tasks[tasks["id"] == task_id]["setting"].iloc[0])
-    game_board = pd.read_csv(StringIO(re.sub("r", "d", task["fields"])),
-                             names=range(0, len(task["fields"].split(";")[0].split("|"))),
+    task = ast.literal_eval(tasks[tasks.id == task_id].setting.iloc[0])
+    game_board = pd.read_csv(StringIO(re.sub("r", "d", task.fields)),
+                             names=range(0, len(task.fields.split(";")[0].split("|"))),
                              sep="|",
                              lineterminator=";")
     # game_board indexed [cols][rows]
@@ -111,9 +110,9 @@ def load_game_board(tasks_path, task_id):
     length = 1000
     energy = 1000
     if "length" in task:
-        length = task["length"]
+        length = task.length
     if "energy" in task:
-        energy = task["energy"]
+        energy = task.energy
     return game_board, length, energy
 
 
@@ -121,7 +120,7 @@ def load_operator_and_test_variable(pointer, program):
     """
     Loads test-containing statement information.
     :param pointer: int; position of processed character in program
-    :param program: string; current (program
+    :param program: string; current program
     :return mode: string; "position", "color" or None
     :return operator: string; loaded test operator – "==", ">=", "<=", ">", "<" or "!="
     :return test_position: int; if position test, number of tested column (COUNTING FROM 1), else None
@@ -170,16 +169,7 @@ def load_operator_and_test_variable(pointer, program):
         if program[begin_pointer] == "}":  # operator(s), {, }+begin_pointer
             end_pointer = begin_pointer - 1
             return mode, operator, test_position, test_color, begin_pointer, end_pointer
-
-        end_pointer = begin_pointer + 1  # { begin_pointer, end_pointer
-        foreign_parentheses = 0
-        while program[end_pointer] != "}" or foreign_parentheses != 0:
-            if program[end_pointer] == "{":
-                foreign_parentheses += 1
-            elif program[end_pointer] == "}":
-                foreign_parentheses -= 1
-            end_pointer += 1
-        end_pointer -= 1  # { begin_pointer, ..., end_pointer, }
+        end_pointer = get_end_pointer(program, begin_pointer)
 
     elif mode == "color":
         # loading operand and test_color
@@ -195,35 +185,36 @@ def load_operator_and_test_variable(pointer, program):
         if program[begin_pointer] == "}":  # operator(s), {, }+begin_pointer
             end_pointer = begin_pointer - 1
             return mode, operator, test_position, test_color, begin_pointer, end_pointer
+        end_pointer = get_end_pointer(program, begin_pointer)
 
-        end_pointer = begin_pointer + 1  # { begin_pointer, end_pointer
-        foreign_parentheses = 0
-        while program[end_pointer] != "}" or foreign_parentheses != 0:
-            if program[end_pointer] == "{":
-                foreign_parentheses += 1
-            elif program[end_pointer] == "}":
-                foreign_parentheses -= 1
-            end_pointer += 1
-        end_pointer -= 1  # { begin_pointer, ..., end_pointer, }
     else:
         begin_pointer = pointer + 2
 
         if program[begin_pointer] == "}":  # operator(s), {, }+begin_pointer
             end_pointer = begin_pointer - 1
             return mode, operator, test_position, test_color, begin_pointer, end_pointer
-
-        end_pointer = begin_pointer + 1  # { begin_pointer, end_pointer
-        foreign_parentheses = 0
-        while program[end_pointer] != "}" or foreign_parentheses != 0:
-            if program[end_pointer] == "{":
-                foreign_parentheses += 1
-            elif program[end_pointer] == "}":
-                foreign_parentheses -= 1
-            end_pointer += 1
-        end_pointer -= 1  # { begin_pointer, ..., end_pointer, }
-
+        end_pointer = get_end_pointer(program, begin_pointer)
 
     return mode, operator, test_position, test_color, begin_pointer, end_pointer
+
+
+def get_end_pointer(program, begin_pointer):
+    """
+    Computess index of the end pointer.
+    :param program: string; current program
+    :param begin_pointer: int; position of the first character of the statement body
+    :return end_pointer: int; position of the last character of the statement body
+    """
+    end_pointer = begin_pointer + 1  # { begin_pointer, end_pointer
+    foreign_parentheses = 0
+    while program[end_pointer] != "}" or foreign_parentheses != 0:
+        if program[end_pointer] == "{":
+            foreign_parentheses += 1
+        elif program[end_pointer] == "}":
+            foreign_parentheses -= 1
+        end_pointer += 1
+    end_pointer -= 1  # { begin_pointer, ..., end_pointer, }
+    return end_pointer
 
 
 def search_in_game_board(content, game_board, first=False):

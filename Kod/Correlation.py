@@ -18,17 +18,17 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
                                    task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
                                    tasks_cols=["id", "solution"])
 
-    data = data[data["correct"] == data["new_correct"]]
+    data = data[data.correct == data.new_correct]
 
     all_sessions = data.groupby("task_session").agg({"task": "max",
                                                      "granularity": count_submits,
                                                      "new_correct": count_true,
                                                      "solution": "last"})
-    all_sessions["new_solved"] = all_sessions["new_correct"] / all_sessions["new_correct"]
-    all_sessions["new_solved"] = all_sessions["new_solved"].fillna(0)
+    all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
+    all_sessions.new_solved = all_sessions.new_solved.fillna(0)
 
     # successfulness of sessions
-    successful_sessions = all_sessions[all_sessions["new_solved"] > 0]
+    successful_sessions = all_sessions[all_sessions.new_solved > 0]
 
     all_sessions_by_tasks = all_sessions.groupby("task").agg({"new_solved": "count"})
     successful_sessions_by_tasks = successful_sessions.groupby("task").agg({"new_solved": "count"})
@@ -42,20 +42,20 @@ def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
 
     # successfulness of submits
     submits_by_tasks = all_sessions.groupby("task").agg({"granularity": "sum", "new_correct": "sum"})
-    difficulty["submits_correct"] = submits_by_tasks["new_correct"] / submits_by_tasks["granularity"]
+    difficulty["submits_correct"] = submits_by_tasks.new_correct / submits_by_tasks.granularity
 
     del submits_by_tasks
 
     # number of block types
     block_types_by_task = all_sessions.groupby("task").agg({"solution": "last"})
-    difficulty["block_types"] = count_distinct_blocks(block_types_by_task["solution"], 1)
-    difficulty["block_types"] = difficulty["block_types"].astype("int64")
+    difficulty["block_types"] = count_distinct_blocks(block_types_by_task.solution, 1)
+    difficulty.block_types = difficulty.block_types.astype("int64")
 
-    difficulty["block_types_flr"] = count_distinct_blocks(block_types_by_task["solution"], 3)
-    difficulty["block_types_flr"] = difficulty["block_types_flr"].astype("int64")
+    difficulty["block_types_flr"] = count_distinct_blocks(block_types_by_task.solution, 3)
+    difficulty.block_types_flr = difficulty.block_types_flr.astype("int64")
 
-    difficulty["block_types_flrs"] = count_distinct_blocks(block_types_by_task["solution"], 4)
-    difficulty["block_types_flrs"] = difficulty["block_types_flrs"].astype("int64")
+    difficulty["block_types_flrs"] = count_distinct_blocks(block_types_by_task.solution, 4)
+    difficulty.block_types_flrs = difficulty.block_types_flrs.astype("int64")
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(difficulty)
@@ -72,12 +72,12 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "solution"])
     data = data.fillna(False)
-    data = data[data["new_correct"] == data["correct"]]  # = snapshots which actual correctness agree with system
+    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with system
 
-    data["granularity_submits"] = data["granularity"]
-    data["program_all"] = data["program"]
-    data["program_line"] = data["program"]
-    data["program_bit"] = data["program"]
+    data["granularity_submits"] = data.granularity
+    data["program_all"] = data.program
+    data["program_line"] = data.program
+    data["program_bit"] = data.program
 
     task_sessions = data.groupby("task_session").agg({"task": "last",
                                                       "time_spent": "max",
@@ -105,9 +105,9 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
     complexity["median_submits"] = tasks[("granularity_submits", "median")]
     complexity["median_solution_length"] = tasks[("program", "median_of_lens")]
     complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
-    complexity["deletion_ratio"] = tasks["deletion_ratio"]
+    complexity["deletion_ratio"] = tasks.deletion_ratio
     complexity["median_deletions_all"] = tasks[("program_all", "median")]
-    complexity["median_deletions_line"] = tasks[("program_line", "median")]
+    complexity[".median_deletions_line"] = tasks[("program_line", "median")]
     complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
@@ -123,17 +123,17 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                    task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
                                    tasks_cols=["id", "solution"])
 
-    data = data[data["correct"] == data["new_correct"]]
+    data = data[data.correct == data.new_correct]
 
     all_sessions = data.groupby("task_session").agg({"task": "max",
                                                      "granularity": count_submits,
                                                      "new_correct": count_true,
                                                      "solution": "last"})
-    all_sessions["new_solved"] = all_sessions["new_correct"] / all_sessions["new_correct"]
-    all_sessions["new_solved"] = all_sessions["new_solved"].fillna(0)
+    all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
+    all_sessions.new_solved = all_sessions.new_solved.fillna(0)
 
     # successfulness of sessions
-    successful_sessions = all_sessions[all_sessions["new_solved"] > 0]
+    successful_sessions = all_sessions[all_sessions.new_solved > 0]
 
     all_sessions_by_tasks = all_sessions.groupby("task").agg({"new_solved": "count"})
     successful_sessions_by_tasks = successful_sessions.groupby("task").agg({"new_solved": "count"})
@@ -147,20 +147,20 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
 
     # successfulness of submits
     submits_by_tasks = all_sessions.groupby("task").agg({"granularity": "sum", "new_correct": "sum"})
-    difficulty_and_complexity["submits_incorrect"] = 1 - submits_by_tasks["new_correct"] / submits_by_tasks["granularity"]  ####################xx 1 -
+    difficulty_and_complexity["submits_incorrect"] = 1 - submits_by_tasks.new_correct / submits_by_tasks.granularity  ####################xx 1 -
 
     del submits_by_tasks
 
     # number of block types
     block_types_by_task = all_sessions.groupby("task").agg({"solution": "last"})
-    difficulty_and_complexity["block_types"] = count_distinct_blocks(block_types_by_task["solution"], 1)
-    difficulty_and_complexity["block_types"] = difficulty_and_complexity["block_types"].astype("int64")
+    difficulty_and_complexity["block_types"] = count_distinct_blocks(block_types_by_task.solution, 1)
+    difficulty_and_complexity.block_types = difficulty_and_complexity.block_types.astype("int64")
 
-    difficulty_and_complexity["block_types_flr"] = count_distinct_blocks(block_types_by_task["solution"], 3)
-    difficulty_and_complexity["block_types_flr"] = difficulty_and_complexity["block_types_flr"].astype("int64")
+    difficulty_and_complexity["block_types_flr"] = count_distinct_blocks(block_types_by_task.solution, 3)
+    difficulty_and_complexity.block_types_flr = difficulty_and_complexity.block_types_flr.astype("int64")
 
-    difficulty_and_complexity["block_types_flrs"] = count_distinct_blocks(block_types_by_task["solution"], 4)
-    difficulty_and_complexity["block_types_flrs"] = difficulty_and_complexity["block_types_flrs"].astype("int64")
+    difficulty_and_complexity["block_types_flrs"] = count_distinct_blocks(block_types_by_task.solution, 4)
+    difficulty_and_complexity.block_types_flrs = difficulty_and_complexity.block_types_flrs.astype("int64")
 
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -168,12 +168,12 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "solution"])
     data = data.fillna(False)
-    data = data[data["new_correct"] == data["correct"]]  # = snapshots which actual correctness agree with the system's one
+    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with the system's one
 
-    data["granularity_submits"] = data["granularity"]
-    data["program_all"] = data["program"]
-    data["program_line"] = data["program"]
-    data["program_bit"] = data["program"]
+    data["granularity_submits"] = data.granularity
+    data["program_all"] = data.program
+    data["program_line"] = data.program
+    data["program_bit"] = data.program
 
     task_sessions = data.groupby("task_session").agg({"task": "last",
                                                       "time_spent": "max",
@@ -193,14 +193,14 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                                "program_all": "median",
                                                "program_line": "median",
                                                "program_bit": ["median", "sum", "count"]})
-    tasks["deletion_ratio"] = tasks[("program_bit", "sum")] / tasks[("program_bit", "count")]
+    tasks.deletion_ratio = tasks[("program_bit", "sum")] / tasks[("program_bit", "count")]
 
     difficulty_and_complexity["median_time"] = tasks[("time_spent", "median")]
     difficulty_and_complexity["median_edits"] = tasks[("granularity", "median")]
     difficulty_and_complexity["median_submits"] = tasks[("granularity_submits", "median")]
     difficulty_and_complexity["median_solution_length"] = tasks[("program", "median_of_lens")]
     difficulty_and_complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
-    difficulty_and_complexity["deletion_ratio"] = tasks["deletion_ratio"]
+    difficulty_and_complexity["deletion_ratio"] = tasks.deletion_ratio
     difficulty_and_complexity["median_deletions_all"] = tasks[("program_all", "median")]
     difficulty_and_complexity["median_deletions_line"] = tasks[("program_line", "median")]
     difficulty_and_complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
@@ -220,37 +220,46 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "task", "solved"],
                                    tasks_cols=["id", "solution"])
-    data = data[data["new_correct"].notnull()]
-    data = data[data["new_correct"]]
-    data = data[data["new_correct"] == data["correct"]]
+    data = data[data.new_correct.notnull()]
+    data = data[data.new_correct]
+    data = data[data.new_correct == data.correct]
 
     tasks = data.groupby("task").agg({"program": dict_of_counts,
                                       "square_sequence": dict_of_counts,
                                       "solution": "last"})
 
-    tasks["sample_solution_most_frequent"] = sample_solution_most_frequent(tasks["solution"], tasks["program"])
+    tasks["sample_solution_most_frequent"] = sample_solution_not_most_frequent(tasks.solution, tasks.program)
     uniqueness = pd.DataFrame(index=tasks.index)
-    uniqueness["solutions_entropy"] = list(map(entropy, tasks["program"]))
-    uniqueness["sequences_entropy"] = list(map(entropy, tasks["square_sequence"]))
-    tasks["distinct_solutions"] = list(map(lambda x: len(x[0]), tasks["program"]))
-    tasks["distinct_sequences"] = list(map(lambda x: len(x[0]), tasks["square_sequence"]))
-    uniqueness["distinct_solutions"] = tasks["distinct_solutions"]
-    uniqueness["distinct_sequences"] = tasks["distinct_sequences"]
-    uniqueness["sample_solution_most_frequent"] = tasks["sample_solution_most_frequent"]
+    uniqueness["solutions_entropy"] = list(map(entropy, tasks.program))
+    uniqueness["sequences_entropy"] = list(map(entropy, tasks.square_sequence))
+    tasks["distinct_solutions"] = list(map(lambda x: len(x[0]), tasks.program))
+    tasks["distinct_sequences"] = list(map(lambda x: len(x[0]), tasks.square_sequence))
+    uniqueness["distinct_solutions"] = tasks.distinct_solutions
+    uniqueness["distinct_sequences"] = tasks.distinct_sequences
+    uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
 
-    uniqueness["program_clusters_count"] = count_program_clusters(tasks["program"])
+    uniqueness["program_clusters_count"] = count_program_clusters(tasks.program)
     return uniqueness
 
 
-def task_similarity_measures(tasks_path):
+# Computes task similarity dataframe
+# Computes similarity of tasks by abstract-syntax-tree tree-edit-distance, by euclidean bag-of-used-blocks distance and
+# by levensthein distance.
+# Finds out how many tasks are in 1-, 5- and 10-quantile distance to the source task (w.r.t. all distances in distance matrix).
+def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
+    del snapshots_path
+    del task_sessions_path
+
     tasks = pd.read_csv(tasks_path, index_col="id")
-    sample_solutions = tasks["solution"]
+    sample_solutions = tasks.solution
     asts = pd.Series(list(map(build_ast, sample_solutions)), index=sample_solutions.index)
     bags_of_blocks = bag_of_blocks(sample_solutions)
+    bags_of_entities = bag_of_entities(tasks.setting)
 
     ast_ted_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
     levenshtein_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
     bag_of_blocks_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
+    bag_of_entities_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
 
     for i in sorted(sample_solutions.index):
         print(i)
@@ -259,17 +268,9 @@ def task_similarity_measures(tasks_path):
                 ast_ted_matrix.loc[i][j] = ast_ted(asts.loc[i], asts.loc[j])
                 levenshtein_matrix.loc[i][j] = editdistance.eval(sample_solutions.loc[i], sample_solutions.loc[j])
                 bag_of_blocks_matrix.loc[i][j] = euclidean(bags_of_blocks.loc[i], bags_of_blocks.loc[j])
-            elif i == j:
-                ast_ted_matrix.loc[i][j] = 0
-                levenshtein_matrix.loc[i][j] = 0
-                bag_of_blocks_matrix.loc[i][j] = 0
-            else:
+                bag_of_entities_matrix.loc[i][j] = euclidean(bags_of_entities.loc[i], bags_of_entities.loc[j])
 
-                ast_ted_matrix.loc[i][j] = ast_ted_matrix.loc[j][i]
-                levenshtein_matrix.loc[i][j] = levenshtein_matrix.loc[j][i]
-                bag_of_blocks_matrix.loc[i][j] = bag_of_blocks_matrix.loc[j][i]
-    #print(ast_ted_matrix)
-
+    """
     print(ast_ted_matrix)
     frequencies = dict(Counter(ast_ted_matrix.values.flatten()))
     plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
@@ -294,11 +295,50 @@ def task_similarity_measures(tasks_path):
     plt.ylabel("count")
     plt.show()
 
-"""
-task_similarity_measures(tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
-"""
+    print(bag_of_entities_matrix)
+    frequencies = dict(Counter(bag_of_entities_matrix.values.flatten()))
+    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
+    plt.title("Bag-of-entities distances distribution")
+    plt.xlabel("distance")
+    plt.ylabel("count")
+    plt.show()
+    """
 
+    flat_ast_ted_matrix = flatten_table_remove_nan(ast_ted_matrix)
+    flat_levenshtein_matrix = flatten_table_remove_nan(levenshtein_matrix)
+    flat_bag_of_blocks_matrix = flatten_table_remove_nan(bag_of_blocks_matrix)
+    flat_bag_of_entities_matrix = flatten_table_remove_nan(bag_of_entities_matrix)
 
+    print(flat_ast_ted_matrix)
+    print(flat_levenshtein_matrix)
+    print(flat_bag_of_blocks_matrix)
+    print(flat_bag_of_entities_matrix)
+
+    for i in sorted(sample_solutions.index):
+        print(i)
+        for j in sorted(sample_solutions.index):
+            if i > j:
+                ast_ted_matrix.loc[i][j] = ast_ted_matrix.loc[j][i]
+                levenshtein_matrix.loc[i][j] = levenshtein_matrix.loc[j][i]
+                bag_of_blocks_matrix.loc[i][j] = bag_of_blocks_matrix.loc[j][i]
+                bag_of_entities_matrix.loc[i][j] = bag_of_entities_matrix.loc[j][i]
+
+    similarity = pd.DataFrame(index=tasks.index)
+    similarity["ast_ted1"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.01))
+    similarity["ast_ted5"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.05))
+    similarity["ast_ted10"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.10))
+    similarity["levenshtein1"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.01))
+    similarity["levenshtein5"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.05))
+    similarity["levenshtein10"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.10))
+    similarity["blocks1"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.01))
+    similarity["blocks5"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.05))
+    similarity["blocks10"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.10))
+    similarity["entities1"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.01))
+    similarity["entities5"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.05))
+    similarity["entities10"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.10))
+
+    print(similarity)
+    return similarity
 
 
 # Computes correlation of task measures and creates heat table
@@ -318,7 +358,7 @@ def tasks_measures_correlations(task_table, method, title):
 
 
 # Computes correlation of correlation methods and creates heat table
-# BE AWARE of difference between cerrelation of FULL CORRELATION TABLES and of REDUCED (triangle) CORRELATION TABLES!!!
+# BE AWARE of difference between cerrelation of FULL CORRELATION TABLES and of TRIANGLE CORRELATION TABLES!!!
 def correlation_methods_correlations(pearson_tasks_measures_correlation, spearman_tasks_measures_correlation,
                                      variable_group_title, full_or_triangle):
     if full_or_triangle == "full":
@@ -409,11 +449,18 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
 """
-"""
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+
+all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
+
 """
-# TODO: KORELACNI GRAFY, napsat Tomovi o nevzorovych nejcastejsich resenich
+all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                 measures_function=task_similarity_measures,
+                 variable_group_title="task similarity measures")
+"""
+# TODO: KORELACNI GRAFY, DOKONCIT A SPUSTIT BAG-OF-ENTITIES

@@ -1,27 +1,30 @@
+import re
+from ast import literal_eval
 from functools import partial
 import numpy as np
 import pandas as pd
-import re
 from scipy.cluster.hierarchy import fcluster, linkage
 
 from AST import *
 from MiniRoboCodeInterpreter import run_task
 
 
+# Runs submits again and tests their correctness.
+# Computes sequence of visited squares during the run.
 def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_path, output_snapshots_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "task"],
                                    tasks_cols=[])
-    data["new_correct"] = None
-    data["square_sequence"] = None
+    data.new_correct = None
+    data.square_sequence = None
     for i in data.index:
-        if data.loc[i]["granularity"] == "execution":
+        if data.loc[i].granularity == "execution":
             #print(data.loc[i]["program"])
             correct, square_sequence = run_task(tasks_path=tasks_path,
-                                                task_id=data.loc[i]["task"],
-                                                program=data.loc[i]["program"],
+                                                task_id=data.loc[i].task,
+                                                program=data.loc[i].program,
                                                 verbose=False)
             data.set_value(i, "new_correct", str(correct))
             data.set_value(i, "square_sequence", square_sequence)
@@ -29,9 +32,10 @@ def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_pa
     data.to_csv(output_snapshots_path, index=False)
 
 
+# Counts bag of blocks characteristics of tasks.
 def bag_of_blocks(series):
     blocks = {"f": 0, "l": 1, "r": 2, "s": 3, "R": 4, "W": 5, "I": 6, "/": 7, "x": 8,
-              "y": 9, "b": 9, "k": 9, "d": 9, "g": 9}
+              "y": 9, "b": 9, "k": 9, "d": 9, "g": 9}  # color condition does not have its own symbol
     output = []
     for i in series.index:
         program = series.loc[i]
@@ -42,9 +46,30 @@ def bag_of_blocks(series):
 
 
         output.append(block_counts)
-        #output.loc[i] = {0: block_counts} ############ERROR ValueError: setting an array element with a sequence.
     output = pd.Series(output, index=series.index)
     return output
+
+
+def bag_of_entities(task_setting_series):
+    # b, k, y, g, d(r) -> all, y-g-d (colorful)
+    # D, A, M, W, X, Y, Z, (S) -> wormholes, diamonds, asteroids, meteoroids
+    bag = []
+    for i in task_setting_series.index:
+        task = literal_eval(task_setting_series.loc[i])
+        task = re.sub("r", "d", task["fields"])
+
+        entities = [0 for _ in range(6)]  # [size, colorful, diamonds, wormholes, asteroids, meteoroids]
+        entities[0] = len(re.findall("[bkygd]", task))
+        entities[1] = len(re.findall("[ygd]", task))
+        entities[2] = len(re.findall("D", task))
+        entities[3] = len(re.findall("[WXYZ]", task))
+        entities[4] = len(re.findall("A", task))
+        entities[5] = len(re.findall("M", task))
+        bag.append(entities)
+    bag = pd.Series(bag, index=task_setting_series.index)
+    return bag
+
+
 
 
 # Counts deletions
@@ -135,6 +160,16 @@ def count_edits(series):
     return count
 
 
+# Counts how many tasks in the distance matrix have lower distance to the source task than threshold.
+# Computes for all rows of the distance matrix.
+def count_similar_tasks(distance_matrix, threshold):
+    output = pd.Series(index=distance_matrix.index)
+    for i in distance_matrix.index:
+        x = [1 for task in distance_matrix if distance_matrix.loc[i, task] <= threshold]
+        output.loc[i] = sum(x)
+    return output
+
+
 def count_submits(series):
     count = 0
     for item in series:
@@ -170,6 +205,20 @@ def entropy(occurence_dict):
     frequency_list = [i/sum(occurence_list) for i in occurence_list]
     #print("{} {} {}".format(occurence_list, frequency_list, 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))))
     return 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))
+
+
+# Flattens table and omits None values
+def flatten_table_remove_nan(table, triangle=False):
+    output = []
+    for i in table.index:
+        for j in table:
+            if table.loc[i, j] is not np.nan and table.loc[i, j] is not None:
+                if triangle:
+                    if i < j:
+                        output.append(table.loc[i, j])
+                else:
+                    output.append(table.loc[i, j])
+    return output
 
 
 # Computes flattened lower triangle table (without main diagonal) from a square table
@@ -211,7 +260,7 @@ def load_extended_task_sessions(task_sessions_path, snapshots_path, snapshots_co
 
 def load_task_names_levels(tasks_path):
     tasks = pd.read_csv(tasks_path, usecols=["id", "name", "level"])
-    task_names_levels = {task[1].id: {"name": task[1].loc["name"], "level": task[1].level} for task in tasks.iterrows()}
+    task_names_levels = {task[1].id: {"name": task[1].loc.name, "level": task[1].level} for task in tasks.iterrows()}
     return task_names_levels
 
 
@@ -232,15 +281,15 @@ def replace_red_by_d(tasks_path, output_path, column_name):
 
 
 # Determines whether the sample solution is the most used correct solution
-def sample_solution_most_frequent(solutions, programs):
+def sample_solution_not_most_frequent(solutions, programs):
     output = pd.Series(index=solutions.index)
     for i in solutions.index:
         #print(max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
         if solutions.loc[i] == max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]).replace("r{", "d{"):
-            output.loc[i] = True
+            output.loc[i] = 0  #############
         else:
             print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
-            output.loc[i] = False
+            output.loc[i] = 1  #############
     return output
 
 

@@ -4,34 +4,15 @@ from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from AST import *
 from functools import partial
 from matplotlib import pyplot as plt
+import ast
 """
 a = pd.DataFrame([[1, 91, 8], [6, 0, 0], [1, np.nan, 0], [5, 17, 9]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["056123!>/", 1, 1], ["Ir///", 3, 2]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 """
-
-a = [[1,2,3], [6,7,8], [9, None, 14], [6,9,2]]
-b = pd.DataFrame(a)
-c = b.values.flatten()
-
-import collections
-d = collections.Counter(c)
-e = dict(d)
-
-bins = np.arange(0, 30, 1)
-
-plt.xlim([0, 35])
-
-plt.hist(e, bins=bins, alpha=0.5)
-"""
-plt.title('Random Gaussian data (fixed bin size)')
-plt.xlabel('variable X (bin size = 5)')
-plt.ylabel('count')
-"""
-plt.show()
-
-
+q = pd.Series(['{"fields": "kkDyM"}', '{"fields": "poiuggbb||||AkWkXkYkZkZ"}'])
+print(bag_of_entities(q))
 
 
 
