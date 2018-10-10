@@ -1,0 +1,6 @@
+Pùvodní:
+Cílem práce je analyzovat data ze systému Robomise pro výuku základù programování (robomise.cz). Systém obsahuje úlohy spoèívající v napsání programu (v grafickém prostøedí) pro navigování raketky skrze pøekážky. Cílem práce je pøedevším získání vhledu do chování uživatelù pøi øešení jednotlivých úloh, konkrétnì napøíklad analýza obtížnosti úloh a rùzných zpùsobù mìøení obtížnosti, analýza podobnosti úloh, analýza uživatelských øešení za využití shlukování podobných øešení. Výstupem práce bude mimo jiné "dashboard úloh" pøehlednì sumarizující nejdùležitìjší vlastnosti jednotlivých zadání.
+
+
+Upravené:
+Cílem práce je analyzovat data ze systému Robomise pro výuku základù programování (robomise.cz). Systém obsahuje úlohy spoèívající v napsání programu (v grafickém prostøedí) pro navigování raketky skrze pøekážky. Cílem práce je získání vhledu do chování uživatelù pøi øešení jednotlivých úloh, konkrétnì analýza obtížnosti a podobnosti úloh, analýza uživatelských øešení vèetnì jejich shlukování, analýza výkonu uživatele na jedné úloze i v celém systému and analýza èastých chyb. Výstupem práce bude také "dashboard úloh", který pro uèitele nebo vývojáøe pøehlednì sumarizuje nejdùležitìjší vlastnosti jednotlivých zadání.

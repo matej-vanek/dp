@@ -39,6 +39,24 @@ def check_position(row_pos, col_pos, game_board, correct, square_sequence, point
     return row_pos, col_pos, game_board, correct, square_sequence, pointer, diamonds, steps
 
 
+def condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
+    """
+    Tests condition.
+    :param mode: string; "position" or "color"
+    :param operator: string; loaded test operator – "==", ">=", "<=", ">", "<" or "!="
+    :param test_position: int; if position test, number of tested column (COUNTING FROM 1), else None
+    :param test_color: string; if color test, character of tested color, else None
+    :param row_pos: int; row position
+    :param col_pos: int; column position
+    :param game_board: pd.DataFrame; game_board state
+    :return: bool; result of test
+    """
+    if mode == "position":
+        return eval("col_pos {} {}".format(operator, str(test_position)))
+    else:
+        return eval("game_board.values[row_pos][col_pos][0] {} test_color".format(operator))
+
+
 def is_completed(row_pos, col_pos, game_board, diamonds, verbose):
     """
     Determines whether task is successfully completed – stands on the last line, all diamonds collected
@@ -258,21 +276,3 @@ def shoot_meteoroid(row_pos, col_pos, game_board):
                 game_board[meteoroid[1]][meteoroid[0]] = re.sub("M", "", game_board[meteoroid[1]][meteoroid[0]])  # shoot to meteoroid
                 return game_board
     return game_board
-
-
-def condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
-    """
-    Tests condition.
-    :param mode: string; "position" or "color"
-    :param operator: string; loaded test operator – "==", ">=", "<=", ">", "<" or "!="
-    :param test_position: int; if position test, number of tested column (COUNTING FROM 1), else None
-    :param test_color: string; if color test, character of tested color, else None
-    :param row_pos: int; row position
-    :param col_pos: int; column position
-    :param game_board: pd.DataFrame; game_board state
-    :return: bool; result of test
-    """
-    if mode == "position":
-        return eval("col_pos {} {}".format(operator, str(test_position)))
-    else:
-        return eval("game_board.values[row_pos][col_pos][0] {} test_color".format(operator))

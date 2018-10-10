@@ -21,7 +21,7 @@
       <file leaf-file-name="Correlation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="353">
+            <state relative-caret-position="17">
               <caret line="246" column="26" lean-forward="false" selection-start-line="246" selection-start-column="26" selection-end-line="246" selection-end-column="26" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
@@ -30,11 +30,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Tools.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Tools.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="261">
-              <caret line="101" column="31" lean-forward="true" selection-start-line="101" selection-start-column="31" selection-end-line="101" selection-end-column="31" />
+            <state relative-caret-position="1751">
+              <caret line="111" column="57" lean-forward="false" selection-start-line="111" selection-start-column="53" selection-end-line="111" selection-end-column="57" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -45,7 +45,7 @@
       <file leaf-file-name="MiniRoboCodeInterpreter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
+            <state relative-caret-position="6715">
               <caret line="396" column="8" lean-forward="false" selection-start-line="396" selection-start-column="7" selection-end-line="396" selection-end-column="8" />
               <folding />
             </state>
@@ -55,11 +55,21 @@
       <file leaf-file-name="InterpreterTools.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="101" column="27" lean-forward="false" selection-start-line="101" selection-start-column="27" selection-end-line="101" selection-end-column="27" />
+            <state relative-caret-position="1020">
+              <caret line="64" column="17" lean-forward="false" selection-start-line="64" selection-start-column="17" selection-end-line="64" selection-end-column="17" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AST.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/AST.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="156">
+              <caret line="202" column="0" lean-forward="true" selection-start-line="202" selection-start-column="0" selection-end-line="202" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -97,9 +107,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>test(</find>
-      <find>chec</find>
-      <find>test_po</find>
       <find>game_plan</find>
       <find>is_</find>
       <find>gameboard</find>
@@ -127,6 +134,9 @@
       <find>part</find>
       <find>sample</find>
       <find>cluste</find>
+      <find>ast</find>
+      <find>ast_</find>
+      <find>bui</find>
     </findStrings>
     <replaceStrings>
       <replace>successful_sessions</replace>
@@ -150,11 +160,11 @@
         <option value="$PROJECT_DIR$/../../9. semestr/RoboMise/kod/betterast.py" />
         <option value="$PROJECT_DIR$/AST2.py" />
         <option value="$PROJECT_DIR$/AST3.py" />
-        <option value="$PROJECT_DIR$/AST.py" />
-        <option value="$PROJECT_DIR$/InterpreterTools.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
         <option value="$PROJECT_DIR$/Tools.py" />
         <option value="$PROJECT_DIR$/Correlation.py" />
+        <option value="$PROJECT_DIR$/InterpreterTools.py" />
+        <option value="$PROJECT_DIR$/AST.py" />
       </list>
     </option>
   </component>
@@ -193,8 +203,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -209,7 +219,7 @@
       <recent name="C:\Dokumenty\Matej\MUNI\Diplomka\Kod" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Correlation">
+  <component name="RunManager" selected="Python.AST2">
     <configuration default="false" name="Correlation" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -438,11 +448,11 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.Correlation" />
-        <item index="1" class="java.lang.String" itemvalue="Python.Tools" />
-        <item index="2" class="java.lang.String" itemvalue="Python.kkk" />
-        <item index="3" class="java.lang.String" itemvalue="Python.AST3" />
-        <item index="4" class="java.lang.String" itemvalue="Python.AST2" />
+        <item index="0" class="java.lang.String" itemvalue="Python.AST2" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Correlation" />
+        <item index="2" class="java.lang.String" itemvalue="Python.Tools" />
+        <item index="3" class="java.lang.String" itemvalue="Python.kkk" />
+        <item index="4" class="java.lang.String" itemvalue="Python.AST3" />
       </list>
     </recent_temporary>
   </component>
@@ -493,25 +503,25 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.15542677" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15542677" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3261105" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40303358" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40303358" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3261105" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -868,13 +878,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/AST3.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/zss/compare.py" />
-    <entry file="file://$PROJECT_DIR$/AST.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2985">
-          <caret line="200" column="34" lean-forward="false" selection-start-line="200" selection-start-column="34" selection-end-line="200" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../9. semestr/RoboMise/kod/Podobnost.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
@@ -893,24 +896,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="396" column="8" lean-forward="false" selection-start-line="396" selection-start-column="7" selection-end-line="396" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="101" column="27" lean-forward="false" selection-start-line="101" selection-start-column="27" selection-end-line="101" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/kkk.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
@@ -919,9 +904,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6715">
+          <caret line="396" column="8" lean-forward="false" selection-start-line="396" selection-start-column="7" selection-end-line="396" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1751">
+          <caret line="111" column="57" lean-forward="false" selection-start-line="111" selection-start-column="53" selection-end-line="111" selection-end-column="57" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1020">
+          <caret line="64" column="17" lean-forward="false" selection-start-line="64" selection-start-column="17" selection-end-line="64" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
+        <state relative-caret-position="17">
           <caret line="246" column="26" lean-forward="false" selection-start-line="246" selection-start-column="26" selection-end-line="246" selection-end-column="26" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
@@ -929,13 +942,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Tools.py">
+    <entry file="file://$PROJECT_DIR$/AST.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="261">
-          <caret line="101" column="31" lean-forward="true" selection-start-line="101" selection-start-column="31" selection-end-line="101" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="156">
+          <caret line="202" column="0" lean-forward="true" selection-start-line="202" selection-start-column="0" selection-end-line="202" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
