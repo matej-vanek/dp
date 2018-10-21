@@ -72,7 +72,7 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "solution"])
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with system
+    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
 
     data["granularity_submits"] = data.granularity
     data["program_all"] = data.program
@@ -168,7 +168,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "solution"])
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with the system's one
+    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with the system's one
 
     data["granularity_submits"] = data.granularity
     data["program_all"] = data.program
@@ -325,6 +325,11 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
                 bag_of_blocks_matrix.loc[i][j] = bag_of_blocks_matrix.loc[j][i]
                 bag_of_entities_matrix.loc[i][j] = bag_of_entities_matrix.loc[j][i]
 
+    print("AST", ast_ted_matrix)
+    print("levenshtein", levenshtein_matrix)
+    print("b-o-b", bag_of_blocks_matrix)
+    print("b-o-e", bag_of_entities_matrix)
+
     similarity = pd.DataFrame(index=tasks.index)
     similarity["ast_ted1"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.01))
     similarity["ast_ted5"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.05))
@@ -338,6 +343,10 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     similarity["entities1"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.01))
     similarity["entities5"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.05))
     similarity["entities10"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.10))
+    similarity["shortest_ast"] = get_shortest_distance(ast_ted_matrix)
+    similarity["shortest_levenshtein"] = get_shortest_distance(levenshtein_matrix)
+    similarity["shortest_blocks"] = get_shortest_distance(bag_of_blocks_matrix)
+    similarity["shortest_entities"] = get_shortest_distance(bag_of_entities_matrix)
 
     print(similarity)
     return similarity
@@ -352,7 +361,7 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=[])
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with system
+    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
 
     data["granularity_submits"] = data.granularity
     data["program_line"] = data.program
@@ -392,7 +401,7 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "level"])
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with system
+    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
 
     ts = data.groupby("task_session").agg({"task": "max",
                                            "student": "max",
@@ -417,6 +426,78 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
 
     print(students)
     return students
+
+
+def mistakes_measures(snapshots_path, task_sessions_path, tasks_path):
+    data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                   task_sessions_path=task_sessions_path,
+                                   tasks_path=tasks_path,
+                                   task_sessions_cols=["id", "task"],
+                                   tasks_cols=[])
+    data = data[data.granularity == "execution"]
+    data = data.fillna(False)
+    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
+
+    ts = data.groupby("task_session").agg({"task": "max",
+                                           "new_correct": count_true,
+                                           "program": "last"})
+
+    ts.new_correct = 0 + ts.new_correct
+    ts["new_solved"] = ts.new_correct / ts.new_correct
+    ts.new_solved = ts.new_solved.fillna(0)
+    wrong_ts = ts[ts.new_solved == 0]
+
+    tasks = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
+    tasks.rename(columns={"program": "absolute_counts"}, inplace=True)
+    tasks["relative_counts"], total_sum = get_relative_counts(tasks.absolute_counts)
+
+    tasks["total_wrong_ts"] = pd.Series([sum(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
+    tasks["distinct_wrong_ts"] = pd.Series([len(tasks.absolute_counts.loc[i][0]) for i in tasks.index], index=tasks.index)
+    tasks["highest_abs_count"] = pd.Series([max(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
+    tasks["highest_rel_count"] = pd.Series([max(tasks.relative_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
+    #    print(tasks[["total_wrong_ts", "distinct_wrong_ts", "highest_abs_count", "highest_rel_count"]])
+
+
+
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
+    #    print(tasks.relative_counts)
+
+    abs_thresholds = [2 * i for i in range(1, 11)]
+    rel_thresholds = [0.02 * i for i in range(1, 11)]
+    frequents = [[] for i in range(len(abs_thresholds))]
+    for i, abs_threshold in enumerate(abs_thresholds):
+        print(i)
+        for rel_threshold in rel_thresholds:
+            frequent = 0
+            for task in tasks.index:
+                for program in tasks.relative_counts.loc[task][0]:
+                    if tasks.absolute_counts.loc[task][0][program] >= abs_threshold and \
+                                    tasks.relative_counts.loc[task][0][program] >= rel_threshold:
+                        frequent += tasks.absolute_counts.loc[task][0][program]
+            frequents[i].append(round(frequent / total_sum, 4))
+
+    abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
+    rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
+
+    from mpl_toolkits.mplot3d import Axes3D
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_wireframe(abs_axis, rel_axis, np.array(frequents), color="b")
+    ax.set_xlabel("absolute count threshold")
+    ax.set_ylabel("relative count threshold")
+    ax.set_zlabel("frequent wrong programs ratio")
+    plt.show()
+
+    """
+    frequents_ratio_by_threshold = pd.DataFrame(frequents, index=thresholds)
+    frequents_ratio_by_threshold.plot(kind="line")
+    #plt.title("Dependence of frequent wrong programs ratio on frequent-program-threshold")
+    plt.xlabel("frequent wrong program threshold")
+    plt.ylabel("frequent wrong program ratio")
+    plt.show()
+    """
 
 
 # Computes correlation of task measures and creates heat table
@@ -534,9 +615,9 @@ all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomissi
                  variable_group_title="solution uniqueness measures")
 """
 """
-all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=task_similarity_measures,
                  variable_group_title="task similarity measures")
 """
@@ -547,12 +628,19 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  measures_function=student_task_performance_measures,
                  variable_group_title="students' task performance measures")
 """
-
+"""
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
+"""
+
+all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                 measures_function=mistakes_measures,
+                 variable_group_title="mistakes measures")
 
 
 # TODO: KORELACNI GRAFY

@@ -199,14 +199,16 @@ def count_used_blocks(series):
     return len(blocks)
 
 
-
 # Creates dict of solutions and number of their occurences
-def dict_of_counts(series):
+def dict_of_counts(series, del_false=False):
     solutions = {}
     for item in series:
         if item not in solutions:
             solutions[item] = 0
         solutions[item] += 1
+    if del_false:
+        if False in solutions:
+            del solutions[False]
     #print(solutions)
     return [solutions]
 
@@ -241,6 +243,30 @@ def flattened_triangle_table(table):
         for j in range(i):
             reduced_table.append(table[i][j])
     return reduced_table
+
+
+def get_relative_counts(abs_counts):
+    output = pd.Series(index=abs_counts.index)
+    total_sum = 0
+    for i in abs_counts.index:
+        task_rel_counts = {}
+        programs = abs_counts.loc[i][0]
+        task_sum = sum(programs.values())
+        for program in programs:
+            task_rel_counts[program] = programs[program] / task_sum
+        output.loc[i] = [task_rel_counts]
+        total_sum += task_sum
+    return output, total_sum
+
+
+# Computes shortest distance series from distance matrix
+# NEGATIVE DISTANCE IN ORDER TO KEEP POSITIVE CORRELATIONS!!!
+def get_shortest_distance(distance_matrix):
+    output = pd.Series(index=distance_matrix.index)
+    for i in distance_matrix.index:
+        shortest = min(distance_matrix.loc[i])
+        output.loc[i] = -1 * shortest
+    return output
 
 
 # Counts length of the last item of series

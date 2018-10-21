@@ -3,20 +3,40 @@ from Tools import *
 # from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 # from AST import *
 # from functools import partial
-# from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 # import ast
 from random import randint, choice
 
 
-a = pd.DataFrame([[1, 91, 8], [6, 0, 0], [1, np.nan, 0], [5, 17, 9]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
+a = pd.DataFrame([[1, 91, 8], [6, 0, 0], [1, np.nan, 8], [5, 17, 9]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["056123!>/", 1, 1], ["Ir///", 3, 2]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 
+from mpl_toolkits.mplot3d import Axes3D
+
+e = [10, 11, 12, 13]
+f = [4, 5, 6, 7]
+g = np.array([[8, 1, 9, 11], [6, 3, 6, 14], [10, 12, 16, 19], [15, 17, 19, 20]])
+h = list(zip(f, g))
+
+q = pd.DataFrame(h, columns=["f", "g"], index=e)
+print(q)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+ax.plot_wireframe(e, f, g, color="b")
+
+#Axes3D.plot_surface(X=q.index, Y=q['f'], Z=q['g'])
+plt.show()
 
 
-e = a.one * a.three
-print(e)
+#threedee = plt.figure().gca(projection='3d')
+#threedee.scatter(q.index, q['f'], q['g'])
+#plt.show()
+
+#q.plot(kind="line")
+#plt.show()
 
 
 
