@@ -201,7 +201,7 @@ def ast_ted(a_tree, b_tree):
     return(zss.simple_distance(a_tree, b_tree, label_dist=binary_dist))
 
 
-print(ast_ted(build_ast("W!b{rl}"), build_ast("R4{rl}")))
+#print(ast_ted(build_ast("W!b{rl}"), build_ast("R4{rl}")))
 
 """
 def ast_ted_matrix_from_file(data_abs_path):

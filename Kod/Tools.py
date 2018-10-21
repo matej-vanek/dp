@@ -50,6 +50,7 @@ def bag_of_blocks(series):
     return output
 
 
+# Counts bag of task game-world entities.
 def bag_of_entities(task_setting_series):
     # b, k, y, g, d(r) -> all, y-g-d (colorful)
     # D, A, M, W, X, Y, Z, (S) -> wormholes, diamonds, asteroids, meteoroids
@@ -68,8 +69,6 @@ def bag_of_entities(task_setting_series):
         bag.append(entities)
     bag = pd.Series(bag, index=task_setting_series.index)
     return bag
-
-
 
 
 # Counts deletions
@@ -186,6 +185,21 @@ def count_true(series):
     return count
 
 
+# counts all block types used in all items of series
+def count_used_blocks(series):
+    blocks = set()
+    for i in series.index:
+        for char in series.loc[i]:
+            if char in "0123456789{}=!<>":
+                continue
+            elif char in "dbkyg":
+                blocks.add("color")
+            else:
+                blocks.add(char)
+    return len(blocks)
+
+
+
 # Creates dict of solutions and number of their occurences
 def dict_of_counts(series):
     solutions = {}
@@ -203,8 +217,7 @@ def entropy(occurence_dict):
         return 0
     occurence_list = occurence_dict[0].values()
     frequency_list = [i/sum(occurence_list) for i in occurence_list]
-    #print("{} {} {}".format(occurence_list, frequency_list, 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))))
-    return 1/np.log2(len(frequency_list)) * sum(map(lambda x: - x * np.log2(x), frequency_list))
+    return 1/np.log2(len(frequency_list)) * sum([- x * np.log2(x) for x in frequency_list])
 
 
 # Flattens table and omits None values
@@ -266,7 +279,7 @@ def load_task_names_levels(tasks_path):
 
 # Computes median of lengths of a string series
 def median_of_lens(series):
-    return np.median(list(map(lambda x: len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=str(x))), series)))
+    return np.median([len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=str(x))) for x in series])
 
 
 # Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"

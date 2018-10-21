@@ -107,7 +107,7 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
     complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
     complexity["deletion_ratio"] = tasks.deletion_ratio
     complexity["median_deletions_all"] = tasks[("program_all", "median")]
-    complexity[".median_deletions_line"] = tasks[("program_line", "median")]
+    complexity["median_deletions_line"] = tasks[("program_line", "median")]
     complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
@@ -232,8 +232,10 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     uniqueness = pd.DataFrame(index=tasks.index)
     uniqueness["solutions_entropy"] = list(map(entropy, tasks.program))
     uniqueness["sequences_entropy"] = list(map(entropy, tasks.square_sequence))
-    tasks["distinct_solutions"] = list(map(lambda x: len(x[0]), tasks.program))
-    tasks["distinct_sequences"] = list(map(lambda x: len(x[0]), tasks.square_sequence))
+    # tasks["distinct_solutions"] = list(map(lambda x: len(x[0]), tasks.program))
+    tasks["distinct_solutions"] = [len(x[0]) for x in tasks.program]
+    # tasks["distinct_sequences"] = list(map(lambda x: len(x[0]), tasks.square_sequence))
+    tasks["distinct_sequences"] = [len(x[0]) for x in tasks.square_sequence]
     uniqueness["distinct_solutions"] = tasks.distinct_solutions
     uniqueness["distinct_sequences"] = tasks.distinct_sequences
     uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
@@ -341,9 +343,85 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     return similarity
 
 
+# Computes student's task performance dataframe
+# Computes task correctness, spent time, number of edits, number of submits, number of deletions
+def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_path):
+    data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                   task_sessions_path=task_sessions_path,
+                                   tasks_path=tasks_path,
+                                   task_sessions_cols=["id", "student", "task", "time_spent"],
+                                   tasks_cols=[])
+    data = data.fillna(False)
+    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with system
+
+    data["granularity_submits"] = data.granularity
+    data["program_line"] = data.program
+    data["program_bit"] = data.program
+
+    ts = data.groupby("task_session").agg({"task_session": "max",
+                                           "new_correct": count_true,
+                                           "time_spent": "max",
+                                           "granularity": count_edits,
+                                           "granularity_submits": count_submits,
+                                           "program": partial(count_deletions, mode="all"),
+                                           "program_line": partial(count_deletions, mode="line"),
+                                           "program_bit": partial(count_deletions, mode="bit")})
+    ts.new_correct = 0 + ts.new_correct  # transformation bool -> int
+
+    performance = pd.DataFrame(index=ts.task_session)
+
+    performance["incorrectness"] = ts.new_correct / ts.new_correct
+    performance.incorrectness = 1 - performance.incorrectness.fillna(0)  ############## INcorrectness!
+    performance["time"] = ts.time_spent
+    performance["edits"] = ts.granularity
+    performance["submits"] = ts.granularity_submits
+    performance["deletions_all"] = ts.program
+    performance["deletions_line"] = ts.program_line
+    performance["deletions_bit"] = ts.program_bit
+
+    print(performance)
+    return performance
+
+
+# Computes student's total performance dataframe
+# Computes number of solved tasks, total credits, number of types of used blocks, total time
+def student_total_performance_measures(snapshots_path, task_sessions_path, tasks_path):
+    data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                   task_sessions_path=task_sessions_path,
+                                   tasks_path=tasks_path,
+                                   task_sessions_cols=["id", "student", "task", "time_spent"],
+                                   tasks_cols=["id", "level"])
+    data = data.fillna(False)
+    data = data[data.new_correct == data.correct]  # = snapshots which actual correctness agree with system
+
+    ts = data.groupby("task_session").agg({"task": "max",
+                                           "student": "max",
+                                           "level": "max",
+                                           "new_correct": count_true,
+                                           "program": "last",
+                                           "time_spent": "max"})
+    ts.new_correct = 0 + ts.new_correct
+    ts["new_solved"] = ts.new_correct / ts.new_correct
+    ts.new_solved = ts.new_solved.fillna(0)
+    ts = ts[ts.new_solved > 0]
+    ts["credits"] = ts.new_solved * ts.level
+
+    students = ts.groupby("student").agg({"task": pd.Series.nunique,
+                                          "credits": "sum",
+                                          "program": count_used_blocks,
+                                          "time_spent": "sum"})
+    students.rename(columns={"program": "used_blocks",
+                             "task": "solved_tasks",
+                             "time_spent": "total_time"},
+                    inplace=True)
+
+    print(students)
+    return students
+
+
 # Computes correlation of task measures and creates heat table
-def tasks_measures_correlations(task_table, method, title):
-    correlations = task_table.corr(method=method)
+def measures_correlations(measures_table, method, title):
+    correlations = measures_table.corr(method=method)
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
@@ -359,14 +437,13 @@ def tasks_measures_correlations(task_table, method, title):
 
 # Computes correlation of correlation methods and creates heat table
 # BE AWARE of difference between cerrelation of FULL CORRELATION TABLES and of TRIANGLE CORRELATION TABLES!!!
-def correlation_methods_correlations(pearson_tasks_measures_correlation, spearman_tasks_measures_correlation,
-                                     variable_group_title, full_or_triangle):
+def correlation_methods_correlations(pearson_measures_correlation, spearman_measures_correlation, variable_group_title, full_or_triangle):
     if full_or_triangle == "full":
-        correlations = np.corrcoef(np.ndarray.flatten(pearson_tasks_measures_correlation.as_matrix()),
-                                   np.ndarray.flatten(spearman_tasks_measures_correlation.as_matrix()))
+        correlations = np.corrcoef(np.ndarray.flatten(pearson_measures_correlation.as_matrix()),
+                                   np.ndarray.flatten(spearman_measures_correlation.as_matrix()))
     elif full_or_triangle == "triangle":
-        correlations = np.corrcoef(flattened_triangle_table(pearson_tasks_measures_correlation.as_matrix()),
-                                   flattened_triangle_table(spearman_tasks_measures_correlation.as_matrix()))
+        correlations = np.corrcoef(flattened_triangle_table(pearson_measures_correlation.as_matrix()),
+                                   flattened_triangle_table(spearman_measures_correlation.as_matrix()))
     correlations = pd.DataFrame(correlations, index=["Pearson", "Spearman"], columns=["Pearson", "Spearman"])
     print(correlations)
 
@@ -399,25 +476,25 @@ def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_cor
 
 # Computes all levels of correlation
 def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_function, variable_group_title):
-    tasks_measures_table = measures_function(snapshots_path=snapshots_path,
-                                             task_sessions_path=task_sessions_path,
-                                             tasks_path=tasks_path)
-    pearson_tasks_measures_correlation = tasks_measures_correlations(task_table=tasks_measures_table,
-                                                                     method="pearson",
-                                                                     title="Pearson correlation of {}"
-                                                                     .format(variable_group_title))
-    spearman_tasks_measures_correlation = tasks_measures_correlations(task_table=tasks_measures_table,
-                                                                      method="spearman",
-                                                                      title="Spearman correlation of {}"
-                                                                      .format(variable_group_title))
+    measures_table = measures_function(snapshots_path=snapshots_path,
+                                       task_sessions_path=task_sessions_path,
+                                       tasks_path=tasks_path)
+    pearson_measures_correlation = measures_correlations(measures_table=measures_table,
+                                                         method="pearson",
+                                                         title="Pearson correlation of {}"
+                                                         .format(variable_group_title))
+    spearman_measures_correlation = measures_correlations(measures_table=measures_table,
+                                                          method="spearman",
+                                                          title="Spearman correlation of {}"
+                                                          .format(variable_group_title))
     corr_of_full_corr_tables = \
-        correlation_methods_correlations(pearson_tasks_measures_correlation=pearson_tasks_measures_correlation,
-                                         spearman_tasks_measures_correlation=spearman_tasks_measures_correlation,
+        correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
+                                         spearman_measures_correlation=spearman_measures_correlation,
                                          variable_group_title=variable_group_title,
                                          full_or_triangle="full")
     corr_of_triangle_corr_tables = \
-        correlation_methods_correlations(pearson_tasks_measures_correlation=pearson_tasks_measures_correlation,
-                                         spearman_tasks_measures_correlation=spearman_tasks_measures_correlation,
+        correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
+                                         spearman_measures_correlation=spearman_measures_correlation,
                                          variable_group_title=variable_group_title,
                                          full_or_triangle="triangle")
 
@@ -449,13 +526,13 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
 """
-
+"""
 all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
-
+"""
 """
 all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
@@ -463,4 +540,19 @@ all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomissi
                  measures_function=task_similarity_measures,
                  variable_group_title="task similarity measures")
 """
-# TODO: KORELACNI GRAFY, DOKONCIT A SPUSTIT BAG-OF-ENTITIES
+"""
+all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                 measures_function=student_task_performance_measures,
+                 variable_group_title="students' task performance measures")
+"""
+
+all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                 measures_function=student_total_performance_measures,
+                 variable_group_title="students' total performance measures")
+
+
+# TODO: KORELACNI GRAFY
