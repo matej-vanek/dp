@@ -1,6 +1,7 @@
 import re
 from ast import literal_eval
 from functools import partial
+from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -159,6 +160,23 @@ def count_edits(series):
     return count
 
 
+def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
+    frequency = pd.Series(index=tasks.index)
+    unique = pd.Series(index=tasks.index)
+    for task in tasks.index:
+        frequent_ratio = 0
+        unique_programs = 0
+        for program in tasks.relative_counts.loc[task][0]:
+            if tasks.absolute_counts.loc[task][0][program] >= abs_threshold and \
+                    tasks.relative_counts.loc[task][0][program] >= rel_threshold:
+                frequent_ratio += tasks.relative_counts.loc[task][0][program]
+                unique_programs += 1
+        frequency.loc[task] = frequent_ratio
+        unique.loc[task] = unique_programs
+
+    return frequency, unique
+
+
 # Counts how many tasks in the distance matrix have lower distance to the source task than threshold.
 # Computes for all rows of the distance matrix.
 def count_similar_tasks(distance_matrix, threshold):
@@ -308,6 +326,37 @@ def median_of_lens(series):
     return np.median([len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=str(x))) for x in series])
 
 
+# Draws 3D wireframe plot of frequent wrong programs ratio based on absolute and relative count of program occurences.
+def plot_frequent_wrong_programs_ratio(tasks, total_sum, title, abs_step, abs_begin, abs_end, rel_step, rel_begin, rel_end):
+    from mpl_toolkits.mplot3d import Axes3D
+
+    abs_thresholds = [abs_step * i for i in range(abs_begin, abs_end)]
+    rel_thresholds = [rel_step * i for i in range(rel_begin, rel_end)]
+    frequents = [[] for _ in range(len(rel_thresholds))]
+    for i, rel_threshold in enumerate(rel_thresholds):
+        print(i)
+        for abs_threshold in abs_thresholds:
+            frequent = 0
+            for task in tasks.index:
+                for program in tasks.relative_counts.loc[task][0]:
+                    if tasks.absolute_counts.loc[task][0][program] >= abs_threshold and \
+                            tasks.relative_counts.loc[task][0][program] >= rel_threshold:
+                        frequent += tasks.absolute_counts.loc[task][0][program]
+            frequents[i].append(round(frequent / total_sum, 4))
+
+    abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
+    rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_wireframe(abs_axis, rel_axis, np.array(frequents), color="b")
+    ax.set_xlabel("absolute count threshold")
+    ax.set_ylabel("relative count threshold")
+    ax.set_zlabel("frequent wrong programs ratio")
+    ax.set_title(title)
+    plt.show()
+
+
 # Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"
 # and saves the dataset
 def replace_red_by_d(tasks_path, output_path, column_name):
@@ -330,6 +379,17 @@ def sample_solution_not_most_frequent(solutions, programs):
             print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
             output.loc[i] = 1  #############
     return output
+
+
+# Computes various statistics from mistake measures tasks
+def statistics(tasks):
+    tasks.rename(columns={"program": "absolute_counts"}, inplace=True)
+    tasks["relative_counts"], total_sum = get_relative_counts(tasks.absolute_counts)
+    tasks["total_wrong"] = pd.Series([sum(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
+    tasks["distinct_wrong"] = pd.Series([len(tasks.absolute_counts.loc[i][0]) for i in tasks.index], index=tasks.index)
+    tasks["highest_abs_count"] = pd.Series([max(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
+    tasks["highest_rel_count"] = pd.Series([max(tasks.relative_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
+    return tasks, total_sum
 
 
 """

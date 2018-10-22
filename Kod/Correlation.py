@@ -428,7 +428,8 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
     return students
 
 
-def mistakes_measures(snapshots_path, task_sessions_path, tasks_path):
+#
+def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, plot=False):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
@@ -438,67 +439,48 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path):
     data = data.fillna(False)
     data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
 
-    ts = data.groupby("task_session").agg({"task": "max",
+    ts_stuck = data.groupby("task_session").agg({"task": "max",
                                            "new_correct": count_true,
                                            "program": "last"})
 
-    ts.new_correct = 0 + ts.new_correct
-    ts["new_solved"] = ts.new_correct / ts.new_correct
-    ts.new_solved = ts.new_solved.fillna(0)
-    wrong_ts = ts[ts.new_solved == 0]
+    ts_stuck.new_correct = 0 + ts_stuck.new_correct
+    ts_stuck["new_solved"] = ts_stuck.new_correct / ts_stuck.new_correct
+    ts_stuck.new_solved = ts_stuck.new_solved.fillna(0)
 
-    tasks = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
-    tasks.rename(columns={"program": "absolute_counts"}, inplace=True)
-    tasks["relative_counts"], total_sum = get_relative_counts(tasks.absolute_counts)
+    wrong_ts = ts_stuck[ts_stuck.new_solved == 0]
+    del ts_stuck
+    tasks_stuck = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
 
-    tasks["total_wrong_ts"] = pd.Series([sum(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
-    tasks["distinct_wrong_ts"] = pd.Series([len(tasks.absolute_counts.loc[i][0]) for i in tasks.index], index=tasks.index)
-    tasks["highest_abs_count"] = pd.Series([max(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
-    tasks["highest_rel_count"] = pd.Series([max(tasks.relative_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
-    #    print(tasks[["total_wrong_ts", "distinct_wrong_ts", "highest_abs_count", "highest_rel_count"]])
+    data = data[data.new_correct == False]
+    tasks_all = data.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
 
+    tasks_stuck, stuck_total_sum = statistics(tasks_stuck)
+    tasks_all, all_total_sum = statistics(tasks_all)
 
+    if plot:
+        plot_frequent_wrong_programs_ratio(tasks=tasks_stuck, total_sum=stuck_total_sum, title="Unsolved task sessions",
+                                           abs_step=2, abs_begin=1, abs_end=11,
+                                           rel_step=0.02, rel_begin=1, rel_end=11)
+        plot_frequent_wrong_programs_ratio(tasks=tasks_all, total_sum=all_total_sum, title="All wrong submits",
+                                           abs_step=12.5, abs_begin=1, abs_end=15,
+                                           rel_step=0.04, rel_begin=1, rel_end=9)
 
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
-    #    print(tasks.relative_counts)
+    tasks_stuck["frequent_programs_ratio"], tasks_stuck["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
+        tasks=tasks_stuck, abs_threshold=5, rel_threshold=0.05)
+    tasks_all["frequent_programs_ratio"], tasks_all["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
+        tasks=tasks_all, abs_threshold=10, rel_threshold=0.05)
 
-    abs_thresholds = [2 * i for i in range(1, 11)]
-    rel_thresholds = [0.02 * i for i in range(1, 11)]
-    frequents = [[] for i in range(len(abs_thresholds))]
-    for i, abs_threshold in enumerate(abs_thresholds):
-        print(i)
-        for rel_threshold in rel_thresholds:
-            frequent = 0
-            for task in tasks.index:
-                for program in tasks.relative_counts.loc[task][0]:
-                    if tasks.absolute_counts.loc[task][0][program] >= abs_threshold and \
-                                    tasks.relative_counts.loc[task][0][program] >= rel_threshold:
-                        frequent += tasks.absolute_counts.loc[task][0][program]
-            frequents[i].append(round(frequent / total_sum, 4))
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
+        print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
+        print(tasks_all[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
 
-    abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
-    rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
+    mistakes = pd.DataFrame(index=tasks_stuck.index)
+    mistakes["stuck_frequent_programs_ratio"] = tasks_stuck.frequent_programs_ratio
+    mistakes["stuck_unique_frequent_programs"] = tasks_stuck.unique_frequent_programs
+    mistakes["all_frequent_programs_ratio"] = tasks_all.frequent_programs_ratio
+    mistakes["all_unique_frequent_programs"] = tasks_all.unique_frequent_programs
 
-    from mpl_toolkits.mplot3d import Axes3D
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_wireframe(abs_axis, rel_axis, np.array(frequents), color="b")
-    ax.set_xlabel("absolute count threshold")
-    ax.set_ylabel("relative count threshold")
-    ax.set_zlabel("frequent wrong programs ratio")
-    plt.show()
-
-    """
-    frequents_ratio_by_threshold = pd.DataFrame(frequents, index=thresholds)
-    frequents_ratio_by_threshold.plot(kind="line")
-    #plt.title("Dependence of frequent wrong programs ratio on frequent-program-threshold")
-    plt.xlabel("frequent wrong program threshold")
-    plt.ylabel("frequent wrong program ratio")
-    plt.show()
-    """
-
+    return mistakes
 
 # Computes correlation of task measures and creates heat table
 def measures_correlations(measures_table, method, title):

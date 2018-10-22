@@ -15,28 +15,31 @@ d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["
 
 from mpl_toolkits.mplot3d import Axes3D
 
-e = [10, 11, 12, 13]
-f = [4, 5, 6, 7]
-g = np.array([[8, 1, 9, 11], [6, 3, 6, 14], [10, 12, 16, 19], [15, 17, 19, 20]])
-h = list(zip(f, g))
+abs_step = 1
+abs_begin = 1
+abs_end = 7
+rel_step = 10
+rel_begin = 1
+rel_end = 5
+abs_thresholds = [abs_step * i for i in range(abs_begin, abs_end)]
+rel_thresholds = [rel_step * i for i in range(rel_begin, rel_end)]
+frequents = [[] for _ in range(len(rel_thresholds))]
+for i, rel_threshold in enumerate(rel_thresholds):
+    print(i)
+    for abs_threshold in abs_thresholds:
+        frequents[i].append(abs_threshold*rel_threshold)
 
-q = pd.DataFrame(h, columns=["f", "g"], index=e)
-print(q)
+abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
+rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
+
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-
-ax.plot_wireframe(e, f, g, color="b")
-
-#Axes3D.plot_surface(X=q.index, Y=q['f'], Z=q['g'])
+ax.plot_wireframe(abs_axis, rel_axis, np.array(frequents), color="b")
+ax.set_xlabel("absolute count threshold")
+ax.set_ylabel("relative count threshold")
+ax.set_zlabel("frequent wrong programs ratio")
+ax.set_title("kkk")
 plt.show()
-
-
-#threedee = plt.figure().gca(projection='3d')
-#threedee.scatter(q.index, q['f'], q['g'])
-#plt.show()
-
-#q.plot(kind="line")
-#plt.show()
 
 
 
