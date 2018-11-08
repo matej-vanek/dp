@@ -429,13 +429,13 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
 
 
 #
-def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, plot=False):
+def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "task"],
                                    tasks_cols=[])
-    data = data[data.granularity == "execution"]
+
     data = data.fillna(False)
     data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
 
@@ -443,27 +443,28 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, plot=False
                                            "new_correct": count_true,
                                            "program": "last"})
 
-    ts_stuck.new_correct = 0 + ts_stuck.new_correct
-    ts_stuck["new_solved"] = ts_stuck.new_correct / ts_stuck.new_correct
-    ts_stuck.new_solved = ts_stuck.new_solved.fillna(0)
+    ts_stuck.new_correct = 0 + ts_stuck.new_correct  # convert bool to int
+    ts_stuck["new_solved"] = ts_stuck.new_correct / ts_stuck.new_correct  # convert int to nan/1
+    ts_stuck.new_solved = ts_stuck.new_solved.fillna(0)  # convert nan/1 to 0/1
 
     wrong_ts = ts_stuck[ts_stuck.new_solved == 0]
     del ts_stuck
     tasks_stuck = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
 
+    data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
     tasks_all = data.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
 
     tasks_stuck, stuck_total_sum = statistics(tasks_stuck)
     tasks_all, all_total_sum = statistics(tasks_all)
 
-    if plot:
+    if kwargs["plot"]:
         plot_frequent_wrong_programs_ratio(tasks=tasks_stuck, total_sum=stuck_total_sum, title="Unsolved task sessions",
-                                           abs_step=2, abs_begin=1, abs_end=11,
-                                           rel_step=0.02, rel_begin=1, rel_end=11)
+                                           abs_step=1, abs_begin=1, abs_end=11,
+                                           rel_step=0.01, rel_begin=1, rel_end=11)
         plot_frequent_wrong_programs_ratio(tasks=tasks_all, total_sum=all_total_sum, title="All wrong submits",
-                                           abs_step=12.5, abs_begin=1, abs_end=15,
-                                           rel_step=0.04, rel_begin=1, rel_end=9)
+                                           abs_step=5, abs_begin=1, abs_end=15,
+                                           rel_step=0.01, rel_begin=1, rel_end=9)
 
     tasks_stuck["frequent_programs_ratio"], tasks_stuck["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_stuck, abs_threshold=5, rel_threshold=0.05)
@@ -538,10 +539,11 @@ def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_cor
 
 
 # Computes all levels of correlation
-def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_function, variable_group_title):
+def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_function, variable_group_title, **kwargs):
     measures_table = measures_function(snapshots_path=snapshots_path,
                                        task_sessions_path=task_sessions_path,
-                                       tasks_path=tasks_path)
+                                       tasks_path=tasks_path,
+                                       **kwargs)
     pearson_measures_correlation = measures_correlations(measures_table=measures_table,
                                                          method="pearson",
                                                          title="Pearson correlation of {}"
@@ -622,7 +624,8 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=mistakes_measures,
-                 variable_group_title="mistakes measures")
+                 variable_group_title="mistakes measures",
+                 plot=True)
 
 
 # TODO: KORELACNI GRAFY
