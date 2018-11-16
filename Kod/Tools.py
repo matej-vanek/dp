@@ -99,29 +99,39 @@ def count_deletions(series, mode):
 # prunes where cophenetic dist is > 5, returns number of clusters
 def count_program_clusters(programs):
     clusters_count = pd.Series(index=programs.index)
+    program_info = {}
+    cluster_info = {}
     for task in programs.index:
+        program_list = list(programs.loc[task][0].keys())
         if len(programs.loc[task][0].keys()) > 1:
             condensed_dist_matrix = []
-            program_list = list(programs.loc[task][0].keys())
-            print(program_list)
-            program_list = np.array(list(map(partial(build_ast), program_list)))
-            #print(program_list)
-            for i in range(len(program_list)):
-                for j in range(len(program_list)):
+            print(len(program_list))
+            program_ast_list = np.array(list(map(partial(build_ast), program_list)))
+            #print(program_ast_list)
+            for i in range(len(program_ast_list)):
+                print(i)
+                for j in range(len(program_ast_list)):
                     if i < j:
-                        condensed_dist_matrix.append(ast_ted(program_list[i], program_list[j]))
-            print(condensed_dist_matrix)
+                        condensed_dist_matrix.append(ast_ted(program_ast_list[i], program_ast_list[j]))
+            #print(condensed_dist_matrix)
             condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
         else:
             condensed_dist_matrix = [0]
         hier_clust = linkage(condensed_dist_matrix)
-        print(hier_clust)
-
+        #print(hier_clust)
+        #print(programs.loc[task])
         cluster_assign = fcluster(hier_clust, 5, criterion="distance")
-        print(cluster_assign)
-        print("Number of found clusters: ", len(set(cluster_assign)))
+        #print(program_list)
+        print("QQQQ")
+        program_info[task] = {program: {'cluster': cluster, 'freq': programs.loc[task][0][program]} for program, cluster in zip(program_list, cluster_assign)}
+        cluster_info[task] = {cluster: {'programs': [program for program in program_info[task] if program["cluster"] == cluster],
+                                        'representant': max(program_info[task][0], key=program_info[task][0].get)} for cluster in set(cluster_assign)}
+        #print(cluster_assign)
+        #print("Number of found clusters: ", len(set(cluster_assign)))
         clusters_count.loc[task] = len(set(cluster_assign))
-    return clusters_count
+        print(program_info[task])
+        print(cluster_info[task])
+    return clusters_count, program_info, cluster_info
 
 
 # Counts distinct blocks used in miniRobocode.
@@ -287,6 +297,22 @@ def get_shortest_distance(distance_matrix):
     return output
 
 
+def incorrect_evaluation(snapshots_path, task_sessions_path, tasks_path):
+    data = load_extended_snapshots(snapshots_path=snapshots_path, task_sessions_path=task_sessions_path, tasks_path=tasks_path, task_sessions_cols=["id", "task"], tasks_cols=["id", "solution"])
+    data = data[data.granularity == "execution"]
+    print(data)
+    data = data.fillna(False)
+    data = data[data.new_correct != data.correct]
+    print(data[["id", "correct", "new_correct"]])
+
+    incorrect = data[data.new_correct == False]
+    print(incorrect[["id", "task", "program", "solution", "correct", "new_correct"]])
+    incorrect_non_51 = incorrect[data.task != 51]
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print(incorrect_non_51[["id", "task", "program", "solution", "correct", "new_correct"]])
+
+
+
 # Counts length of the last item of series
 def len_of_last(series):
     return len(re.sub("[{}0123456789<>=!]", "", series.iloc[-1]))
@@ -376,7 +402,7 @@ def sample_solution_not_most_frequent(solutions, programs):
         if solutions.loc[i] == max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]).replace("r{", "d{"):
             output.loc[i] = 0  #############
         else:
-            print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
+            #print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
             output.loc[i] = 1  #############
     return output
 
@@ -407,4 +433,9 @@ add_new_run_and_square_sequence(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka
                                 task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                                 tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                                 output_snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_2.csv")
+"""
+"""
+incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                     task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                     tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
 """

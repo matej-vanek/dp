@@ -213,7 +213,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
 # Computes task solution uniqueness dataframe
 # Creates task dataframe of distinct solutions, distinct visited squares sequences,
 # solutions distribution entropy, visited squares sequence distribution entropy,
-# sample solution most frequent flag and count of program AST clusters by TED hier. clustering
+# sample-solution-most-frequent flag and count of program AST clusters by TED hier. clustering
 def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -232,15 +232,17 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     uniqueness = pd.DataFrame(index=tasks.index)
     uniqueness["solutions_entropy"] = list(map(entropy, tasks.program))
     uniqueness["sequences_entropy"] = list(map(entropy, tasks.square_sequence))
-    # tasks["distinct_solutions"] = list(map(lambda x: len(x[0]), tasks.program))
     tasks["distinct_solutions"] = [len(x[0]) for x in tasks.program]
-    # tasks["distinct_sequences"] = list(map(lambda x: len(x[0]), tasks.square_sequence))
     tasks["distinct_sequences"] = [len(x[0]) for x in tasks.square_sequence]
     uniqueness["distinct_solutions"] = tasks.distinct_solutions
     uniqueness["distinct_sequences"] = tasks.distinct_sequences
     uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
-
-    uniqueness["program_clusters_count"] = count_program_clusters(tasks.program)
+    uniqueness["program_clusters_count"], _ = count_program_clusters(tasks.program)
+    print("solutions {} {} {}".format(uniqueness.distinct_solutions.quantile(0.25), uniqueness.distinct_solutions.quantile(0.5), uniqueness.distinct_solutions.quantile(0.75)))
+    print("sequences {} {} {}".format(uniqueness.distinct_sequences.quantile(0.25), uniqueness.distinct_sequences.quantile(0.5), uniqueness.distinct_sequences.quantile(0.75)))
+    print("clusters {} {} {}".format(uniqueness.program_clusters_count.quantile(0.25), uniqueness.program_clusters_count.quantile(0.5), uniqueness.program_clusters_count.quantile(0.75)))
+    print("solutions entropy {} {} {}".format(uniqueness.solutions_entropy.quantile(0.25), uniqueness.solutions_entropy.quantile(0.5), uniqueness.solutions_entropy.quantile(0.75)))
+    print("sequences entropy {} {} {}".format(uniqueness.sequences_entropy.quantile(0.25), uniqueness.sequences_entropy.quantile(0.5), uniqueness.sequences_entropy.quantile(0.75)))
     return uniqueness
 
 
@@ -453,33 +455,36 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
-    tasks_all = data.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
+    tasks_all_wrong = data.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
 
     tasks_stuck, stuck_total_sum = statistics(tasks_stuck)
-    tasks_all, all_total_sum = statistics(tasks_all)
+    tasks_all_wrong, all_total_sum = statistics(tasks_all_wrong)
 
+    tasks_all_wrong["program_clusters_count"], program_info = count_program_clusters(tasks_all_wrong.absolute_counts)  # PRILIS DLOUHO, 400X400 AST_TED!!!!
+
+    q
     if kwargs["plot"]:
         plot_frequent_wrong_programs_ratio(tasks=tasks_stuck, total_sum=stuck_total_sum, title="Unsolved task sessions",
                                            abs_step=1, abs_begin=1, abs_end=11,
                                            rel_step=0.01, rel_begin=1, rel_end=11)
-        plot_frequent_wrong_programs_ratio(tasks=tasks_all, total_sum=all_total_sum, title="All wrong submits",
+        plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong, total_sum=all_total_sum, title="All wrong submits",
                                            abs_step=5, abs_begin=1, abs_end=15,
                                            rel_step=0.01, rel_begin=1, rel_end=9)
 
     tasks_stuck["frequent_programs_ratio"], tasks_stuck["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_stuck, abs_threshold=5, rel_threshold=0.05)
-    tasks_all["frequent_programs_ratio"], tasks_all["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_all, abs_threshold=10, rel_threshold=0.05)
+    tasks_all_wrong["frequent_programs_ratio"], tasks_all_wrong["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
+        tasks=tasks_all_wrong, abs_threshold=10, rel_threshold=0.05)
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
         print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
-        print(tasks_all[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
+        print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
 
     mistakes = pd.DataFrame(index=tasks_stuck.index)
     mistakes["stuck_frequent_programs_ratio"] = tasks_stuck.frequent_programs_ratio
     mistakes["stuck_unique_frequent_programs"] = tasks_stuck.unique_frequent_programs
-    mistakes["all_frequent_programs_ratio"] = tasks_all.frequent_programs_ratio
-    mistakes["all_unique_frequent_programs"] = tasks_all.unique_frequent_programs
+    mistakes["all_frequent_programs_ratio"] = tasks_all_wrong.frequent_programs_ratio
+    mistakes["all_unique_frequent_programs"] = tasks_all_wrong.unique_frequent_programs
 
     return mistakes
 
@@ -592,9 +597,9 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  variable_group_title="difficulty and complexity measures")
 """
 """
-all_correlations(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
 """
@@ -628,4 +633,9 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  plot=True)
 
 
-# TODO: KORELACNI GRAFY
+# TODO: KORELACNI GRAFY?
+# TODO: GRAFY - CITELNOST VSECH POPISKU
+# TODO: DIFFICULTY & COMPLEXITY - SMAZAT POMER USPESNYCH SUBMITU
+# TODO: PREJMENOVAT DIF&COMP "BLOCK TYPES" NA "DISTINCT BLOCKS"
+# TODO: VYPSAT DO DASHBOARDU SKUPINY SPRAVNYCH A SPATNYCH RESENI - REPREZENTANT = NEJCASTEJSI RESENI VE SKUPINE
+# TODO: SMAZAT Z GRAFU SAMPLE SOLUTION MOST FREQUENT
