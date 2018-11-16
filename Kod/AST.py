@@ -198,7 +198,7 @@ def ast_ted(a_tree, b_tree):
         if a == b:
             return 0
         return 1
-    return(zss.simple_distance(a_tree, b_tree, label_dist=binary_dist))
+    return(zss.simple_distance(np.a_tree, b_tree, label_dist=binary_dist))
 
 
 #print(ast_ted(build_ast("W!b{rl}"), build_ast("R4{rl}")))

@@ -118,8 +118,8 @@ def load_game_board(tasks_path, task_id):
     """
     tasks = pd.read_csv(tasks_path)
     task = ast.literal_eval(tasks[tasks.id == task_id].setting.iloc[0])
-    game_board = pd.read_csv(StringIO(re.sub("r", "d", task.fields)),
-                             names=range(0, len(task.fields.split(";")[0].split("|"))),
+    game_board = pd.read_csv(StringIO(re.sub("r", "d", task["fields"])),
+                             names=range(0, len(task["fields"].split(";")[0].split("|"))),
                              sep="|",
                              lineterminator=";")
     # game_board indexed [cols][rows]
@@ -128,9 +128,9 @@ def load_game_board(tasks_path, task_id):
     length = 1000
     energy = 1000
     if "length" in task:
-        length = task.length
+        length = task["length"]
     if "energy" in task:
-        energy = task.energy
+        energy = task["energy"]
     return game_board, length, energy
 
 

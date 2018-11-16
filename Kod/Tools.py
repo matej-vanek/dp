@@ -12,25 +12,39 @@ from MiniRoboCodeInterpreter import run_task
 
 # Runs submits again and tests their correctness.
 # Computes sequence of visited squares during the run.
-def synchronous_interpreter_correctness_and_square_sequence(snapshots_path, task_sessions_path, tasks_path, output_snapshots_path):
-    data = load_extended_snapshots(snapshots_path=snapshots_path,
-                                   task_sessions_path=task_sessions_path,
-                                   tasks_path=tasks_path,
-                                   task_sessions_cols=["id", "task"],
-                                   tasks_cols=[])
-    data.new_correct = None
-    data.square_sequence = None
+def synchronous_interpreter_correctness_and_square_sequence(snapshots_path=None, task_sessions_path=None, tasks_path=None, output_snapshots_path=None, only_executions=True, only_edits=False, dataframe=None, save=True):
+    print("Interpreter")
+    if dataframe is not None:
+        data = dataframe
+    else:
+        data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                       task_sessions_path=task_sessions_path,
+                                       tasks_path=tasks_path,
+                                       task_sessions_cols=["id", "task"],
+                                       tasks_cols=[])
+    #data["new_correct"] = None
+    #data["square_sequence"] = pd.Series(None, index=data.index)
     for i in data.index:
-        if data.loc[i].granularity == "execution":
-            #print(data.loc[i]["program"])
-            correct, square_sequence = run_task(tasks_path=tasks_path,
-                                                task_id=data.loc[i].task,
-                                                program=data.loc[i].program,
-                                                verbose=False)
-            data.set_value(i, "new_correct", str(correct))
-            data.set_value(i, "square_sequence", square_sequence)
-    data = data.drop(["task"], axis=1)
-    data.to_csv(output_snapshots_path, index=False)
+        if only_executions:
+            if data.loc[i].granularity != "execution":
+                continue
+        if only_edits:
+            if data.loc[i].granularity != "edit":
+                continue
+        #print(data.loc[i]["program"])
+        correct, square_sequence = run_task(tasks_path=tasks_path,
+                                            task_id=data.loc[i].task,
+                                            program=data.loc[i].program,
+                                            verbose=False)
+
+        #print(square_sequence)
+        data.new_correct.loc[i] = str(correct)
+        data.square_sequence.loc[i] = str(square_sequence)
+        #print(data.loc[i].square_sequence)
+    if save:
+        data = data.drop(["task"], axis=1)
+        data.to_csv(output_snapshots_path, index=False)
+    return data
 
 
 # Counts bag of blocks characteristics of tasks.
@@ -171,6 +185,7 @@ def count_edits(series):
 
 
 def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
+    """
     frequency = pd.Series(index=tasks.index)
     unique = pd.Series(index=tasks.index)
     for task in tasks.index:
@@ -183,8 +198,31 @@ def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
                 unique_programs += 1
         frequency.loc[task] = frequent_ratio
         unique.loc[task] = unique_programs
-
     return frequency, unique
+    """
+
+    frequency = pd.Series(index=tasks.index.levels[0])
+    unique = pd.Series(index=tasks.index.levels[0])
+    for task in tasks.index.levels[0]:
+        frequent_ratio = 0
+        unique_programs = 0
+        for seq in tasks.index:
+            if seq[0] == task:
+                this_seq = tasks.loc[seq]
+                if this_seq.abs_count >= abs_threshold and \
+                        this_seq.rel_count >= rel_threshold:
+                    frequent_ratio += this_seq.rel_count
+                    unique_programs += 1
+        frequency.loc[task] = frequent_ratio
+        unique.loc[task] = unique_programs
+    return frequency, unique
+
+
+def count_total_abs_freq(series):
+    abs_freq = pd.Series(index=series.index)
+    for i in series.index:
+        abs_freq.loc[i] = sum([series.loc[i][0][key] for key in series.loc[i][0]])
+    return abs_freq
 
 
 # Counts how many tasks in the distance matrix have lower distance to the source task than threshold.
@@ -211,6 +249,23 @@ def count_true(series):
         if item is True:
             count += 1
     return count
+
+
+def count_task_frequency(dataframe):
+    #print(dataframe.index)
+
+    task_freq_series = pd.Series(index=dataframe.index)
+    for i in dataframe.index.levels[0]:
+        task_freq = 0
+        for j in dataframe.index:
+            if j[0] == i:
+                #print(dataframe.loc[j])
+                task_freq += dataframe.loc[j].abs_count
+        for j in dataframe.index:
+            if j[0] == i:
+                task_freq_series.loc[j] = task_freq
+    return task_freq_series
+
 
 
 # counts all block types used in all items of series
@@ -271,6 +326,15 @@ def flattened_triangle_table(table):
         for j in range(i):
             reduced_table.append(table[i][j])
     return reduced_table
+
+
+def get_most_frequent_program(program_series):
+    most_freq_program = pd.Series(index=program_series.index)
+    for i in program_series.index:
+        #print(program_series.loc[i])
+        most_freq_program.loc[i] = max(program_series.loc[i][0], key=lambda x: program_series.loc[i][0][x])
+    return most_freq_program
+
 
 
 def get_relative_counts(abs_counts):
@@ -363,12 +427,20 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, title, abs_step, abs_be
         print(i)
         for abs_threshold in abs_thresholds:
             frequent = 0
-            for task in tasks.index:
-                for program in tasks.relative_counts.loc[task][0]:
-                    if tasks.absolute_counts.loc[task][0][program] >= abs_threshold and \
-                            tasks.relative_counts.loc[task][0][program] >= rel_threshold:
-                        frequent += tasks.absolute_counts.loc[task][0][program]
+            total_sum = 0
+            for task in tasks.index.levels[0]:
+                for seq in tasks.index:
+                    if seq[0] == task:
+                        this_seq = tasks.loc[seq]
+                        if this_seq.abs_count >= abs_threshold and \
+                                this_seq.rel_count >= rel_threshold:
+                            frequent += this_seq.abs_count
+                        if not total_sum:
+                            task_total_sum = this_seq.task_freq
+                total_sum += task_total_sum
+                #print((frequent, total_sum))
             frequents[i].append(round(frequent / total_sum, 4))
+
 
     abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
     rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
@@ -408,14 +480,17 @@ def sample_solution_not_most_frequent(solutions, programs):
 
 
 def square_sequences_to_strings(sequence_series):
+    print("Stringing")
     string_sequences = pd.Series(index=sequence_series.index)
     for i in sequence_series.index:
-        if sequence_series.loc[i]:
-            string_square_sequence = ""
-            for square in sequence_series.loc[i]:
-                for coord in square:
-                    string_square_sequence += str(coord)
-            string_sequences.loc[i] = string_square_sequence
+        seq = eval(sequence_series.loc[i])
+        #if not np.isnan(sequence_series.loc[i]):
+        #print(sequence_series.loc[i])
+        string_square_sequence = ""
+        for square in seq:
+            for coord in square:
+                string_square_sequence += str(coord)
+        string_sequences.loc[i] = string_square_sequence
     return string_sequences
 
 

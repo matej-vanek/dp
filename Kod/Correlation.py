@@ -442,90 +442,89 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
                                    task_sessions_cols=["id", "task"],
                                    tasks_cols=[])
 
-    data = data.fillna(False)
+    data.correct = data.correct.fillna(False)
+    data.new_correct = data.new_correct.fillna(False)
     data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system  # NAPSAT, ZE BYLY NESOUHLASNE VYLOUCENY
-
-    data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
 
     last_ts_snapshot = data.groupby("task_session").agg({"task": "max",
                                                          "new_correct": count_true,
+                                                         "granularity": "last",
                                                          "program": "last",
-                                                         })
+                                                         "square_sequence": "last"})
 
     last_ts_snapshot.new_correct = 0 + last_ts_snapshot.new_correct  # convert bool to int
     last_ts_snapshot["new_solved"] = last_ts_snapshot.new_correct / last_ts_snapshot.new_correct  # convert int to nan/1
     last_ts_snapshot.new_solved = last_ts_snapshot.new_solved.fillna(0)  # convert nan/1 to 0/1
-    last_ts_snapshot["string_square_sequence"] = qqq(last_ts_snapshot.program)
 
     wrong_ts = last_ts_snapshot[last_ts_snapshot.new_solved == 0]
+    #wrong_ts = wrong_ts.iloc[:1000]    ###########
+    wrong_ts = synchronous_interpreter_correctness_and_square_sequence(dataframe=wrong_ts,
+                                                                       only_executions=False,
+                                                                       only_edits=True,
+                                                                       save=False,
+                                                                       tasks_path=tasks_path)
+    wrong_ts["string_square_sequence"] = square_sequences_to_strings(wrong_ts.square_sequence)
+
     del last_ts_snapshot
-    tasks_stuck = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)
-                                                "string_square_sequence": partial(dict_of_counts, del_false=True)})
+    tasks_stuck = wrong_ts.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True),
+                                                                            "new_solved": "count"})
+    tasks_stuck["most_frequent_program"] = get_most_frequent_program(tasks_stuck.program)
+    tasks_stuck["abs_count"] = count_total_abs_freq(tasks_stuck.program)
+    tasks_stuck["task_freq"] = count_task_frequency(tasks_stuck)
+    tasks_stuck["rel_count"] = tasks_stuck.abs_count / tasks_stuck.task_freq
 
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(tasks_stuck)
 
-
-
-
-
-
-
+    # --------------------
 
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
-    tasks_all_wrong = data.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
+    #data = data.iloc[:1000]  ###################xx
+    data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
+    tasks_all_wrong = data.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
 
-    #tasks_stuck, stuck_total_sum = statistics(tasks_stuck)
-    #tasks_all_wrong, all_total_sum = statistics(tasks_all_wrong)
+    tasks_all_wrong["most_frequent_program"] = get_most_frequent_program(tasks_all_wrong.program)
+    tasks_all_wrong["abs_count"] = count_total_abs_freq(tasks_all_wrong.program)
+    tasks_all_wrong["task_freq"] = count_task_frequency(tasks_all_wrong)
+    tasks_all_wrong["rel_count"] = tasks_all_wrong.abs_count / tasks_all_wrong.task_freq
 
-    #tasks_all_wrong["program_clusters_count"], program_info = count_program_clusters(tasks_all_wrong.absolute_counts)  # PRILIS DLOUHO, 400X400 AST_TED!!!!
-
-    #tasks_all_wrong["string_square_sequence"] = square_sequences_to_strings(tasks_all_wrong.square_sequence)
-    #tasks_all_wrong["string_square_sequence2"] = tasks_all_wrong["string_square_sequence"]
-
-    tasks_all_wrong = tasks_all_wrong.groupby(["task", "string_square_sequence"]).agg({
-        "string_square_sequence2": "count",
-        "program": most_frequent_program,
-                                           "student": "max",
-                                           "level": "max",
-                                           "new_correct": count_true,
-                                           "program": "last",
-                                           "time_spent": "max"})
-
-
-
-
-    # totez pro tasks_stuck
-
-
-
-
-
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(tasks_all_wrong)
 
 
     if kwargs["plot"]:
-        plot_frequent_wrong_programs_ratio(tasks=tasks_stuck, total_sum=stuck_total_sum, title="Unsolved task sessions",
-                                           abs_step=1, abs_begin=1, abs_end=11,
-                                           rel_step=0.01, rel_begin=1, rel_end=11)
-        plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong, total_sum=all_total_sum, title="All wrong submits",
-                                           abs_step=5, abs_begin=1, abs_end=15,
-                                           rel_step=0.01, rel_begin=1, rel_end=9)
+        plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq"]],
+                                           total_sum=tasks_all_wrong.task_freq,
+                                           title="All wrong submits",
+                                           abs_step=30, abs_begin=1, abs_end=11,
+                                           rel_step=0.05, rel_begin=1, rel_end=11)
+        plot_frequent_wrong_programs_ratio(tasks=tasks_stuck[["abs_count", "rel_count", "task_freq"]],
+                                           total_sum=tasks_stuck.task_freq,
+                                           title="Unsolved task sessions",
+                                           abs_step=5, abs_begin=1, abs_end=11,
+                                           rel_step=0.05, rel_begin=1, rel_end=11)
 
-    tasks_stuck["frequent_programs_ratio"], tasks_stuck["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
+
+    tasks = pd.DataFrame(index=tasks_stuck.index.levels[0])
+    tasks["stuck_frequent_programs_ratio"], tasks["stuck_unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_stuck, abs_threshold=5, rel_threshold=0.05)
-    tasks_all_wrong["frequent_programs_ratio"], tasks_all_wrong["unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
+    tasks["all_wrong_frequent_programs_ratio"], tasks["all_wrong_unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_all_wrong, abs_threshold=10, rel_threshold=0.05)
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(tasks)
 
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
-        print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
-        print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
+    #    print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
+    #    print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
 
-    mistakes = pd.DataFrame(index=tasks_stuck.index)
-    mistakes["stuck_frequent_programs_ratio"] = tasks_stuck.frequent_programs_ratio
-    mistakes["stuck_unique_frequent_programs"] = tasks_stuck.unique_frequent_programs
-    mistakes["all_frequent_programs_ratio"] = tasks_all_wrong.frequent_programs_ratio
-    mistakes["all_unique_frequent_programs"] = tasks_all_wrong.unique_frequent_programs
+    #mistakes = pd.DataFrame(index=tasks_stuck.index)
+    #mistakes["stuck_frequent_programs_ratio"] = tasks_stuck.frequent_programs_ratio
+    #mistakes["stuck_unique_frequent_programs"] = tasks_stuck.unique_frequent_programs
+    #mistakes["all_frequent_programs_ratio"] = tasks_all_wrong.frequent_programs_ratio
+    #mistakes["all_unique_frequent_programs"] = tasks_all_wrong.unique_frequent_programs
 
-    return mistakes
+    return tasks
 
 # Computes correlation of task measures and creates heat table
 def measures_correlations(measures_table, method, title):
