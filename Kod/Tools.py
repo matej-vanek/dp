@@ -12,7 +12,7 @@ from MiniRoboCodeInterpreter import run_task
 
 # Runs submits again and tests their correctness.
 # Computes sequence of visited squares during the run.
-def add_new_run_and_square_sequence(snapshots_path, task_sessions_path, tasks_path, output_snapshots_path):
+def synchronous_interpreter_correctness_and_square_sequence(snapshots_path, task_sessions_path, tasks_path, output_snapshots_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
@@ -407,6 +407,18 @@ def sample_solution_not_most_frequent(solutions, programs):
     return output
 
 
+def square_sequences_to_strings(sequence_series):
+    string_sequences = pd.Series(index=sequence_series.index)
+    for i in sequence_series.index:
+        if sequence_series.loc[i]:
+            string_square_sequence = ""
+            for square in sequence_series.loc[i]:
+                for coord in square:
+                    string_square_sequence += str(coord)
+            string_sequences.loc[i] = string_square_sequence
+    return string_sequences
+
+
 # Computes various statistics from mistake measures tasks
 def statistics(tasks):
     tasks.rename(columns={"program": "absolute_counts"}, inplace=True)
@@ -429,10 +441,10 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
                         task_sessions_cols=None)
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
 
-add_new_run_and_square_sequence(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                                task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                                tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-                                output_snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_2.csv")
+synchronous_interpreter_correctness_and_square_sequence(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+                                                        task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                                                        tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+                                                        output_snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_2.csv")
 """
 """
 incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",

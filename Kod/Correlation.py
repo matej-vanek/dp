@@ -1,4 +1,8 @@
-from collections import Counter
+# INSTALOVAT PIP3 A VSECHNO PRES PIP3
+#INSTALOVAT TKINTER? PRO MATPLOTLIB PYPLOT
+
+
+# from collections import Counter
 import editdistance
 from functools import partial
 from matplotlib import pyplot as plt
@@ -439,30 +443,65 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
                                    tasks_cols=[])
 
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
+    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system  # NAPSAT, ZE BYLY NESOUHLASNE VYLOUCENY
 
-    ts_stuck = data.groupby("task_session").agg({"task": "max",
-                                           "new_correct": count_true,
-                                           "program": "last"})
+    data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
 
-    ts_stuck.new_correct = 0 + ts_stuck.new_correct  # convert bool to int
-    ts_stuck["new_solved"] = ts_stuck.new_correct / ts_stuck.new_correct  # convert int to nan/1
-    ts_stuck.new_solved = ts_stuck.new_solved.fillna(0)  # convert nan/1 to 0/1
+    last_ts_snapshot = data.groupby("task_session").agg({"task": "max",
+                                                         "new_correct": count_true,
+                                                         "program": "last",
+                                                         })
 
-    wrong_ts = ts_stuck[ts_stuck.new_solved == 0]
-    del ts_stuck
-    tasks_stuck = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
+    last_ts_snapshot.new_correct = 0 + last_ts_snapshot.new_correct  # convert bool to int
+    last_ts_snapshot["new_solved"] = last_ts_snapshot.new_correct / last_ts_snapshot.new_correct  # convert int to nan/1
+    last_ts_snapshot.new_solved = last_ts_snapshot.new_solved.fillna(0)  # convert nan/1 to 0/1
+    last_ts_snapshot["string_square_sequence"] = qqq(last_ts_snapshot.program)
+
+    wrong_ts = last_ts_snapshot[last_ts_snapshot.new_solved == 0]
+    del last_ts_snapshot
+    tasks_stuck = wrong_ts.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)
+                                                "string_square_sequence": partial(dict_of_counts, del_false=True)})
+
+
+
+
+
+
+
+
 
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
     tasks_all_wrong = data.groupby("task").agg({"program": partial(dict_of_counts, del_false=True)})
 
-    tasks_stuck, stuck_total_sum = statistics(tasks_stuck)
-    tasks_all_wrong, all_total_sum = statistics(tasks_all_wrong)
+    #tasks_stuck, stuck_total_sum = statistics(tasks_stuck)
+    #tasks_all_wrong, all_total_sum = statistics(tasks_all_wrong)
 
-    tasks_all_wrong["program_clusters_count"], program_info = count_program_clusters(tasks_all_wrong.absolute_counts)  # PRILIS DLOUHO, 400X400 AST_TED!!!!
+    #tasks_all_wrong["program_clusters_count"], program_info = count_program_clusters(tasks_all_wrong.absolute_counts)  # PRILIS DLOUHO, 400X400 AST_TED!!!!
 
-    q
+    #tasks_all_wrong["string_square_sequence"] = square_sequences_to_strings(tasks_all_wrong.square_sequence)
+    #tasks_all_wrong["string_square_sequence2"] = tasks_all_wrong["string_square_sequence"]
+
+    tasks_all_wrong = tasks_all_wrong.groupby(["task", "string_square_sequence"]).agg({
+        "string_square_sequence2": "count",
+        "program": most_frequent_program,
+                                           "student": "max",
+                                           "level": "max",
+                                           "new_correct": count_true,
+                                           "program": "last",
+                                           "time_spent": "max"})
+
+
+
+
+    # totez pro tasks_stuck
+
+
+
+
+
+
+
     if kwargs["plot"]:
         plot_frequent_wrong_programs_ratio(tasks=tasks_stuck, total_sum=stuck_total_sum, title="Unsolved task sessions",
                                            abs_step=1, abs_begin=1, abs_end=11,
