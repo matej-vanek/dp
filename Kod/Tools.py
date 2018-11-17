@@ -22,8 +22,9 @@ def synchronous_interpreter_correctness_and_square_sequence(snapshots_path=None,
                                        tasks_path=tasks_path,
                                        task_sessions_cols=["id", "task"],
                                        tasks_cols=[])
-    #data["new_correct"] = None
-    #data["square_sequence"] = pd.Series(None, index=data.index)
+        data["new_correct"] = pd.Series(None, index=data.index)
+        data["square_sequence"] = pd.Series(None, index=data.index)
+    print(data.shape[0])
     for i in data.index:
         if only_executions:
             if data.loc[i].granularity != "execution":
@@ -32,6 +33,7 @@ def synchronous_interpreter_correctness_and_square_sequence(snapshots_path=None,
             if data.loc[i].granularity != "edit":
                 continue
         #print(data.loc[i]["program"])
+        print(i)
         correct, square_sequence = run_task(tasks_path=tasks_path,
                                             task_id=data.loc[i].task,
                                             program=data.loc[i].program,
@@ -185,37 +187,27 @@ def count_edits(series):
 
 
 def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
-    """
-    frequency = pd.Series(index=tasks.index)
-    unique = pd.Series(index=tasks.index)
-    for task in tasks.index:
-        frequent_ratio = 0
-        unique_programs = 0
-        for program in tasks.relative_counts.loc[task][0]:
-            if tasks.absolute_counts.loc[task][0][program] >= abs_threshold and \
-                    tasks.relative_counts.loc[task][0][program] >= rel_threshold:
-                frequent_ratio += tasks.relative_counts.loc[task][0][program]
-                unique_programs += 1
-        frequency.loc[task] = frequent_ratio
-        unique.loc[task] = unique_programs
-    return frequency, unique
-    """
-
     frequency = pd.Series(index=tasks.index.levels[0])
     unique = pd.Series(index=tasks.index.levels[0])
+    frequent_programs_series = pd.Series(index=tasks.index.levels[0])
     for task in tasks.index.levels[0]:
         frequent_ratio = 0
         unique_programs = 0
+        frequent_programs = [{}]
         for seq in tasks.index:
             if seq[0] == task:
                 this_seq = tasks.loc[seq]
                 if this_seq.abs_count >= abs_threshold and \
-                        this_seq.rel_count >= rel_threshold:
+                        this_seq.rel_count >= rel_threshold and \
+                        isinstance(this_seq.most_frequent_program, str):
                     frequent_ratio += this_seq.rel_count
                     unique_programs += 1
+                    frequent_programs[0][this_seq.most_frequent_program] = this_seq.abs_count
         frequency.loc[task] = frequent_ratio
         unique.loc[task] = unique_programs
-    return frequency, unique
+        frequent_programs_series.loc[task] = frequent_programs
+
+    return frequency, unique, frequent_programs_series
 
 
 def count_total_abs_freq(series):
@@ -433,7 +425,8 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, title, abs_step, abs_be
                     if seq[0] == task:
                         this_seq = tasks.loc[seq]
                         if this_seq.abs_count >= abs_threshold and \
-                                this_seq.rel_count >= rel_threshold:
+                                this_seq.rel_count >= rel_threshold and \
+                                isinstance(this_seq.most_frequent_program, str):
                             frequent += this_seq.abs_count
                         if not total_sum:
                             task_total_sum = this_seq.task_freq
@@ -515,12 +508,12 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
                         task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                         task_sessions_cols=None)
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
-
-synchronous_interpreter_correctness_and_square_sequence(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                                                        task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                                                        tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-                                                        output_snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_2.csv")
 """
+synchronous_interpreter_correctness_and_square_sequence(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-11-03/program_snapshots.csv",
+                                                        task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-11-03/task_sessions.csv",
+                                                        tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-11-03/tasks.csv",
+                                                        output_snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-11-03/program_snapshots_extended.csv")
+
 """
 incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                      task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",

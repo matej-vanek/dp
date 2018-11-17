@@ -457,7 +457,9 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     last_ts_snapshot.new_solved = last_ts_snapshot.new_solved.fillna(0)  # convert nan/1 to 0/1
 
     wrong_ts = last_ts_snapshot[last_ts_snapshot.new_solved == 0]
-    #wrong_ts = wrong_ts.iloc[:1000]    ###########
+    #wrong_ts = wrong_ts.iloc[:100]    ###########
+    print(wrong_ts.shape[0])
+
     wrong_ts = synchronous_interpreter_correctness_and_square_sequence(dataframe=wrong_ts,
                                                                        only_executions=False,
                                                                        only_edits=True,
@@ -480,7 +482,8 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
-    #data = data.iloc[:1000]  ###################xx
+    #data = data.iloc[:2000]  ###################
+    print(data.shape[0])
     data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
     tasks_all_wrong = data.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
 
@@ -494,12 +497,12 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
 
     if kwargs["plot"]:
-        plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq"]],
+        plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
                                            total_sum=tasks_all_wrong.task_freq,
                                            title="All wrong submits",
                                            abs_step=30, abs_begin=1, abs_end=11,
                                            rel_step=0.05, rel_begin=1, rel_end=11)
-        plot_frequent_wrong_programs_ratio(tasks=tasks_stuck[["abs_count", "rel_count", "task_freq"]],
+        plot_frequent_wrong_programs_ratio(tasks=tasks_stuck[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
                                            total_sum=tasks_stuck.task_freq,
                                            title="Unsolved task sessions",
                                            abs_step=5, abs_begin=1, abs_end=11,
@@ -507,10 +510,10 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
 
     tasks = pd.DataFrame(index=tasks_stuck.index.levels[0])
-    tasks["stuck_frequent_programs_ratio"], tasks["stuck_unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_stuck, abs_threshold=5, rel_threshold=0.05)
-    tasks["all_wrong_frequent_programs_ratio"], tasks["all_wrong_unique_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_all_wrong, abs_threshold=10, rel_threshold=0.05)
+    tasks["stuck_frequent_programs_ratio"], tasks["stuck_unique_frequent_programs"], tasks["stuck_frequent_programs"] = count_frequent_wrong_programs_ratio(
+        tasks=tasks_stuck, abs_threshold=20, rel_threshold=0.10)
+    tasks["all_wrong_frequent_programs_ratio"], tasks["all_wrong_unique_frequent_programs"], tasks["all_wrong_frequent_programs"] = count_frequent_wrong_programs_ratio(
+        tasks=tasks_all_wrong, abs_threshold=100, rel_threshold=0.10)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(tasks)
 
@@ -518,13 +521,8 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     #    print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
     #    print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
 
-    #mistakes = pd.DataFrame(index=tasks_stuck.index)
-    #mistakes["stuck_frequent_programs_ratio"] = tasks_stuck.frequent_programs_ratio
-    #mistakes["stuck_unique_frequent_programs"] = tasks_stuck.unique_frequent_programs
-    #mistakes["all_frequent_programs_ratio"] = tasks_all_wrong.frequent_programs_ratio
-    #mistakes["all_unique_frequent_programs"] = tasks_all_wrong.unique_frequent_programs
 
-    return tasks
+    return tasks[["stuck_frequent_programs_ratio", "stuck_unique_frequent_programs", "all_wrong_frequent_programs_ratio", "all_wrong_unique_frequent_programs"]]
 
 # Computes correlation of task measures and creates heat table
 def measures_correlations(measures_table, method, title):
@@ -533,10 +531,14 @@ def measures_correlations(measures_table, method, title):
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
     plt.title(title)
+    plt.tight_layout()
+    #plt.savefig("/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Obrazky/BBB.png")
     plt.show()
 
-    sns.clustermap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
+    sns.clustermap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1, figsize=(8,5))
     plt.title(title)
+    plt.gcf().subplots_adjust(bottom=0.35, left=0.25, right=0.75, top=0.95)
+    #plt.savefig("/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Obrazky/CCC.png")
     plt.show()
 
     return correlations
@@ -551,14 +553,16 @@ def correlation_methods_correlations(pearson_measures_correlation, spearman_meas
     elif full_or_triangle == "triangle":
         correlations = np.corrcoef(flattened_triangle_table(pearson_measures_correlation.as_matrix()),
                                    flattened_triangle_table(spearman_measures_correlation.as_matrix()))
-    correlations = pd.DataFrame(correlations, index=["Pearson", "Spearman"], columns=["Pearson", "Spearman"])
+    correlations = pd.DataFrame(correlations, index=["Pearson's", "Spearman's"], columns=["Pearson's", "Spearman's"])
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
     plt.title("""
-    Pearson {}-matrix correlation of Pearson and Spearman correlation methods\n
+    Pearson's {}-matrix correlation of Pearson's and Spearman's correlation methods\n
     applied to {}
     """.format(full_or_triangle, variable_group_title))
+    plt.tight_layout()
+    #plt.gcf().subplots_adjust(left=0.3, right=0.75, top=0.8)
     plt.show()
 
     return correlations
@@ -573,9 +577,10 @@ def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_cor
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
     plt.title("""
-    Pearson correlation of full and triangle method\n
+    Pearson's correlation of full and triangle method\n
     applied to {}
     """.format(variable_group_title))
+    plt.tight_layout()
     plt.show()
 
     return correlations
@@ -589,11 +594,11 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
                                        **kwargs)
     pearson_measures_correlation = measures_correlations(measures_table=measures_table,
                                                          method="pearson",
-                                                         title="Pearson correlation of {}"
+                                                         title="Pearson's correlation of {}"
                                                          .format(variable_group_title))
     spearman_measures_correlation = measures_correlations(measures_table=measures_table,
                                                           method="spearman",
-                                                          title="Spearman correlation of {}"
+                                                          title="Spearman's correlation of {}"
                                                           .format(variable_group_title))
     corr_of_full_corr_tables = \
         correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
@@ -606,11 +611,11 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
                                          variable_group_title=variable_group_title,
                                          full_or_triangle="triangle")
 
-    """
-    full_and_triangle_correlation(corr_of_full_corr_tables=corr_of_full_corr_tables,
-                                  corr_of_triangle_corr_tables=corr_of_triangle_corr_tables,
-                                  variable_group_title=variable_group_title)
-    """
+
+    #full_and_triangle_correlation(corr_of_full_corr_tables=corr_of_full_corr_tables,
+    #                              corr_of_triangle_corr_tables=corr_of_triangle_corr_tables,
+    #                              variable_group_title=variable_group_title)
+
 
 
 """
@@ -627,13 +632,13 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  measures_function=complexity_measures,
                  variable_group_title="complexity measures")
 """
-"""
+
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
-"""
+
 """
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
@@ -662,14 +667,14 @@ all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Dipl
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
-
+"""
 all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                  task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
                  tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
                  measures_function=mistakes_measures,
                  variable_group_title="mistakes measures",
                  plot=True)
-
+"""
 
 # TODO: KORELACNI GRAFY?
 # TODO: GRAFY - CITELNOST VSECH POPISKU

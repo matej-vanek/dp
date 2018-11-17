@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="" />
+    <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/Correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Correlation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tools.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +20,7 @@
         <counts>
           <entry key="project.closed" value="11" />
           <entry key="project.open.time.11" value="1" />
-          <entry key="project.open.time.12" value="2" />
+          <entry key="project.open.time.12" value="3" />
           <entry key="project.open.time.13" value="1" />
           <entry key="project.open.time.14" value="1" />
           <entry key="project.open.time.15" value="1" />
@@ -25,18 +28,18 @@
           <entry key="project.open.time.31" value="1" />
           <entry key="project.open.time.42" value="1" />
           <entry key="project.open.time.8" value="2" />
-          <entry key="project.opened" value="11" />
+          <entry key="project.opened" value="12" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="178" />
-          <entry key="py" value="7782" />
+          <entry key="py" value="8566" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="7960" />
+          <entry key="Python" value="8744" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -87,11 +90,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="447" selection-start-line="447" selection-end-line="447" />
+            <state relative-caret-position="103">
+              <caret line="460" column="4" selection-start-line="460" selection-start-column="4" selection-end-line="460" selection-end-column="28" />
               <folding>
                 <element signature="e#117#136#0" expanded="true" />
               </folding>
@@ -99,11 +102,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7200">
-              <caret line="489" column="26" selection-start-line="489" selection-start-column="26" selection-end-line="489" selection-end-column="26" />
+            <state relative-caret-position="204">
+              <caret line="510" column="3" lean-forward="true" selection-start-line="510" selection-start-column="3" selection-end-line="510" selection-end-column="3" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -176,18 +179,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>tasks_all</find>
-      <find>clust</find>
-      <find>zzs</find>
-      <find>distance</find>
-      <find>zss</find>
       <find>sq</find>
       <find>seq</find>
       <find>run_</find>
       <find>group_by</find>
       <find>groupby([</find>
       <find>dict</find>
-      <find>sync</find>
       <find>run</find>
       <find>555</find>
       <find>np.nan</find>
@@ -206,6 +203,12 @@
       <find>Stringi</find>
       <find>wro</find>
       <find>square_sequences_t</find>
+      <find>frequen</find>
+      <find>count_f</find>
+      <find>plt</find>
+      <find>sync</find>
+      <find>new_corr</find>
+      <find>shap</find>
     </findStrings>
     <replaceStrings>
       <replace>successful_sessions</replace>
@@ -236,9 +239,9 @@
         <option value="$PROJECT_DIR$/MiniRoboCodeInterpreter.py" />
         <option value="$PROJECT_DIR$/InterpreterTools.py" />
         <option value="$PROJECT_DIR$/AST.py" />
-        <option value="$PROJECT_DIR$/Tools.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
         <option value="$PROJECT_DIR$/Correlation.py" />
+        <option value="$PROJECT_DIR$/Tools.py" />
       </list>
     </option>
   </component>
@@ -253,7 +256,10 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="ProjectPane" />
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$USER_HOME$/9. semestr/RoboMise/kod/Podobnost.py" />
@@ -279,7 +285,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Correlation">
+  <component name="RunManager" selected="Python.Tools">
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -413,9 +419,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Tools" />
         <item itemvalue="Python.Correlation" />
         <item itemvalue="Python.kkk" />
-        <item itemvalue="Python.Tools" />
         <item itemvalue="Python.AST3" />
         <item itemvalue="Python.AST2" />
       </list>
@@ -468,13 +474,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="60" y="-11" width="1307" height="780" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.24960998" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24960998" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32298136" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.38975155" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.55279505" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -620,26 +627,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Correlation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="447" selection-start-line="447" selection-end-line="447" />
-          <folding>
-            <element signature="e#117#136#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Tools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7200">
-          <caret line="489" column="26" selection-start-line="489" selection-start-column="26" selection-end-line="489" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4470">
@@ -667,6 +654,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/jjj.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="39" selection-start-line="39" selection-end-line="39" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/kkk.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -674,12 +671,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jjj.py">
+    <entry file="file://$PROJECT_DIR$/Correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="39" selection-start-line="39" selection-end-line="39" />
+        <state relative-caret-position="103">
+          <caret line="460" column="4" selection-start-line="460" selection-start-column="4" selection-end-line="460" selection-end-column="28" />
           <folding>
-            <element signature="e#0#36#0" expanded="true" />
+            <element signature="e#117#136#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="510" column="3" lean-forward="true" selection-start-line="510" selection-start-column="3" selection-end-line="510" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
