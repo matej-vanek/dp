@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Kod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Kod.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Data/robomission-2018-11-03/.~lock.program_snapshots_extended.csv#" beforeDir="false" afterPath="$PROJECT_DIR$/../Data/robomission-2018-11-03/.~lock.program_snapshots_extended.csv#" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AST.py" beforeDir="false" afterPath="$PROJECT_DIR$/AST.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Correlation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tools.py" afterDir="false" />
     </list>
@@ -64,8 +62,8 @@
         <counts>
           <entry key="project.closed" value="3" />
           <entry key="project.open.time.4" value="2" />
-          <entry key="project.open.time.6" value="2" />
-          <entry key="project.opened" value="4" />
+          <entry key="project.open.time.6" value="3" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -80,12 +78,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="1448" />
+          <entry key="py" value="2203" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="1448" />
+          <entry key="Python" value="2203" />
         </counts>
       </usages-collector>
     </session>
@@ -98,24 +96,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
+            <state relative-caret-position="3518">
+              <caret line="676" lean-forward="true" selection-start-line="676" selection-end-line="676" />
               <folding>
+                <element signature="e#117#136#0" expanded="true" />
                 <element signature="e#313#349#0" />
-                <element signature="e#535#2938#0" />
                 <element signature="e#2941#2977#0" />
-                <element signature="e#3209#6171#0" />
-                <element signature="e#6301#11946#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="337">
-              <caret line="142" selection-start-line="142" selection-end-line="142" />
+            <state relative-caret-position="132">
+              <caret line="533" column="45" selection-start-line="533" selection-start-column="45" selection-end-line="533" selection-end-column="45" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -123,11 +119,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4470">
-              <caret line="299" column="13" selection-start-line="299" selection-start-column="13" selection-end-line="299" selection-end-column="13" />
+            <state relative-caret-position="176">
+              <caret line="309" column="40" selection-start-line="309" selection-start-column="36" selection-end-line="309" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -135,7 +131,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1725">
+            <state relative-caret-position="1245">
               <caret line="119" column="71" selection-start-line="119" selection-start-column="71" selection-end-line="119" selection-end-column="71" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -147,7 +143,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AST.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="157">
+            <state relative-caret-position="2985">
               <caret line="201" column="31" selection-start-line="201" selection-start-column="31" selection-end-line="201" selection-end-column="31" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
@@ -168,7 +164,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/jjj.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
+            <state relative-caret-position="585">
               <caret line="39" selection-start-line="39" selection-end-line="39" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
@@ -188,20 +184,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>np.nan</find>
-      <find>with</find>
-      <find>freq</find>
-      <find>most_frequen</find>
-      <find>max</find>
-      <find>get</find>
-      <find>.get</find>
-      <find>print</find>
       <find>plo</find>
       <find>data.square_sequence.loc[i] = str(square_sequence)</find>
       <find>.lev</find>
       <find>only</find>
       <find>synch</find>
-      <find>Stringi</find>
       <find>wro</find>
       <find>square_sequences_t</find>
       <find>frequen</find>
@@ -218,6 +205,15 @@
       <find>snapshots.csv</find>
       <find>block_ty</find>
       <find>block_types</find>
+      <find>count_pro</find>
+      <find>it.</find>
+      <find>distinct</find>
+      <find>part</find>
+      <find>partial</find>
+      <find>unique_seq</find>
+      <find>.sequences_e</find>
+      <find>Stringi</find>
+      <find>.csv</find>
     </findStrings>
     <replaceStrings>
       <replace>successful_sessions</replace>
@@ -232,6 +228,9 @@
       <replace>~/dp</replace>
       <replace>snapshots_extended.csv</replace>
       <replace>distinct_blocks</replace>
+      <replace>unique</replace>
+      <replace>unique_squares_seq</replace>
+      <replace>.squares_sequences_e</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -252,9 +251,9 @@
         <option value="$PROJECT_DIR$/MiniRoboCodeInterpreter.py" />
         <option value="$PROJECT_DIR$/InterpreterTools.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
-        <option value="$PROJECT_DIR$/Tools.py" />
-        <option value="$PROJECT_DIR$/Correlation.py" />
         <option value="$PROJECT_DIR$/AST.py" />
+        <option value="$PROJECT_DIR$/Correlation.py" />
+        <option value="$PROJECT_DIR$/Tools.py" />
       </list>
     </option>
   </component>
@@ -308,7 +307,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Correlation">
+  <component name="RunManager" selected="Python.Tools">
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -442,9 +441,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Tools" />
         <item itemvalue="Python.Correlation" />
         <item itemvalue="Python.AST2" />
-        <item itemvalue="Python.Tools" />
         <item itemvalue="Python.kkk" />
         <item itemvalue="Python.AST3" />
       </list>
@@ -497,13 +496,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24918033" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24918033" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.43027028" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.43027028" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.55279505" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -511,18 +511,18 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.44875777" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32972974" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
     <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24960998" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24918033" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32298136" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.43027028" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.55279505" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -643,19 +643,22 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/pandas/core/indexing.py" />
-    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
+    <entry file="file://$PROJECT_DIR$/AST.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4470">
-          <caret line="299" column="13" selection-start-line="299" selection-start-column="13" selection-end-line="299" selection-end-column="13" />
+        <state relative-caret-position="2985">
+          <caret line="201" column="31" selection-start-line="201" selection-start-column="31" selection-end-line="201" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
+    <entry file="file://$PROJECT_DIR$/jjj.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1725">
-          <caret line="119" column="71" selection-start-line="119" selection-start-column="71" selection-end-line="119" selection-end-column="71" />
+        <state relative-caret-position="585">
+          <caret line="39" selection-start-line="39" selection-end-line="39" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -667,47 +670,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jjj.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="39" selection-start-line="39" selection-end-line="39" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AST.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="201" column="31" selection-start-line="201" selection-start-column="31" selection-end-line="201" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
+        <state relative-caret-position="3518">
+          <caret line="676" lean-forward="true" selection-start-line="676" selection-end-line="676" />
           <folding>
+            <element signature="e#117#136#0" expanded="true" />
             <element signature="e#313#349#0" />
-            <element signature="e#535#2938#0" />
             <element signature="e#2941#2977#0" />
-            <element signature="e#3209#6171#0" />
-            <element signature="e#6301#11946#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Tools.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="337">
-          <caret line="142" selection-start-line="142" selection-end-line="142" />
+        <state relative-caret-position="132">
+          <caret line="533" column="45" selection-start-line="533" selection-start-column="45" selection-end-line="533" selection-end-column="45" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1245">
+          <caret line="119" column="71" selection-start-line="119" selection-start-column="71" selection-end-line="119" selection-end-column="71" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="309" column="40" selection-start-line="309" selection-start-column="36" selection-end-line="309" selection-end-column="40" />
         </state>
       </provider>
     </entry>

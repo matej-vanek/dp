@@ -241,12 +241,12 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     uniqueness["unique_solutions"] = tasks.distinct_solutions
     uniqueness["unique_squares_sequences"] = tasks.distinct_squares_sequences
     #uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
-    uniqueness["program_clusters_count"], _ = count_program_clusters(tasks.program)
-    print("solutions {} {} {}".format(uniqueness.distinct_solutions.quantile(0.25), uniqueness.distinct_solutions.quantile(0.5), uniqueness.distinct_solutions.quantile(0.75)))
-    print("sequences {} {} {}".format(uniqueness.distinct_sequences.quantile(0.25), uniqueness.distinct_sequences.quantile(0.5), uniqueness.distinct_sequences.quantile(0.75)))
+    uniqueness["program_clusters_count"], _, _ = count_program_clusters(tasks.program)
+    print("solutions {} {} {}".format(uniqueness.unique_solutions.quantile(0.25), uniqueness.unique_solutions.quantile(0.5), uniqueness.unique_solutions.quantile(0.75)))
+    print("sequences {} {} {}".format(uniqueness.unique_squares_sequences.quantile(0.25), uniqueness.unique_squares_sequences.quantile(0.5), uniqueness.unique_squares_sequences.quantile(0.75)))
     print("clusters {} {} {}".format(uniqueness.program_clusters_count.quantile(0.25), uniqueness.program_clusters_count.quantile(0.5), uniqueness.program_clusters_count.quantile(0.75)))
     print("solutions entropy {} {} {}".format(uniqueness.solutions_entropy.quantile(0.25), uniqueness.solutions_entropy.quantile(0.5), uniqueness.solutions_entropy.quantile(0.75)))
-    print("sequences entropy {} {} {}".format(uniqueness.sequences_entropy.quantile(0.25), uniqueness.sequences_entropy.quantile(0.5), uniqueness.sequences_entropy.quantile(0.75)))
+    print("sequences entropy {} {} {}".format(uniqueness.squares_sequences_entropy.quantile(0.25), uniqueness.squares_sequences_entropy.quantile(0.5), uniqueness.squares_sequences_entropy.quantile(0.75)))
     return uniqueness
 
 
@@ -349,10 +349,10 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     similarity["entities2"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.02))
     similarity["entities5"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.05))
     similarity["entities10"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.10))
-    similarity["shortest_ast"] = get_shortest_distance(ast_ted_matrix)
-    similarity["shortest_levenshtein"] = get_shortest_distance(levenshtein_matrix)
-    similarity["shortest_blocks"] = get_shortest_distance(bag_of_blocks_matrix)
-    similarity["shortest_entities"] = get_shortest_distance(bag_of_entities_matrix)
+    similarity["closest_ast"] = get_shortest_distance(ast_ted_matrix)
+    similarity["closest_levenshtein"] = get_shortest_distance(levenshtein_matrix)
+    similarity["closest_blocks"] = get_shortest_distance(bag_of_blocks_matrix)
+    similarity["closest_entities"] = get_shortest_distance(bag_of_entities_matrix)
 
     print(similarity)
     return similarity
@@ -386,13 +386,13 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
     performance = pd.DataFrame(index=ts.task_session)
 
     performance["incorrectness"] = ts.new_correct / ts.new_correct
-    performance.incorrectness = 1 - performance.incorrectness.fillna(0)  ############## INcorrectness!
-    performance["time"] = ts.time_spent
+    #performance.incorrectness = 1 - performance.incorrectness.fillna(0)  ############## INcorrectness!
+    #performance["time"] = ts.time_spent
     performance["edits"] = ts.granularity
-    performance["submits"] = ts.granularity_submits
+    performance["submissions"] = ts.granularity_submits
     performance["deletions_all"] = ts.program
-    performance["deletions_line"] = ts.program_line
-    performance["deletions_bit"] = ts.program_bit
+    performance["deletions_edits"] = ts.program_line
+    performance["deletions_1_0"] = ts.program_bit
 
     print(performance)
     return performance
@@ -639,13 +639,13 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
 """
-
+"""
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
-
+"""
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
@@ -667,14 +667,14 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
-"""
+
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=mistakes_measures,
                  variable_group_title="mistakes measures",
                  plot=True)
-"""
+
 
 # TODO: VYPSAT DO DASHBOARDU SKUPINY SPRAVNYCH A SPATNYCH RESENI - REPREZENTANT = NEJCASTEJSI RESENI VE SKUPINE
 # TODO: STUCK POINTS PREJMENOVAT NA LEAVING POINTS

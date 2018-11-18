@@ -1,0 +1,5 @@
+FLOW:
+
+replace red by d -> snapshots_d
+synchronous -> snapshots_extended
+

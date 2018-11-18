@@ -97,7 +97,7 @@ def count_deletions(series, mode):
     last = ""
     for item in series:
         if not isinstance(item, str):
-            item = ""
+            item = "".sequences_e
         item = re.sub("[{}0123456789<>=!]", "", item)
         last = re.sub("[{}0123456789<>=!]", "", last)
         if len(item) < len(last):
@@ -113,7 +113,7 @@ def count_deletions(series, mode):
 
 # Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
 # prunes where cophenetic dist is > 5, returns number of clusters
-def count_program_clusters(programs):
+def count_program_clusters2(programs):
     clusters_count = pd.Series(index=programs.index)
     program_info = {}
     cluster_info = {}
@@ -133,20 +133,79 @@ def count_program_clusters(programs):
             condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
         else:
             condensed_dist_matrix = [0]
+
         hier_clust = linkage(condensed_dist_matrix)
         #print(hier_clust)
         #print(programs.loc[task])
         cluster_assign = fcluster(hier_clust, 5, criterion="distance")
         #print(program_list)
-        print("QQQQ")
-        program_info[task] = {program: {'cluster': cluster, 'freq': programs.loc[task][0][program]} for program, cluster in zip(program_list, cluster_assign)}
-        cluster_info[task] = {cluster: {'programs': [program for program in program_info[task] if program["cluster"] == cluster],
-                                        'representant': max(program_info[task][0], key=program_info[task][0].get)} for cluster in set(cluster_assign)}
+        #cluster_info[task] = {cluster:
+        #                          {'programs': [program for program in program_info[task] if program["cluster"] == cluster],
+        #                           'representant': max(program_info[task][0], key=program_info[task][0].get)}
+        #                           for cluster in set(cluster_assign)}
+
+        print(set(cluster_assign))
+        for cluster in set(cluster_assign):
+            print(cluster)
+            print(program_info[task])
+            programs = [program_info[task][program] for program in program_info[task] if
+                                                program_info[task][program]["cluster"] == cluster]
+            representant = max(program_info[task][0], key=program_info[task][0].get)
+
+            cluster_info[task] = {cluster: {"programs": programs, "representant": representant}}
+
+        #cluster_info[task] = {cluster:
+        #                          {'programs': [program_info[task][program] for program in program_info[task] if
+        #                                        program_info[task][program]["cluster"] == cluster],
+        #                           'representant': max(program_info[task][0], key=program_info[task][0].get)}
+        #                      for cluster in set(cluster_assign)}
+
+
+
         #print(cluster_assign)
         #print("Number of found clusters: ", len(set(cluster_assign)))
         clusters_count.loc[task] = len(set(cluster_assign))
         print(program_info[task])
+        print(cluster_info)
         print(cluster_info[task])
+    return clusters_count, program_info, cluster_info
+
+def count_program_clusters(programs):
+    clusters_count = pd.Series(index=programs.index)
+    program_info = {}
+    cluster_info = {}
+    for task in programs.index:
+        program_list = list(programs.loc[task][0].keys())
+        if len(programs.loc[task][0].keys()) > 1:
+            condensed_dist_matrix = []
+            #print(len(program_list))
+            program_ast_list = np.array(list(map(partial(build_ast), program_list)))
+            #print(program_ast_list)
+            for i in range(len(program_ast_list)):
+                #print(i)
+                for j in range(len(program_ast_list)):
+                    if i < j:
+                        condensed_dist_matrix.append(ast_ted(program_ast_list[i], program_ast_list[j]))
+            #print(condensed_dist_matrix)
+            condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
+        else:
+            condensed_dist_matrix = [0]
+        hier_clust = linkage(condensed_dist_matrix)
+        #print(hier_clust)
+        #print(programs.loc[task])
+        cluster_assign = fcluster(hier_clust, 5, criterion="distance")
+        #print(program_list)
+        program_info[task] = {program: {'cluster': cluster, 'freq': programs.loc[task][0][program]} for program, cluster in zip(program_list, cluster_assign)}
+        #print(program_info[task])
+        #print([prog for prog in program_info[task] if program_info[task][prog]["cluster"] == 1])
+
+        cluster_info[task] = {cluster: {'programs': [program for program in program_info[task] if program_info[task][program]["cluster"] == cluster],
+                                        'representant': max([prog for prog in program_info[task] if program_info[task][prog]["cluster"] == cluster], key=lambda x: program_info[task][x]["freq"])}
+                              for cluster in set(cluster_assign)}
+        #print(cluster_assign)
+        #print("Number of found clusters: ", len(set(cluster_assign)))
+        clusters_count.loc[task] = len(set(cluster_assign))
+        #print(cluster_info[task])
     return clusters_count, program_info, cluster_info
 
 
