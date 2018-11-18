@@ -150,21 +150,21 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     del successful_sessions
 
     # successfulness of submits
-    submits_by_tasks = all_sessions.groupby("task").agg({"granularity": "sum", "new_correct": "sum"})
-    difficulty_and_complexity["submits_incorrect"] = 1 - submits_by_tasks.new_correct / submits_by_tasks.granularity  ####################xx 1 -
+    #submits_by_tasks = all_sessions.groupby("task").agg({"granularity": "sum", "new_correct": "sum"})
+    #difficulty_and_complexity["submits_incorrect"] = 1 - submits_by_tasks.new_correct / submits_by_tasks.granularity  ####################xx 1 -
 
-    del submits_by_tasks
+    #del submits_by_tasks
 
     # number of block types
-    block_types_by_task = all_sessions.groupby("task").agg({"solution": "last"})
-    difficulty_and_complexity["block_types"] = count_distinct_blocks(block_types_by_task.solution, 1)
-    difficulty_and_complexity.block_types = difficulty_and_complexity.block_types.astype("int64")
+    distinct_blocks_by_task = all_sessions.groupby("task").agg({"solution": "last"})
+    difficulty_and_complexity["distinct_blocks_1"] = count_distinct_blocks(distinct_blocks_by_task.solution, 1)
+    difficulty_and_complexity.distinct_blocks_1 = difficulty_and_complexity.distinct_blocks_1.astype("int64")
 
-    difficulty_and_complexity["block_types_flr"] = count_distinct_blocks(block_types_by_task.solution, 3)
-    difficulty_and_complexity.block_types_flr = difficulty_and_complexity.block_types_flr.astype("int64")
+    difficulty_and_complexity["distinct_blocks_3"] = count_distinct_blocks(distinct_blocks_by_task.solution, 3)
+    difficulty_and_complexity.distinct_blocks_3 = difficulty_and_complexity.distinct_blocks_3.astype("int64")
 
-    difficulty_and_complexity["block_types_flrs"] = count_distinct_blocks(block_types_by_task.solution, 4)
-    difficulty_and_complexity.block_types_flrs = difficulty_and_complexity.block_types_flrs.astype("int64")
+    difficulty_and_complexity["distinct_blocks_4"] = count_distinct_blocks(distinct_blocks_by_task.solution, 4)
+    difficulty_and_complexity.distinct_blocks_4 = difficulty_and_complexity.distinct_blocks_4.astype("int64")
 
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -201,7 +201,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
 
     difficulty_and_complexity["median_time"] = tasks[("time_spent", "median")]
     difficulty_and_complexity["median_edits"] = tasks[("granularity", "median")]
-    difficulty_and_complexity["median_submits"] = tasks[("granularity_submits", "median")]
+    difficulty_and_complexity["median_submissions"] = tasks[("granularity_submits", "median")]
     difficulty_and_complexity["median_solution_length"] = tasks[("program", "median_of_lens")]
     difficulty_and_complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
     difficulty_and_complexity["deletion_ratio"] = tasks.deletion_ratio
@@ -209,8 +209,8 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     difficulty_and_complexity["median_deletions_line"] = tasks[("program_line", "median")]
     difficulty_and_complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
 
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(difficulty_and_complexity)
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(difficulty_and_complexity)
     return difficulty_and_complexity
 
 
@@ -232,15 +232,15 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
                                       "square_sequence": dict_of_counts,
                                       "solution": "last"})
 
-    tasks["sample_solution_most_frequent"] = sample_solution_not_most_frequent(tasks.solution, tasks.program)
+    #tasks["sample_solution_most_frequent"] = sample_solution_not_most_frequent(tasks.solution, tasks.program)
     uniqueness = pd.DataFrame(index=tasks.index)
     uniqueness["solutions_entropy"] = list(map(entropy, tasks.program))
-    uniqueness["sequences_entropy"] = list(map(entropy, tasks.square_sequence))
+    uniqueness["squares_sequences_entropy"] = list(map(entropy, tasks.square_sequence))
     tasks["distinct_solutions"] = [len(x[0]) for x in tasks.program]
-    tasks["distinct_sequences"] = [len(x[0]) for x in tasks.square_sequence]
-    uniqueness["distinct_solutions"] = tasks.distinct_solutions
-    uniqueness["distinct_sequences"] = tasks.distinct_sequences
-    uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
+    tasks["distinct_squares_sequences"] = [len(x[0]) for x in tasks.square_sequence]
+    uniqueness["unique_solutions"] = tasks.distinct_solutions
+    uniqueness["unique_squares_sequences"] = tasks.distinct_squares_sequences
+    #uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
     uniqueness["program_clusters_count"], _ = count_program_clusters(tasks.program)
     print("solutions {} {} {}".format(uniqueness.distinct_solutions.quantile(0.25), uniqueness.distinct_solutions.quantile(0.5), uniqueness.distinct_solutions.quantile(0.75)))
     print("sequences {} {} {}".format(uniqueness.distinct_sequences.quantile(0.25), uniqueness.distinct_sequences.quantile(0.5), uniqueness.distinct_sequences.quantile(0.75)))
@@ -337,16 +337,16 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     print("b-o-e", bag_of_entities_matrix)
 
     similarity = pd.DataFrame(index=tasks.index)
-    similarity["ast_ted1"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.01))
+    similarity["ast_ted2"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.02))
     similarity["ast_ted5"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.05))
     similarity["ast_ted10"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.10))
-    similarity["levenshtein1"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.01))
+    similarity["levenshtein2"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.02))
     similarity["levenshtein5"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.05))
     similarity["levenshtein10"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.10))
-    similarity["blocks1"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.01))
+    similarity["blocks2"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.02))
     similarity["blocks5"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.05))
     similarity["blocks10"] = count_similar_tasks(bag_of_blocks_matrix, np.quantile(flat_bag_of_blocks_matrix, 0.10))
-    similarity["entities1"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.01))
+    similarity["entities2"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.02))
     similarity["entities5"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.05))
     similarity["entities10"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.10))
     similarity["shortest_ast"] = get_shortest_distance(ast_ted_matrix)
@@ -530,15 +530,15 @@ def measures_correlations(measures_table, method, title):
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
-    plt.title(title)
+    #plt.title(title)
     plt.tight_layout()
-    #plt.savefig("/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Obrazky/BBB.png")
+    #plt.savefig("~/dp/Obrazky/BBB.png")
     plt.show()
 
     sns.clustermap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1, figsize=(8,5))
-    plt.title(title)
+    #plt.title(title)
     plt.gcf().subplots_adjust(bottom=0.35, left=0.25, right=0.75, top=0.95)
-    #plt.savefig("/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Obrazky/CCC.png")
+    #plt.savefig("~/dp/Obrazky/CCC.png")
     plt.show()
 
     return correlations
@@ -557,10 +557,10 @@ def correlation_methods_correlations(pearson_measures_correlation, spearman_meas
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
-    plt.title("""
-    Pearson's {}-matrix correlation of Pearson's and Spearman's correlation methods\n
-    applied to {}
-    """.format(full_or_triangle, variable_group_title))
+    #plt.title("""
+    #Pearson's {}-matrix correlation of Pearson's and Spearman's correlation methods\n
+    #applied to {}
+    #""".format(full_or_triangle, variable_group_title))
     plt.tight_layout()
     #plt.gcf().subplots_adjust(left=0.3, right=0.75, top=0.8)
     plt.show()
@@ -576,10 +576,10 @@ def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_cor
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
-    plt.title("""
-    Pearson's correlation of full and triangle method\n
-    applied to {}
-    """.format(variable_group_title))
+    #plt.title("""
+    #Pearson's correlation of full and triangle method\n
+    #applied to {}
+    #""".format(variable_group_title))
     plt.tight_layout()
     plt.show()
 
@@ -619,66 +619,62 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
 
 
 """
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=difficulty_measures,
                  variable_group_title="difficulty measures")
 """
 """
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=complexity_measures,
                  variable_group_title="complexity measures")
 """
-
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+"""
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
-
 """
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
+
 """
-"""
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=task_similarity_measures,
                  variable_group_title="task similarity measures")
 """
 """
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=student_task_performance_measures,
                  variable_group_title="students' task performance measures")
 """
 """
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
 """
-all_correlations(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                 tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  measures_function=mistakes_measures,
                  variable_group_title="mistakes measures",
                  plot=True)
 """
 
-# TODO: KORELACNI GRAFY?
-# TODO: GRAFY - CITELNOST VSECH POPISKU
-# TODO: DIFFICULTY & COMPLEXITY - SMAZAT POMER USPESNYCH SUBMITU
-# TODO: PREJMENOVAT DIF&COMP "BLOCK TYPES" NA "DISTINCT BLOCKS"
 # TODO: VYPSAT DO DASHBOARDU SKUPINY SPRAVNYCH A SPATNYCH RESENI - REPREZENTANT = NEJCASTEJSI RESENI VE SKUPINE
-# TODO: SMAZAT Z GRAFU SAMPLE SOLUTION MOST FREQUENT
+# TODO: STUCK POINTS PREJMENOVAT NA LEAVING POINTS

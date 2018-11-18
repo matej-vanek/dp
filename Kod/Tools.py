@@ -509,11 +509,13 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
                         task_sessions_cols=None)
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
 """
-synchronous_interpreter_correctness_and_square_sequence(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-11-03/program_snapshots.csv",
-                                                        task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-11-03/task_sessions.csv",
-                                                        tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-11-03/tasks.csv",
-                                                        output_snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-11-03/program_snapshots_extended.csv")
+"""
+synchronous_interpreter_correctness_and_square_sequence(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots.csv",
+                                                        task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                                                        tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                                                        output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv")
 
+"""
 """
 incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
                      task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
