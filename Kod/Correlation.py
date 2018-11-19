@@ -621,60 +621,60 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=difficulty_measures,
                  variable_group_title="difficulty measures")
 """
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=complexity_measures,
                  variable_group_title="complexity measures")
 """
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
 """
-"""
+print("UNIQUENESS")
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
-"""
+
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=task_similarity_measures,
                  variable_group_title="task similarity measures")
 """
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=student_task_performance_measures,
                  variable_group_title="students' task performance measures")
 """
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
-
+"""
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=mistakes_measures,
                  variable_group_title="mistakes measures",
                  plot=True)
-
+"""
 
 # TODO: VYPSAT DO DASHBOARDU SKUPINY SPRAVNYCH A SPATNYCH RESENI - REPREZENTANT = NEJCASTEJSI RESENI VE SKUPINE
 # TODO: STUCK POINTS PREJMENOVAT NA LEAVING POINTS

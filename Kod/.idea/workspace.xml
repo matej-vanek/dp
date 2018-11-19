@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/../Data/robomission-2018-11-03/.~lock.program_snapshots_extended.csv#" beforeDir="false" afterPath="$PROJECT_DIR$/../Data/robomission-2018-11-03/.~lock.program_snapshots_extended.csv#" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Correlation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../flow.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -60,30 +60,33 @@
     <session id="-1413921969">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.4" value="2" />
+          <entry key="project.open.time.5" value="1" />
           <entry key="project.open.time.6" value="3" />
-          <entry key="project.opened" value="5" />
+          <entry key="project.opened" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="1" />
+          <entry key="py" value="2" />
+          <entry key="txt" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="1" />
+          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="Python" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="2203" />
+          <entry key="py" value="2414" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="2203" />
+          <entry key="Python" value="2414" />
         </counts>
       </usages-collector>
     </session>
@@ -93,11 +96,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3518">
-              <caret line="676" lean-forward="true" selection-start-line="676" selection-end-line="676" />
+            <state relative-caret-position="279">
+              <caret line="672" column="80" selection-start-line="672" selection-start-column="80" selection-end-line="672" selection-end-column="80" />
               <folding>
                 <element signature="e#117#136#0" expanded="true" />
                 <element signature="e#313#349#0" />
@@ -110,8 +113,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
-              <caret line="533" column="45" selection-start-line="533" selection-start-column="45" selection-end-line="533" selection-end-column="45" />
+            <state relative-caret-position="202">
+              <caret line="562" column="70" selection-start-line="562" selection-start-column="61" selection-end-line="562" selection-end-column="70" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -119,10 +122,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
+            <state relative-caret-position="4620">
               <caret line="309" column="40" selection-start-line="309" selection-start-column="36" selection-end-line="309" selection-end-column="40" />
             </state>
           </provider>
@@ -131,7 +134,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1245">
+            <state relative-caret-position="1725">
               <caret line="119" column="71" selection-start-line="119" selection-start-column="71" selection-end-line="119" selection-end-column="71" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -164,7 +167,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/jjj.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="585">
+            <state relative-caret-position="540">
               <caret line="39" selection-start-line="39" selection-end-line="39" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
@@ -184,10 +187,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>plo</find>
-      <find>data.square_sequence.loc[i] = str(square_sequence)</find>
-      <find>.lev</find>
-      <find>only</find>
       <find>synch</find>
       <find>wro</find>
       <find>square_sequences_t</find>
@@ -212,8 +211,12 @@
       <find>partial</find>
       <find>unique_seq</find>
       <find>.sequences_e</find>
-      <find>Stringi</find>
       <find>.csv</find>
+      <find>Stringi</find>
+      <find>repla</find>
+      <find>clust</find>
+      <find>ts.csv</find>
+      <find>tasks.csv</find>
     </findStrings>
     <replaceStrings>
       <replace>successful_sessions</replace>
@@ -231,6 +234,8 @@
       <replace>unique</replace>
       <replace>unique_squares_seq</replace>
       <replace>.squares_sequences_e</replace>
+      <replace>ts_extended.csv</replace>
+      <replace>tasks_red_to_d.csv</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -252,16 +257,15 @@
         <option value="$PROJECT_DIR$/InterpreterTools.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
         <option value="$PROJECT_DIR$/AST.py" />
-        <option value="$PROJECT_DIR$/Correlation.py" />
         <option value="$PROJECT_DIR$/Tools.py" />
+        <option value="$PROJECT_DIR$/Correlation.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="67" />
-    <option name="y" value="114" />
-    <option name="width" value="950" />
-    <option name="height" value="789" />
+    <option name="y" value="-2" />
+    <option name="width" value="960" />
+    <option name="height" value="1082" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -284,7 +288,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$USER_HOME$/9. semestr/RoboMise/kod/Podobnost.py" />
+    <property name="last_opened_file_path" value="$USER_HOME$/bananabox" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -495,15 +499,15 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
+    <frame x="0" y="-2" width="1920" height="1082" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24918033" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24037954" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.43027028" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.42962185" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.55279505" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -639,26 +643,30 @@
     <entry file="file:///usr/local/lib/python3.5/dist-packages/zss/simple_tree.py" />
     <entry file="file:///usr/local/lib/python3.5/dist-packages/zss/compare.py" />
     <entry file="file://$PROJECT_DIR$/betterast.py" />
-    <entry file="file://$PROJECT_DIR$/wrong.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/pandas/core/indexing.py" />
+    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4620">
+          <caret line="309" column="40" selection-start-line="309" selection-start-column="36" selection-end-line="309" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1725">
+          <caret line="119" column="71" selection-start-line="119" selection-start-column="71" selection-end-line="119" selection-end-column="71" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/AST.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2985">
           <caret line="201" column="31" selection-start-line="201" selection-start-column="31" selection-end-line="201" selection-end-column="31" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/jjj.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="39" selection-start-line="39" selection-end-line="39" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -670,42 +678,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Correlation.py">
+    <entry file="file://$PROJECT_DIR$/jjj.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3518">
-          <caret line="676" lean-forward="true" selection-start-line="676" selection-end-line="676" />
+        <state relative-caret-position="540">
+          <caret line="39" selection-start-line="39" selection-end-line="39" />
           <folding>
-            <element signature="e#117#136#0" expanded="true" />
-            <element signature="e#313#349#0" />
-            <element signature="e#2941#2977#0" />
+            <element signature="e#0#36#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wrong.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$USER_HOME$/bananabox/kw/bananabox/airlines/liat_lc.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/Tools.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="533" column="45" selection-start-line="533" selection-start-column="45" selection-end-line="533" selection-end-column="45" />
+        <state relative-caret-position="202">
+          <caret line="562" column="70" selection-start-line="562" selection-start-column="61" selection-end-line="562" selection-end-column="70" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/InterpreterTools.py">
+    <entry file="file://$PROJECT_DIR$/Correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1245">
-          <caret line="119" column="71" selection-start-line="119" selection-start-column="71" selection-end-line="119" selection-end-column="71" />
+        <state relative-caret-position="279">
+          <caret line="672" column="80" selection-start-line="672" selection-start-column="80" selection-end-line="672" selection-end-column="80" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#117#136#0" expanded="true" />
+            <element signature="e#313#349#0" />
+            <element signature="e#2941#2977#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MiniRoboCodeInterpreter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="309" column="40" selection-start-line="309" selection-start-column="36" selection-end-line="309" selection-end-column="40" />
         </state>
       </provider>
     </entry>

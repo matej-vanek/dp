@@ -1,5 +1,6 @@
 FLOW:
 
-replace red by d -> snapshots_d
-synchronous -> snapshots_extended
+replace red by d (snapshots) -> snapshots_d
+replace red by d (tasks) -> tasks_d
+synchronous (snapshots_d, tasks_d) -> snapshots_extended
 

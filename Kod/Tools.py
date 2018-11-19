@@ -509,12 +509,13 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, title, abs_step, abs_be
 
 # Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"
 # and saves the dataset
-def replace_red_by_d(tasks_path, output_path, column_name):
-    data = pd.read_csv(tasks_path)
+def replace_red_by_d(file_path, output_path, column_name):
+    data = pd.read_csv(file_path)
     for i in data.index:
-        if isinstance(data[column_name].loc[i], str):
+        text = data[column_name].loc[i]
+        if isinstance(text, str):
             #print(data[column_name].loc[i])
-            data[column_name].loc[i] = data[column_name].loc[i].replace("r{", "d{")
+            data[column_name].loc[i] = text.replace("r{", "d{")
     data.to_csv(output_path, index=False)
 
 
@@ -557,26 +558,32 @@ def statistics(tasks):
     return tasks, total_sum
 
 
+
 """
-replace_red_by_d(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                 output_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots2.csv",
+replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
+                 output_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
+                 column_name="solution")
+print("SNAPSHOTS")
+replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/program_snapshots.csv",
+                 output_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
                  column_name="program")
-"""
-"""
-load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                        task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                        task_sessions_cols=None)
-load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
-"""
-"""
-synchronous_interpreter_correctness_and_square_sequence(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots.csv",
-                                                        task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                                                        tasks_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
-                                                        output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv")
 
 """
 """
-incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
+load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_extended.csv",
+                        task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
+                        task_sessions_cols=None)
+load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
+"""
+
+synchronous_interpreter_correctness_and_square_sequence(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
+                                                        task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                                                        tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
+                                                        output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv")
+
+
+"""
+incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_extended.csv",
                      task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                     tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
+                     tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
 """
