@@ -80,8 +80,8 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
 
     data["granularity_submits"] = data.granularity
     data["program_all"] = data.program
-    data["program_line"] = data.program
-    data["program_bit"] = data.program
+    data["program_edits"] = data.program
+    data["program_1_0"] = data.program
 
     task_sessions = data.groupby("task_session").agg({"task": "last",
                                                       "time_spent": "max",
@@ -90,8 +90,8 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
                                                       "granularity_submits": count_submits,
                                                       "program": "last",
                                                       "program_all": partial(count_deletions, mode="all"),
-                                                      "program_line": partial(count_deletions, mode="line"),
-                                                      "program_bit": partial(count_deletions, mode="bit")})
+                                                      "program_edits": partial(count_deletions, mode="line"),
+                                                      "program_1_0": partial(count_deletions, mode="bit")})
 
     tasks = task_sessions.groupby("task").agg({"time_spent": "median",
                                                "granularity": "median",
@@ -99,9 +99,9 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
                                                "program": median_of_lens,
                                                "solution": len_of_last,
                                                "program_all": "median",
-                                               "program_line": "median",
-                                               "program_bit": ["median", "sum", "count"]})
-    tasks["deletion_ratio"] = tasks[("program_bit", "sum")] / tasks[("program_bit", "count")]
+                                               "program_edits": "median",
+                                               "program_1_0": ["median", "sum", "count"]})
+    tasks["deletion_ratio"] = tasks[("program_1_0", "sum")] / tasks[("program_1_0", "count")]
 
     complexity = pd.DataFrame()
     complexity["median_time"] = tasks[("time_spent", "median")]
@@ -111,8 +111,8 @@ def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
     complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
     complexity["deletion_ratio"] = tasks.deletion_ratio
     complexity["median_deletions_all"] = tasks[("program_all", "median")]
-    complexity["median_deletions_line"] = tasks[("program_line", "median")]
-    complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
+    complexity["median_deletions_edits"] = tasks[("program_edits", "median")]
+    complexity["median_deletions_1_0"] = tasks[("program_1_0", "median")]
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(complexity)
@@ -176,8 +176,8 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
 
     data["granularity_submits"] = data.granularity
     data["program_all"] = data.program
-    data["program_line"] = data.program
-    data["program_bit"] = data.program
+    data["program_edits"] = data.program
+    data["program_1_0"] = data.program
 
     task_sessions = data.groupby("task_session").agg({"task": "last",
                                                       "time_spent": "max",
@@ -186,8 +186,8 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                                       "granularity_submits": count_submits,
                                                       "program": "last",
                                                       "program_all": partial(count_deletions, mode="all"),
-                                                      "program_line": partial(count_deletions, mode="line"),
-                                                      "program_bit": partial(count_deletions, mode="bit")})
+                                                      "program_edits": partial(count_deletions, mode="line"),
+                                                      "program_1_0": partial(count_deletions, mode="bit")})
 
     tasks = task_sessions.groupby("task").agg({"time_spent": "median",
                                                "granularity": "median",
@@ -195,9 +195,9 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                                "program": median_of_lens,
                                                "solution": len_of_last,
                                                "program_all": "median",
-                                               "program_line": "median",
-                                               "program_bit": ["median", "sum", "count"]})
-    tasks.deletion_ratio = tasks[("program_bit", "sum")] / tasks[("program_bit", "count")]
+                                               "program_edits": "median",
+                                               "program_1_0": ["median", "sum", "count"]})
+    tasks.deletion_ratio = tasks[("program_1_0", "sum")] / tasks[("program_1_0", "count")]
 
     difficulty_and_complexity["median_time"] = tasks[("time_spent", "median")]
     difficulty_and_complexity["median_edits"] = tasks[("granularity", "median")]
@@ -206,8 +206,8 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     difficulty_and_complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
     difficulty_and_complexity["deletion_ratio"] = tasks.deletion_ratio
     difficulty_and_complexity["median_deletions_all"] = tasks[("program_all", "median")]
-    difficulty_and_complexity["median_deletions_line"] = tasks[("program_line", "median")]
-    difficulty_and_complexity["median_deletions_bit"] = tasks[("program_bit", "median")]
+    difficulty_and_complexity["median_deletions_edits"] = tasks[("program_edits", "median")]
+    difficulty_and_complexity["median_deletions_1_0"] = tasks[("program_1_0", "median")]
 
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #    print(difficulty_and_complexity)
@@ -371,7 +371,7 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
 
     data["granularity_submits"] = data.granularity
     data["program_line"] = data.program
-    data["program_bit"] = data.program
+    data["program_1_0"] = data.program
 
     ts = data.groupby("task_session").agg({"task_session": "max",
                                            "new_correct": count_true,
@@ -380,19 +380,19 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
                                            "granularity_submits": count_submits,
                                            "program": partial(count_deletions, mode="all"),
                                            "program_line": partial(count_deletions, mode="line"),
-                                           "program_bit": partial(count_deletions, mode="bit")})
+                                           "program_1_0": partial(count_deletions, mode="1_0")})
     ts.new_correct = 0 + ts.new_correct  # transformation bool -> int
 
     performance = pd.DataFrame(index=ts.task_session)
 
-    performance["incorrectness"] = ts.new_correct / ts.new_correct
+    #performance["incorrectness"] = ts.new_correct / ts.new_correct
     #performance.incorrectness = 1 - performance.incorrectness.fillna(0)  ############## INcorrectness!
-    #performance["time"] = ts.time_spent
+    performance["time"] = ts.time_spent
     performance["edits"] = ts.granularity
     performance["submissions"] = ts.granularity_submits
     performance["deletions_all"] = ts.program
-    performance["deletions_edits"] = ts.program_line
-    performance["deletions_1_0"] = ts.program_bit
+    performance["deletions_edits"] = ts.program_edits
+    performance["deletions_1_0"] = ts.program_1_0
 
     print(performance)
     return performance
@@ -459,7 +459,10 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     wrong_ts = last_ts_snapshot[last_ts_snapshot.new_solved == 0]
     #wrong_ts = wrong_ts.iloc[:100]    ###########
     print(wrong_ts.shape[0])
-
+    TMP = wrong_ts.groupby("task").agg({"program": "count"})
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(TMP)
+    """
     wrong_ts = synchronous_interpreter_correctness_and_square_sequence(dataframe=wrong_ts,
                                                                        only_executions=False,
                                                                        only_edits=True,
@@ -479,11 +482,15 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     #    print(tasks_stuck)
 
     # --------------------
-
+    """
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
     #data = data.iloc[:2000]  ###################
     print(data.shape[0])
+    TMP = data.groupby("task").agg({"program": "count"})
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(TMP)
+    q
     data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
     tasks_all_wrong = data.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
 
@@ -499,30 +506,31 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     if kwargs["plot"]:
         plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
                                            total_sum=tasks_all_wrong.task_freq,
-                                           title="All wrong submits",
+                                           #title="All wrong submits",
                                            abs_step=30, abs_begin=1, abs_end=11,
                                            rel_step=0.05, rel_begin=1, rel_end=11)
         plot_frequent_wrong_programs_ratio(tasks=tasks_stuck[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
                                            total_sum=tasks_stuck.task_freq,
-                                           title="Unsolved task sessions",
+                                           #title="Unsolved task sessions",
                                            abs_step=5, abs_begin=1, abs_end=11,
                                            rel_step=0.05, rel_begin=1, rel_end=11)
 
 
     tasks = pd.DataFrame(index=tasks_stuck.index.levels[0])
-    tasks["stuck_frequent_programs_ratio"], tasks["stuck_unique_frequent_programs"], tasks["stuck_frequent_programs"] = count_frequent_wrong_programs_ratio(
+    tasks["frequent_leaving_ratio"], tasks["unique_frequent_leaving"], tasks["leaving_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_stuck, abs_threshold=20, rel_threshold=0.10)
-    tasks["all_wrong_frequent_programs_ratio"], tasks["all_wrong_unique_frequent_programs"], tasks["all_wrong_frequent_programs"] = count_frequent_wrong_programs_ratio(
+    tasks["frequent_submissions_ratio"], tasks["unique_frequent_submissions"], tasks["submissions_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_all_wrong, abs_threshold=100, rel_threshold=0.10)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(tasks)
+        print(tasks_all_wrong)
+        print("PPP")
+        print(tasks_stuck)
 
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
     #    print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
     #    print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
 
-
-    return tasks[["stuck_frequent_programs_ratio", "stuck_unique_frequent_programs", "all_wrong_frequent_programs_ratio", "all_wrong_unique_frequent_programs"]]
+    return tasks[["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]]
 
 # Computes correlation of task measures and creates heat table
 def measures_correlations(measures_table, method, title):
@@ -639,13 +647,13 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
 """
-print("UNIQUENESS")
+"""
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
-
+"""
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
@@ -673,7 +681,7 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=mistakes_measures,
                  variable_group_title="mistakes measures",
-                 plot=True)
+                 plot=False)
 """
 
 # TODO: VYPSAT DO DASHBOARDU SKUPINY SPRAVNYCH A SPATNYCH RESENI - REPREZENTANT = NEJCASTEJSI RESENI VE SKUPINE

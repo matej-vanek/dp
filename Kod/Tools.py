@@ -97,7 +97,7 @@ def count_deletions(series, mode):
     last = ""
     for item in series:
         if not isinstance(item, str):
-            item = "".sequences_e
+            item = ""
         item = re.sub("[{}0123456789<>=!]", "", item)
         last = re.sub("[{}0123456789<>=!]", "", last)
         if len(item) < len(last):
@@ -468,7 +468,7 @@ def median_of_lens(series):
 
 
 # Draws 3D wireframe plot of frequent wrong programs ratio based on absolute and relative count of program occurences.
-def plot_frequent_wrong_programs_ratio(tasks, total_sum, title, abs_step, abs_begin, abs_end, rel_step, rel_begin, rel_end):
+def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, abs_end, rel_step, rel_begin, rel_end, title=""):
     from mpl_toolkits.mplot3d import Axes3D
 
     abs_thresholds = [abs_step * i for i in range(abs_begin, abs_end)]
@@ -503,7 +503,8 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, title, abs_step, abs_be
     ax.set_xlabel("absolute count threshold")
     ax.set_ylabel("relative count threshold")
     ax.set_zlabel("frequent wrong programs ratio")
-    ax.set_title(title)
+    if title:
+        ax.set_title(title)
     plt.show()
 
 
@@ -558,7 +559,17 @@ def statistics(tasks):
     return tasks, total_sum
 
 
+def task_sessions_plot(task_sessions_path):
+    ts = pd.read_csv(task_sessions_path)
+    ts = ts.groupby("task").agg({"id": "count"})
+    print(ts)
+    ts.sort_values(by="id", ascending=False).plot.bar()
+    plt.ylabel("number_of_task_sessions")
+    plt.xlabel("tasks")
+    plt.show()
 
+
+#task_sessions_plot(task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv")
 """
 replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  output_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
@@ -575,15 +586,14 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
                         task_sessions_cols=None)
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
 """
-
+"""
 synchronous_interpreter_correctness_and_square_sequence(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
                                                         task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                                                         tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                                                         output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv")
-
-
 """
-incorrect_evaluation(snapshots_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_extended.csv",
-                     task_sessions_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                     tasks_path="/media/matej-ubuntu/C/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
+"""
+incorrect_evaluation(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
+                     task_sessions_path="~/dp//Data/robomission-2018-11-03/task_sessions.csv",
+                     tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv")
 """
