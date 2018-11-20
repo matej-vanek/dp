@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import re
 from ast import literal_eval
 from functools import partial
@@ -6,8 +9,8 @@ import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import fcluster, linkage
 
-from AST import *
-from MiniRoboCodeInterpreter import run_task
+from robomission_ast import *
+from minirobocode_interpreter import run_task
 
 
 # Runs submits again and tests their correctness.
@@ -404,12 +407,18 @@ def get_relative_counts(abs_counts):
 
 # Computes shortest distance series from distance matrix
 # NEGATIVE DISTANCE IN ORDER TO KEEP POSITIVE CORRELATIONS!!!
-def get_shortest_distance(distance_matrix):
-    output = pd.Series(index=distance_matrix.index)
+def get_shortest_distance(distance_matrix, negative=True):
+    distances = pd.Series(index=distance_matrix.index)
+    tasks = pd.Series(index=distance_matrix.index)
+    distance_matrix.fillna(1000000, inplace=True)
     for i in distance_matrix.index:
-        shortest = min(distance_matrix.loc[i])
-        output.loc[i] = -1 * shortest
-    return output
+        distance, task = min(distance_matrix.loc[i]), distance_matrix.loc[i].idxmin(axis=1)
+        if negative:
+            distances.loc[i] = -1 * distance
+        else:
+            distances.loc[i] = distance
+        tasks.loc[i] = task
+    return distances, tasks
 
 
 def incorrect_evaluation(snapshots_path, task_sessions_path, tasks_path):
@@ -426,6 +435,14 @@ def incorrect_evaluation(snapshots_path, task_sessions_path, tasks_path):
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(incorrect_non_51[["id", "task", "program", "solution", "correct", "new_correct"]])
 
+def last_with_empty_values(series):
+    return series.iloc[-1]
+
+def len_of_programs_dict(series):
+    length = pd.Series(index=series.index)
+    for i in series.index:
+        length.loc[i] = len(series.loc[i][0])
+    return length
 
 
 # Counts length of the last item of series

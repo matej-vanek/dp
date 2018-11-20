@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import re
-import InterpreterTools as it
+import interpreter_tools as it
 
 
 def forward(row_pos, col_pos, game_board, correct, square_sequence, pointer, wormholes, diamonds, steps, verbose):
@@ -347,7 +350,7 @@ def run_task(tasks_path, task_id, program, verbose=False):
         print("Steps remaining:", steps)
     if steps <= 0:
         if verbose:
-            print("INCORRECT – steps limit reached")
+            print("INCORRECT - steps limit reached")
             print("Correct: {}".format(False))
         return False, square_sequence
     if correct == False:  # "if not correct" would succeed if correct was None
@@ -406,8 +409,8 @@ for i in range(0, len(task_data.index)):
              verbose=True)
 """
 """
-run_task(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-         task_id=45,
-         program="R2{W!d{r}W!d{l}}W!b{r}",
-         verbose=True)
+print(run_task(tasks_path="/home/matejvanek/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
+               task_id=86,
+               program="f",
+               verbose=True))
 """

@@ -15,11 +15,8 @@ c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', '
 d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["056123!>/", 1, 1], ["Ir///", 3, 2]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 
 
-q = [1,2, 3,4, 5,6]
-w = ""
-for item in q:
-    w = w.join(str(item))
-print(w)
+print(min(3, np.nan, 2, 4, 38))
+
 """
 from mpl_toolkits.mplot3d import Axes3D
 

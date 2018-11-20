@@ -1,6 +1,5 @@
-# INSTALOVAT PIP3 A VSECHNO PRES PIP3
-#INSTALOVAT TKINTER? PRO MATPLOTLIB PYPLOT
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # from collections import Counter
 import editdistance
@@ -10,113 +9,7 @@ import numpy as np
 import seaborn as sns
 from scipy.spatial.distance import euclidean
 
-from Tools import *
-
-
-# Computes task difficulty dataframe
-# Creates task dataframe of successfulness of sessions, successfulness of submits and number of block types
-def difficulty_measures(snapshots_path, task_sessions_path, tasks_path):
-    data = load_extended_snapshots(snapshots_path=snapshots_path,
-                                   task_sessions_path=task_sessions_path,
-                                   tasks_path=tasks_path,
-                                   task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
-                                   tasks_cols=["id", "solution"])
-
-    data = data[data.correct == data.new_correct]
-
-    all_sessions = data.groupby("task_session").agg({"task": "max",
-                                                     "granularity": count_submits,
-                                                     "new_correct": count_true,
-                                                     "solution": "last"})
-    all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
-    all_sessions.new_solved = all_sessions.new_solved.fillna(0)
-
-    # successfulness of sessions
-    successful_sessions = all_sessions[all_sessions.new_solved > 0]
-
-    all_sessions_by_tasks = all_sessions.groupby("task").agg({"new_solved": "count"})
-    successful_sessions_by_tasks = successful_sessions.groupby("task").agg({"new_solved": "count"})
-
-    difficulty = successful_sessions_by_tasks / all_sessions_by_tasks
-    difficulty.rename(columns={"new_solved": "task_sessions_solved"}, inplace=True)
-
-    del all_sessions_by_tasks
-    del successful_sessions_by_tasks
-    del successful_sessions
-
-    # successfulness of submits
-    submits_by_tasks = all_sessions.groupby("task").agg({"granularity": "sum", "new_correct": "sum"})
-    difficulty["submits_correct"] = submits_by_tasks.new_correct / submits_by_tasks.granularity
-
-    del submits_by_tasks
-
-    # number of block types
-    block_types_by_task = all_sessions.groupby("task").agg({"solution": "last"})
-    difficulty["block_types"] = count_distinct_blocks(block_types_by_task.solution, 1)
-    difficulty.block_types = difficulty.block_types.astype("int64")
-
-    difficulty["block_types_flr"] = count_distinct_blocks(block_types_by_task.solution, 3)
-    difficulty.block_types_flr = difficulty.block_types_flr.astype("int64")
-
-    difficulty["block_types_flrs"] = count_distinct_blocks(block_types_by_task.solution, 4)
-    difficulty.block_types_flrs = difficulty.block_types_flrs.astype("int64")
-
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(difficulty)
-    return difficulty
-
-
-# Computes task difficulty dataframe
-# Creates task dataframe of median time, median edits, median submits, median solution length, sample solution length,
-# deletion ratio, median deletions
-def complexity_measures(snapshots_path, task_sessions_path, tasks_path):
-    data = load_extended_snapshots(snapshots_path=snapshots_path,
-                                   task_sessions_path=task_sessions_path,
-                                   tasks_path=tasks_path,
-                                   task_sessions_cols=["id", "student", "task", "time_spent"],
-                                   tasks_cols=["id", "solution"])
-    data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
-
-    data["granularity_submits"] = data.granularity
-    data["program_all"] = data.program
-    data["program_edits"] = data.program
-    data["program_1_0"] = data.program
-
-    task_sessions = data.groupby("task_session").agg({"task": "last",
-                                                      "time_spent": "max",
-                                                      "solution": "last",
-                                                      "granularity": count_edits,
-                                                      "granularity_submits": count_submits,
-                                                      "program": "last",
-                                                      "program_all": partial(count_deletions, mode="all"),
-                                                      "program_edits": partial(count_deletions, mode="line"),
-                                                      "program_1_0": partial(count_deletions, mode="bit")})
-
-    tasks = task_sessions.groupby("task").agg({"time_spent": "median",
-                                               "granularity": "median",
-                                               "granularity_submits": "median",
-                                               "program": median_of_lens,
-                                               "solution": len_of_last,
-                                               "program_all": "median",
-                                               "program_edits": "median",
-                                               "program_1_0": ["median", "sum", "count"]})
-    tasks["deletion_ratio"] = tasks[("program_1_0", "sum")] / tasks[("program_1_0", "count")]
-
-    complexity = pd.DataFrame()
-    complexity["median_time"] = tasks[("time_spent", "median")]
-    complexity["median_edits"] = tasks[("granularity", "median")]
-    complexity["median_submits"] = tasks[("granularity_submits", "median")]
-    complexity["median_solution_length"] = tasks[("program", "median_of_lens")]
-    complexity["sample_solution_length"] = tasks[("solution", "len_of_last")]
-    complexity["deletion_ratio"] = tasks.deletion_ratio
-    complexity["median_deletions_all"] = tasks[("program_all", "median")]
-    complexity["median_deletions_edits"] = tasks[("program_edits", "median")]
-    complexity["median_deletions_1_0"] = tasks[("program_1_0", "median")]
-
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(complexity)
-    return complexity
+from tools import *
 
 
 # joined difficulty and complexity
@@ -132,7 +25,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     all_sessions = data.groupby("task_session").agg({"task": "max",
                                                      "granularity": count_submits,
                                                      "new_correct": count_true,
-                                                     "solution": "last"})
+                                                     "solution": last_with_empty_values})
     all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
     all_sessions.new_solved = all_sessions.new_solved.fillna(0)
 
@@ -184,7 +77,7 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                                       "solution": "last",
                                                       "granularity": count_edits,
                                                       "granularity_submits": count_submits,
-                                                      "program": "last",
+                                                      "program": last_with_empty_values,
                                                       "program_all": partial(count_deletions, mode="all"),
                                                       "program_edits": partial(count_deletions, mode="line"),
                                                       "program_1_0": partial(count_deletions, mode="bit")})
@@ -349,10 +242,10 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     similarity["entities2"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.02))
     similarity["entities5"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.05))
     similarity["entities10"] = count_similar_tasks(bag_of_entities_matrix, np.quantile(flat_bag_of_entities_matrix, 0.10))
-    similarity["closest_ast"] = get_shortest_distance(ast_ted_matrix)
-    similarity["closest_levenshtein"] = get_shortest_distance(levenshtein_matrix)
-    similarity["closest_blocks"] = get_shortest_distance(bag_of_blocks_matrix)
-    similarity["closest_entities"] = get_shortest_distance(bag_of_entities_matrix)
+    similarity["closest_ast"], _ = get_shortest_distance(ast_ted_matrix)
+    similarity["closest_levenshtein"], _ = get_shortest_distance(levenshtein_matrix)
+    similarity["closest_blocks"], _ = get_shortest_distance(bag_of_blocks_matrix)
+    similarity["closest_entities"], _ = get_shortest_distance(bag_of_entities_matrix)
 
     print(similarity)
     return similarity
@@ -413,7 +306,7 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
                                            "student": "max",
                                            "level": "max",
                                            "new_correct": count_true,
-                                           "program": "last",
+                                           "program": last_with_empty_values,
                                            "time_spent": "max"})
     ts.new_correct = 0 + ts.new_correct
     ts["new_solved"] = ts.new_correct / ts.new_correct
@@ -449,8 +342,8 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     last_ts_snapshot = data.groupby("task_session").agg({"task": "max",
                                                          "new_correct": count_true,
                                                          "granularity": "last",
-                                                         "program": "last",
-                                                         "square_sequence": "last"})
+                                                         "program": last_with_empty_values,
+                                                         "square_sequence": last_with_empty_values})
 
     last_ts_snapshot.new_correct = 0 + last_ts_snapshot.new_correct  # convert bool to int
     last_ts_snapshot["new_solved"] = last_ts_snapshot.new_correct / last_ts_snapshot.new_correct  # convert int to nan/1
@@ -459,10 +352,9 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     wrong_ts = last_ts_snapshot[last_ts_snapshot.new_solved == 0]
     #wrong_ts = wrong_ts.iloc[:100]    ###########
     print(wrong_ts.shape[0])
-    TMP = wrong_ts.groupby("task").agg({"program": "count"})
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(TMP)
-    """
+    #TMP = wrong_ts.groupby("task").agg({"program": "count"})
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(TMP)
     wrong_ts = synchronous_interpreter_correctness_and_square_sequence(dataframe=wrong_ts,
                                                                        only_executions=False,
                                                                        only_edits=True,
@@ -473,6 +365,7 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     del last_ts_snapshot
     tasks_stuck = wrong_ts.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True),
                                                                             "new_solved": "count"})
+    tasks_stuck["distinct_programs"] = len_of_programs_dict(tasks_stuck.program)
     tasks_stuck["most_frequent_program"] = get_most_frequent_program(tasks_stuck.program)
     tasks_stuck["abs_count"] = count_total_abs_freq(tasks_stuck.program)
     tasks_stuck["task_freq"] = count_task_frequency(tasks_stuck)
@@ -482,18 +375,19 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     #    print(tasks_stuck)
 
     # --------------------
-    """
+
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
     #data = data.iloc[:2000]  ###################
     print(data.shape[0])
-    TMP = data.groupby("task").agg({"program": "count"})
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(TMP)
-    q
+    #TMP = data.groupby("task").agg({"program": "count"})
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(TMP)
+
     data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
     tasks_all_wrong = data.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
 
+    tasks_all_wrong["distinct_programs"] = len_of_programs_dict(tasks_all_wrong.program)
     tasks_all_wrong["most_frequent_program"] = get_most_frequent_program(tasks_all_wrong.program)
     tasks_all_wrong["abs_count"] = count_total_abs_freq(tasks_all_wrong.program)
     tasks_all_wrong["task_freq"] = count_task_frequency(tasks_all_wrong)
@@ -501,7 +395,6 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #    print(tasks_all_wrong)
-
 
     if kwargs["plot"]:
         plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
@@ -521,10 +414,10 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
         tasks=tasks_stuck, abs_threshold=20, rel_threshold=0.10)
     tasks["frequent_submissions_ratio"], tasks["unique_frequent_submissions"], tasks["submissions_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_all_wrong, abs_threshold=100, rel_threshold=0.10)
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(tasks_all_wrong)
-        print("PPP")
-        print(tasks_stuck)
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    #    print(tasks_all_wrong)
+    #    print("PPP")
+    #    print(tasks_stuck)
 
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
     #    print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])

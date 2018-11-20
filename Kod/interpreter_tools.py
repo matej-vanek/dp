@@ -1,4 +1,7 @@
-import ast
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import robomission_ast
 from io import StringIO
 import pandas as pd
 import random
@@ -43,7 +46,7 @@ def condition_test(mode, operator, test_position, test_color, row_pos, col_pos, 
     """
     Tests condition.
     :param mode: string; "position" or "color"
-    :param operator: string; loaded test operator – "==", ">=", "<=", ">", "<" or "!="
+    :param operator: string; loaded test operator - "==", ">=", "<=", ">", "<" or "!="
     :param test_position: int; if position test, number of tested column (COUNTING FROM 1), else None
     :param test_color: string; if color test, character of tested color, else None
     :param row_pos: int; row position
@@ -117,7 +120,7 @@ def load_game_board(tasks_path, task_id):
     :return energy: int; maximal shoots
     """
     tasks = pd.read_csv(tasks_path)
-    task = ast.literal_eval(tasks[tasks.id == task_id].setting.iloc[0])
+    task = robomission_ast.literal_eval(tasks[tasks.id == task_id].setting.iloc[0])
     game_board = pd.read_csv(StringIO(re.sub("r", "d", task["fields"])),
                              names=range(0, len(task["fields"].split(";")[0].split("|"))),
                              sep="|",
