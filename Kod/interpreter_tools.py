@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import robomission_ast
-from io import StringIO
+import ast
+from StringIO import StringIO
 import pandas as pd
 import random
 import re
@@ -120,7 +120,7 @@ def load_game_board(tasks_path, task_id):
     :return energy: int; maximal shoots
     """
     tasks = pd.read_csv(tasks_path)
-    task = robomission_ast.literal_eval(tasks[tasks.id == task_id].setting.iloc[0])
+    task = ast.literal_eval(tasks[tasks.id == task_id].setting.iloc[0])
     game_board = pd.read_csv(StringIO(re.sub("r", "d", task["fields"])),
                              names=range(0, len(task["fields"].split(";")[0].split("|"))),
                              sep="|",

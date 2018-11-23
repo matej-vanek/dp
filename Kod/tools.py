@@ -554,6 +554,7 @@ def square_sequences_to_strings(sequence_series):
     print("Stringing")
     string_sequences = pd.Series(index=sequence_series.index)
     for i in sequence_series.index:
+        #print(sequence_series.loc[i])
         seq = eval(sequence_series.loc[i])
         #if not np.isnan(sequence_series.loc[i]):
         #print(sequence_series.loc[i])
