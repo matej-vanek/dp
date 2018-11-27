@@ -2,11 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import betterast
-import numpy as np
 import zss
 
 
 def add_level(tree_description, current_tree_i, current_level, levels, char):
+    """
+    Adds new level to tree; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param char: current program code character
+    :return: tree_description, current_tree_i, current_level, levels; updated input variables
+    """
     tree_description[levels[current_level]][0] += 1
     tree_description.append([0, char])
     current_tree_i += 1
@@ -15,7 +24,18 @@ def add_level(tree_description, current_tree_i, current_level, levels, char):
     return tree_description, current_tree_i, current_level, levels
 
 
-def process_WI_color(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+def process_color_test(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes color test; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, levels; updated input variables
+    """
     if code_string[char_i + 1] != "x":
         tree_description[levels[current_level]][0] += 1
         tree_description.append([0, "color"])
@@ -27,7 +47,16 @@ def process_WI_color(tree_description, current_tree_i, current_level, levels, co
     return tree_description, current_tree_i, current_level, levels
 
 
-def process_R(tree_description, current_tree_i, current_level, levels):
+def process_r(tree_description, current_tree_i, current_level, levels):
+    """
+    Processes 'repeat' loop; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :return: tree_description, current_tree_i, current_level, levels; updated input variables
+    """
     tree_description, current_tree_i, current_level, levels = \
         add_level(tree_description, current_tree_i, current_level, levels, "R")  # processing "R" level
 
@@ -37,33 +66,69 @@ def process_R(tree_description, current_tree_i, current_level, levels):
     return tree_description, current_tree_i, current_level, levels
 
 
-def process_W(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+def process_w(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes 'while' loop; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, levels; updated input variables
+    """
     tree_description, current_tree_i, current_level, levels = \
         add_level(tree_description, current_tree_i, current_level, levels, "W")  # processing "W" level
 
     tree_description, current_tree_i, current_level, levels = \
         add_level(tree_description, current_tree_i, current_level, levels, "cond")  # processing W "cond" level
 
+    # processing of "color" and "=" nodes (not expressed directly in code)
     tree_description, current_tree_i, current_level, levels = \
-        process_WI_color(tree_description, current_tree_i, current_level, levels, code_string, char_i)  # processing of "color" and "=" nodes (not expressed directly in code)
+        process_color_test(tree_description, current_tree_i, current_level, levels, code_string, char_i)
 
     return tree_description, current_tree_i, current_level, levels
 
 
-def process_I(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+def process_i(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes 'if' condition; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, levels; updated input variables
+    """
     tree_description, current_tree_i, current_level, levels = \
         add_level(tree_description, current_tree_i, current_level, levels, "I")  # processing "I" level
 
     tree_description, current_tree_i, current_level, levels = \
         add_level(tree_description, current_tree_i, current_level, levels, "cond")  # processing I "cond" level
 
+    # processing of "color" and "=" nodes (not expressed directly in code)
     tree_description, current_tree_i, current_level, levels = \
-        process_WI_color(tree_description, current_tree_i, current_level, levels, code_string, char_i)  # processing of "color" and "=" nodes (not expressed directly in code)
+        process_color_test(tree_description, current_tree_i, current_level, levels, code_string, char_i)
 
     return tree_description, current_tree_i, current_level, levels
 
 
 def process_not(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes inequality; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, levels, skip_next;
+             updated input variables and number of following characters to skip
+    """
     tree_description[levels[current_level]][0] += 1  # processing "!" node
     tree_description.append([0, "!"])
     current_tree_i += 1
@@ -75,6 +140,16 @@ def process_not(tree_description, current_tree_i, current_level, levels, code_st
 
 
 def process_left_bracket(tree_description, current_tree_i, current_level, levels):
+    """
+    Processes '{' symbol; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :return: tree_description, current_tree_i, current_level, skip_next;
+             updated input variables and number of following characters to skip
+    """
     del levels[current_level]  # end "cond" level
     current_level -= 1
 
@@ -85,6 +160,18 @@ def process_left_bracket(tree_description, current_tree_i, current_level, levels
 
 
 def process_right_bracket(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes comparison signs; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, skip_next;
+             updated input variables and number of following characters to skip
+    """
     if code_string[char_i + 1:char_i + 3] == "/{":  # end "do" level, processing "else" level
         del levels[current_level]
         current_level -= 1
@@ -104,13 +191,27 @@ def process_right_bracket(tree_description, current_tree_i, current_level, level
     return tree_description, current_tree_i, current_level, levels, skip_next
 
 
-def process_equals_x123456789fslrybkdg(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+def process_equals_x0123456789fslrybkdg(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes position comparison, numbers, colors and move commands; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, skip_next;
+             updated input variables and number of following characters to skip
+    """
     tree_description[levels[current_level]][0] += 1
     if code_string[char_i] == "x":
         tree_description.append([0, "position"])
         skip_next = 0
     else:
-        if code_string[char_i] in "0123456789" and len(code_string) > char_i + 1 and code_string[char_i + 1] in "0123456789":
+        if code_string[char_i] in "0123456789" and \
+                len(code_string) > char_i + 1 and \
+                code_string[char_i + 1] in "0123456789":
             tree_description.append([0, str(int(code_string[char_i]) * 10 + int(code_string[char_i + 1]))])
             skip_next = 1
         else:
@@ -122,6 +223,18 @@ def process_equals_x123456789fslrybkdg(tree_description, current_tree_i, current
 
 
 def process_greater_less(tree_description, current_tree_i, current_level, levels, code_string, char_i):
+    """
+    Processes comparison signs; AST builder helper function.
+    :param tree_description: list of nodes (node = [int, string]); DFS preorder description of tree
+           [index_of_parent_node, name]
+    :param current_tree_i: int; index of last created node
+    :param current_level: int; current level of tree
+    :param levels: dict {int: int}; {level: index_of_parent_node}
+    :param code_string: string; MiniRoboCode program
+    :param char_i: index of current string character
+    :return: tree_description, current_tree_i, current_level, levels, skip_next;
+             updated input variables and number of following characters to skip
+    """
     if code_string[char_i + 1] == "=":  # processing ">=" node
         tree_description[levels[current_level]][0] += 1
         tree_description.append([0, "{}=".format(code_string[char_i])])
@@ -137,11 +250,17 @@ def process_greater_less(tree_description, current_tree_i, current_level, levels
 
 
 def build_ast(code_string, verbose=False):
-    tree_description = [[0, "root"]]  # list of lists; each sublist represents one node in DFS preorder; [number of descendants, label]
-    levels = {0: 0}  # dict of pointers, {num_of_level: index of parent node on selected level}
-    current_level = 0  # current level of tree
-    current_tree_i = 0  # index of last created node
-    skip_next = 0  # number of following characters to skip
+    """
+    Builds abstract syntax tree of RoboMission MiniRoboCode program.
+    :param code_string: string; MiniRoboCode program
+    :param verbose: bool; verbosity
+    :return: abstract syntax tree of program
+    """
+    tree_description = [[0, "root"]]
+    levels = {0: 0}
+    current_level = 0
+    current_tree_i = 0
+    skip_next = 0
 
     if verbose:
         print(code_string)
@@ -153,15 +272,15 @@ def build_ast(code_string, verbose=False):
             continue
         if char == "R":
             tree_description, current_tree_i, current_level, levels = \
-                process_R(tree_description, current_tree_i, current_level, levels)
+                process_r(tree_description, current_tree_i, current_level, levels)
 
         elif char == "W":
             tree_description, current_tree_i, current_level, levels =\
-                process_W(tree_description, current_tree_i, current_level, levels, code_string, char_i)
+                process_w(tree_description, current_tree_i, current_level, levels, code_string, char_i)
 
         elif char == "I":
             tree_description, current_tree_i, current_level, levels =\
-                process_I(tree_description, current_tree_i, current_level, levels, code_string, char_i)
+                process_i(tree_description, current_tree_i, current_level, levels, code_string, char_i)
 
         elif char == "!":
             tree_description, current_tree_i, current_level, levels, skip_next = \
@@ -181,8 +300,8 @@ def build_ast(code_string, verbose=False):
 
         elif char in "=x123456789fslrybkdg":
             tree_description, current_tree_i, current_level, skip_next = \
-                process_equals_x123456789fslrybkdg(tree_description, current_tree_i, current_level, levels, code_string, char_i)
-
+                process_equals_x0123456789fslrybkdg(tree_description, current_tree_i, current_level, levels,
+                                                    code_string, char_i)
         else:
             raise Exception("{} not recognized as MiniRoboCode command".format(char))
         if verbose:
@@ -194,19 +313,26 @@ def build_ast(code_string, verbose=False):
     tree = betterast.build_tree(tree_description)
     return tree
 
-#print(build_ast("W!b{Ix<3{s}/{R5{l}}fWk{}f}", verbose=True))
-
 
 def ast_ted(a_tree, b_tree):
+    """
+    Computes tree edit distance of MiniRoboCode abstract syntax trees
+    :param a_tree: MinoRoboCode AST; first tree
+    :param b_tree: MinoRoboCode AST; second tree
+    :return: int; tree edit distance
+    """
     def binary_dist(a, b):
         if a == b:
             return 0
         return 1
-    return(zss.simple_distance(a_tree, b_tree, label_dist=binary_dist))
+    return zss.simple_distance(a_tree, b_tree, label_dist=binary_dist)
 
 
+
+
+
+#print(build_ast("W!b{Ix<3{s}/{R5{l}}fWk{}f}", verbose=True))
 #print(ast_ted(build_ast("W!b{rl}"), build_ast("R4{rl}")))
-
 """
 def ast_ted_matrix_from_file(data_abs_path):
     tasks = []
@@ -224,10 +350,7 @@ def ast_ted_matrix_from_file(data_abs_path):
             matrix[i][j] = ast_ted(tasks[i][2], tasks[j][2])
     return tasks, matrix
 """
-
-
 #my_tasks, my_matrix = ast_ted_matrix_from_file("C:/Dokumenty/Matej/MUNI/9. semestr/RoboMise/new_short-solutions-red-d.csv",)
-
 #print(my_tasks)
 #print(my_matrix)
 """

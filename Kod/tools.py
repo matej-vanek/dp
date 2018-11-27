@@ -15,8 +15,11 @@ from minirobocode_interpreter import run_task
 
 # Runs submits again and tests their correctness.
 # Computes sequence of visited squares during the run.
-def synchronous_interpreter_correctness_and_square_sequence(snapshots_path=None, task_sessions_path=None, tasks_path=None, output_snapshots_path=None, only_executions=True, only_edits=False, dataframe=None, save=True):
-    print("Interpreter")
+def synchronous_interpreter_correctness_and_square_sequence(
+        snapshots_path=None, task_sessions_path=None, tasks_path=None,
+        output_snapshots_path=None, only_executions=True, only_edits=False,
+        dataframe=None, save=True):
+    #print("Interpreter")
     if dataframe is not None:
         data = dataframe
     else:
@@ -27,7 +30,7 @@ def synchronous_interpreter_correctness_and_square_sequence(snapshots_path=None,
                                        tasks_cols=[])
         data["new_correct"] = pd.Series(None, index=data.index)
         data["square_sequence"] = pd.Series(None, index=data.index)
-    print(data.shape[0])
+    #print(data.shape[0])
     for i in data.index:
         if only_executions:
             if data.loc[i].granularity != "execution":
@@ -35,17 +38,14 @@ def synchronous_interpreter_correctness_and_square_sequence(snapshots_path=None,
         if only_edits:
             if data.loc[i].granularity != "edit":
                 continue
-        #print(data.loc[i]["program"])
-        print(i)
+        #print(i)
         correct, square_sequence = run_task(tasks_path=tasks_path,
                                             task_id=data.loc[i].task,
                                             program=data.loc[i].program,
                                             verbose=False)
 
-        #print(square_sequence)
         data.new_correct.loc[i] = str(correct)
         data.square_sequence.loc[i] = str(square_sequence)
-        #print(data.loc[i].square_sequence)
     if save:
         data = data.drop(["task"], axis=1)
         data.to_csv(output_snapshots_path, index=False)
@@ -63,8 +63,6 @@ def bag_of_blocks(series):
         for char in program:
             if char in blocks:
                 block_counts[blocks[char]] += 1
-
-
         output.append(block_counts)
     output = pd.Series(output, index=series.index)
     return output
@@ -259,6 +257,7 @@ def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
         for seq in tasks.index:
             if seq[0] == task:
                 this_seq = tasks.loc[seq]
+                print(type(this_seq.most_frequent_program), this_seq.most_frequent_program)
                 if this_seq.abs_count >= abs_threshold and \
                         this_seq.rel_count >= rel_threshold and \
                         isinstance(this_seq.most_frequent_program, str):
@@ -510,7 +509,6 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, ab
                 #print((frequent, total_sum))
             frequents[i].append(round(frequent / total_sum, 4))
 
-
     abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
     rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
 
@@ -522,6 +520,7 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, ab
     ax.set_zlabel("frequent wrong programs ratio")
     if title:
         ax.set_title(title)
+    ax.set_zlim3d(0., 0.35)
     plt.show()
 
 
@@ -566,24 +565,17 @@ def square_sequences_to_strings(sequence_series):
     return string_sequences
 
 
-# Computes various statistics from mistake measures tasks
-def statistics(tasks):
-    tasks.rename(columns={"program": "absolute_counts"}, inplace=True)
-    tasks["relative_counts"], total_sum = get_relative_counts(tasks.absolute_counts)
-    tasks["total_wrong"] = pd.Series([sum(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
-    tasks["distinct_wrong"] = pd.Series([len(tasks.absolute_counts.loc[i][0]) for i in tasks.index], index=tasks.index)
-    tasks["highest_abs_count"] = pd.Series([max(tasks.absolute_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
-    tasks["highest_rel_count"] = pd.Series([max(tasks.relative_counts.loc[i][0].values()) for i in tasks.index], index=tasks.index)
-    return tasks, total_sum
+def statistics(series):
+    return [series.quantile(0.1), series.quantile(0.5), series.quantile(0.9), series.nunique(dropna=True)]
 
 
 def task_sessions_plot(task_sessions_path):
     ts = pd.read_csv(task_sessions_path)
-    ts = ts.groupby("task").agg({"id": "count"})
+    ts = ts.groupby("student").agg({"id": "count"})
     print(ts)
     ts.sort_values(by="id", ascending=False).plot.bar()
-    plt.ylabel("number_of_task_sessions")
-    plt.xlabel("tasks")
+    plt.ylabel("number_of_task_sessions learners")
+    plt.xlabel("learners")
     plt.show()
 
 

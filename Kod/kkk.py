@@ -16,6 +16,7 @@ d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["
 
 
 print(min(3, np.nan, 2, 4, 38))
+print(None != False)
 
 """
 from mpl_toolkits.mplot3d import Axes3D

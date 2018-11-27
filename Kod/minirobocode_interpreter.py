@@ -11,7 +11,7 @@ def forward(row_pos, col_pos, game_board, correct, square_sequence, pointer, wor
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param wormholes: dict of string: list of 2-int-tuples; wormholes positions
@@ -33,7 +33,7 @@ def left(row_pos, col_pos, game_board, correct, square_sequence, pointer, wormho
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param wormholes: dict of string: list of 2-int-tuples; wormholes positions
@@ -56,7 +56,7 @@ def right(row_pos, col_pos, game_board, correct, square_sequence, pointer, wormh
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param wormholes: dict of string: list of 2-int-tuples; wormholes positions
@@ -78,7 +78,7 @@ def shoot(row_pos, col_pos, game_board, correct, square_sequence, pointer, energ
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param energy: int; shoots remaining
@@ -103,7 +103,7 @@ def repeat(row_pos, col_pos, game_board, correct, square_sequence, pointer,
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param program: string; current program
@@ -140,7 +140,7 @@ def repeat(row_pos, col_pos, game_board, correct, square_sequence, pointer,
     end_pointer -= 1  # { begin_pointer, ..., end_pointer, }
 
     for _ in range(repetitions):
-        if steps > 0 and correct != False:
+        if steps > 0 and correct != False:  # correct may be None
             row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps = \
                 run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
                                  program[begin_pointer: end_pointer + 1], energy, wormholes, diamonds, steps, verbose)
@@ -155,7 +155,7 @@ def if_else(row_pos, col_pos, game_board, correct, square_sequence, pointer,
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param program: string; current program
@@ -222,7 +222,7 @@ def while_robo(row_pos, col_pos, game_board, correct, square_sequence, pointer,
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param pointer: int; position of processed character in program
     :param program: string; current program
@@ -237,7 +237,10 @@ def while_robo(row_pos, col_pos, game_board, correct, square_sequence, pointer,
         it.load_operator_and_test_variable(pointer, program)
 
     if mode is not None:
-        while steps > 0 and correct != False and it.condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
+        while steps > 0 and\
+                correct != False and\
+                it.condition_test(mode, operator, test_position, test_color, row_pos, col_pos, game_board):
+                # correct may be None
             steps -= 1
             row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps = \
                 run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
@@ -253,7 +256,7 @@ def run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
     :param row_pos: int; row position
     :param col_pos: int; column position
     :param game_board: pd.DataFrame; game_board state
-    :param correct: bool; correctness of the task session
+    :param correct: bool or None; correctness of the task session
     :param square_sequence: list of 2-int-tuples; sequence of visited squares
     :param program: string; current program
     :param energy: int; shoots remaining
@@ -264,9 +267,10 @@ def run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
     :return: row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps; updated input variables
     """
     pointer = 0
-    while pointer < len(program) and steps > 0 and correct != False:
-        # print("""Pointer: {}\n Program: {}\n Position: ({}, {})\n Square sequence: {}\n Diamonds: {}\n{}
-        #       """.format(pointer, program, row_pos, col_pos, square_sequence, diamonds, game_board))
+    while pointer < len(program) and steps > 0 and correct != False:  # correct may be None
+        if verbose:
+            print("""Pointer: {}\n Program: {}\n Position: ({}, {})\n Square sequence: {}\n Diamonds: {}\n{}
+                  """.format(pointer, program, row_pos, col_pos, square_sequence, diamonds, game_board))
         if program[pointer] == "f":
             row_pos, col_pos, game_board, correct, square_sequence, pointer, diamonds, steps = \
                 forward(row_pos, col_pos, game_board, correct, square_sequence, pointer, wormholes,

@@ -47,7 +47,7 @@ def compute(args):
                                    task_sessions_path=args["task_sessions_path"],
                                    tasks_path=args["tasks_path"],
                                    task_sessions_cols=["id", "student", "solved", "time_spent", "task"],
-                                   tasks_cols=["id", "name", "section", "solution"])
+                                   tasks_cols=["id", "name", "level", "section", "solution"])
 
     data.correct = data.correct.fillna(False)
     data.new_correct = data.new_correct.fillna(False)
@@ -70,12 +70,13 @@ def compute(args):
         for j in levenshtein_matrix.index:
             if i > j:
                 levenshtein_matrix.loc[i][j] = levenshtein_matrix.loc[j][i]
-    tasks["levenshtein10"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.1))
+    tasks["levenshtein_5"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.05))
     tasks["closest_distance"], tasks["closest_task"] = get_shortest_distance(levenshtein_matrix, negative=False)
 
 
     print("CORRECT PROGRAMS")
     correct_programs = data[data.granularity == "execution"][data.new_correct]
+    tasks["unique_correct_programs"] = correct_programs.groupby("task").agg({"program": partial(pd.Series.nunique, dropna=True)})
     correct_programs.square_sequence = square_sequences_to_strings(correct_programs.square_sequence)
     correct_programs = correct_programs.groupby(["task", "square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
 
@@ -91,6 +92,7 @@ def compute(args):
     print("WRONG")
     wrong = data[data.granularity == "execution"]
     wrong = wrong[data.new_correct == False]
+    wrong = wrong[[isinstance(x, str) for x in wrong.program]]
     wrong.square_sequence = square_sequences_to_strings(wrong.square_sequence)
     wrong = wrong.groupby(["task", "square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
     wrong["representant"] = pd.Series([max(wrong.loc[i].program[0],
@@ -109,6 +111,7 @@ def compute(args):
                                              "program": last_with_empty_values,
                                              "square_sequence": last_with_empty_values})
 
+    left = left[[isinstance(x, str) for x in left.program]]
     left.new_correct = 0 + left.new_correct  # convert bool to int
     left["new_solved"] = left.new_correct / left.new_correct  # convert int to nan/1
     left.new_solved = left.new_solved.fillna(0)  # convert nan/1 to 0/1
@@ -137,13 +140,20 @@ def compute(args):
 
     learners_total = data.groupby("task_session").agg({"task": "max",
                                                        "student": "max",
-                                                       "new_correct": count_true})
+                                                       "new_correct": count_true,
+                                                       "level": max})
     learners_total.new_correct = 0 + learners_total.new_correct
     learners_total["new_solved"] = learners_total.new_correct / learners_total.new_correct
     learners_total.new_solved = learners_total.new_solved.fillna(0)
+    learners_total = learners_total.groupby(["student","task"]).agg({"student": "max",
+                                                                     "new_solved": "max",
+                                                                     "level": "max"})
+    learners_total["points"] = learners_total.new_solved * learners_total.level
+
+
     learners_total = learners_total[learners_total.new_solved > 0]
-    learners_total = learners_total.groupby("student").agg({"task": pd.Series.nunique})
-    learners_total = learners_total.task
+    learners_total = learners_total.groupby("student").agg({"points": "sum"})
+    learners_total = learners_total.points
 
 
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
@@ -164,7 +174,7 @@ def visualize_tasks(tasks):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('RoboMission Task Dashboard')
+                text('Task Dashboard')
             with tag('style'):
                 text("""
                      table {border-spacing: 0;
@@ -192,9 +202,11 @@ def visualize_tasks(tasks):
                 with tag('button', onclick="sortTableBy(4, 'number', 'asc')"):
                     text('Sort by time median')
                 with tag('button', onclick="sortTableBy(5, 'number', 'desc')"):
-                    text('Sort by levenshtein10')
+                    text('Sort by Levenshtein, 5th percentile')
                 with tag('button', onclick="sortTableBy(6, 'number', 'asc')"):
                     text('Sort by closest distance')
+                with tag('button', onclick="sortTableBy(7, 'number', 'desc')"):
+                    text('Sort by unique solutions')
             with tag('table', id='tasksTable'):
                 with tag('tr'):
                     with tag('th'):
@@ -211,6 +223,8 @@ def visualize_tasks(tasks):
                         text('Levenshtein10')
                     with tag('th'):
                         text('Closest Distance')
+                    with tag('th'):
+                        text('Unique Solutions')
                 for i in tasks.index:
                     with tag('tr'):
                         with tag('td'):
@@ -227,9 +241,11 @@ def visualize_tasks(tasks):
                         with tag('td'):
                             text(tasks.loc[i].time_spent)
                         with tag('td'):
-                            text(tasks.loc[i].levenshtein10)
+                            text(tasks.loc[i].levenshtein_5)
                         with tag('td'):
                             text(tasks.loc[i].closest_distance)
+                        with tag('td'):
+                            text(tasks.loc[i].unique_correct_programs)
 
             with tag('script'):
                 doc.asis("""
@@ -308,7 +324,7 @@ def visualize_correct_programs(correct_programs):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('RoboMission Correct Programs Dashboard')
+                text('Correct Programs Dashboard')
             with tag('style'):
                 text("""
                      table {border-spacing: 0;
@@ -413,7 +429,7 @@ def visualize_wrong(wrong):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('RoboMission Wron Submissions Dashboard')
+                text('Wrong Submissions Dashboard')
             with tag('style'):
                 text("""
                              table {border-spacing: 0;
@@ -482,7 +498,7 @@ def visualize_left(left):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('RoboMission Leaving Points Dashboard')
+                text('Leaving Points Dashboard')
             with tag('style'):
                 text("""
                          table {border-spacing: 0;
@@ -551,7 +567,7 @@ def visualize_learners_ts(learners_ts):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('RoboMission Learner Task Session Dashboard')
+                text('Learner Task Session Dashboard')
             with tag('style'):
                 text("""
                      table {border-spacing: 0;
@@ -564,7 +580,7 @@ def visualize_learners_ts(learners_ts):
 
         with tag('body'):
             with tag('h1'):
-                text('Learners task session info')
+                text('RoboMission Learners Task Session Dashboard')
             doc.stag('input', type='text', id='filterInput', onkeyup='filterLearnersTS()', placeholder='learner;task_session;task',
                      title='Write learner ID, task session ID and task ID')
             with tag('table', id='learnersTSTable'):
@@ -635,7 +651,7 @@ def visualize_learners_total(learners_total):
         doc.stag('meta', charset='utf-8')
         with tag('head'):
             with tag('title'):
-                text('RoboMission Learners Total Dashboard')
+                text('Learners Total Dashboard')
             with tag('style'):
                 text("""
                      table {border-spacing: 0;
@@ -648,14 +664,14 @@ def visualize_learners_total(learners_total):
 
         with tag('body'):
             with tag('h1'):
-                text('Learners total info')
+                text('RoboMission Learners Total Dashboard')
             doc.stag('input', type='text', id='filterInput', onkeyup='filterLearnersTotal()', placeholder='Learner\'s ID', title='Write learner\'s id')
             with tag('table', id='learnersTotalTable'):
                 with tag('tr'):
                     with tag('th'):
                         text('Learner')
                     with tag('th'):
-                        text('No. of Solved Tasks')
+                        text('Points')
                 for i in learners_total.index:
                     with tag('tr'):
                         with tag('td'):
@@ -702,3 +718,6 @@ if __name__ == '__main__':
     visualize_learners_ts(results[4])
     visualize_learners_total(results[5])
 
+#TODO grafy distribucí jednotlivých veličin
+#TODO barevné zvýraznění políček podle hodnot
+#TODO if red-d and compute sequences

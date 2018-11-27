@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# from collections import Counter
+from collections import Counter
 import editdistance
-from functools import partial
-from matplotlib import pyplot as plt
-import numpy as np
 import seaborn as sns
 from scipy.spatial.distance import euclidean
 
 from tools import *
 
 
-# joined difficulty and complexity
 def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks_path):
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
@@ -102,6 +98,9 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     difficulty_and_complexity["median_deletions_edits"] = tasks[("program_edits", "median")]
     difficulty_and_complexity["median_deletions_1_0"] = tasks[("program_1_0", "median")]
 
+    for column in difficulty_and_complexity:
+        print(column, statistics(difficulty_and_complexity[column]))
+
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #    print(difficulty_and_complexity)
     return difficulty_and_complexity
@@ -135,11 +134,10 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     uniqueness["unique_squares_sequences"] = tasks.distinct_squares_sequences
     #uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
     uniqueness["program_clusters_count"], _, _ = count_program_clusters(tasks.program)
-    print("solutions {} {} {}".format(uniqueness.unique_solutions.quantile(0.25), uniqueness.unique_solutions.quantile(0.5), uniqueness.unique_solutions.quantile(0.75)))
-    print("sequences {} {} {}".format(uniqueness.unique_squares_sequences.quantile(0.25), uniqueness.unique_squares_sequences.quantile(0.5), uniqueness.unique_squares_sequences.quantile(0.75)))
-    print("clusters {} {} {}".format(uniqueness.program_clusters_count.quantile(0.25), uniqueness.program_clusters_count.quantile(0.5), uniqueness.program_clusters_count.quantile(0.75)))
-    print("solutions entropy {} {} {}".format(uniqueness.solutions_entropy.quantile(0.25), uniqueness.solutions_entropy.quantile(0.5), uniqueness.solutions_entropy.quantile(0.75)))
-    print("sequences entropy {} {} {}".format(uniqueness.squares_sequences_entropy.quantile(0.25), uniqueness.squares_sequences_entropy.quantile(0.5), uniqueness.squares_sequences_entropy.quantile(0.75)))
+
+    for column in uniqueness:
+        print(column, statistics(uniqueness[column]))
+
     return uniqueness
 
 
@@ -171,7 +169,7 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
                 bag_of_blocks_matrix.loc[i][j] = euclidean(bags_of_blocks.loc[i], bags_of_blocks.loc[j])
                 bag_of_entities_matrix.loc[i][j] = euclidean(bags_of_entities.loc[i], bags_of_entities.loc[j])
 
-    """
+
     print(ast_ted_matrix)
     frequencies = dict(Counter(ast_ted_matrix.values.flatten()))
     plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
@@ -203,7 +201,7 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     plt.xlabel("distance")
     plt.ylabel("count")
     plt.show()
-    """
+
 
     flat_ast_ted_matrix = flatten_table_remove_nan(ast_ted_matrix)
     flat_levenshtein_matrix = flatten_table_remove_nan(levenshtein_matrix)
@@ -248,6 +246,8 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     similarity["closest_entities"], _ = get_shortest_distance(bag_of_entities_matrix)
 
     print(similarity)
+    for column in similarity:
+        print(column, statistics(similarity[column]))
     return similarity
 
 
@@ -273,7 +273,7 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
                                            "granularity_submits": count_submits,
                                            "program": partial(count_deletions, mode="all"),
                                            "program_line": partial(count_deletions, mode="line"),
-                                           "program_1_0": partial(count_deletions, mode="1_0")})
+                                           "program_1_0": partial(count_deletions, mode="bit")})
     ts.new_correct = 0 + ts.new_correct  # transformation bool -> int
 
     performance = pd.DataFrame(index=ts.task_session)
@@ -284,10 +284,13 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
     performance["edits"] = ts.granularity
     performance["submissions"] = ts.granularity_submits
     performance["deletions_all"] = ts.program
-    performance["deletions_edits"] = ts.program_edits
+    performance["deletions_edits"] = ts.program_line
     performance["deletions_1_0"] = ts.program_1_0
 
     print(performance)
+    for column in performance:
+        print(column, statistics(performance[column]))
+
     return performance
 
 
@@ -324,6 +327,9 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
                     inplace=True)
 
     print(students)
+    for column in students:
+        print(column, statistics(students[column]))
+
     return students
 
 
@@ -339,17 +345,19 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     data.new_correct = data.new_correct.fillna(False)
     data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system  # NAPSAT, ZE BYLY NESOUHLASNE VYLOUCENY
 
-    last_ts_snapshot = data.groupby("task_session").agg({"task": "max",
+    last_ts_snapshots = data.groupby("task_session").agg({"task": "max",
                                                          "new_correct": count_true,
                                                          "granularity": "last",
                                                          "program": last_with_empty_values,
                                                          "square_sequence": last_with_empty_values})
 
-    last_ts_snapshot.new_correct = 0 + last_ts_snapshot.new_correct  # convert bool to int
-    last_ts_snapshot["new_solved"] = last_ts_snapshot.new_correct / last_ts_snapshot.new_correct  # convert int to nan/1
-    last_ts_snapshot.new_solved = last_ts_snapshot.new_solved.fillna(0)  # convert nan/1 to 0/1
+    last_ts_snapshots = last_ts_snapshots[[isinstance(x, str) for x in last_ts_snapshots.program]]
 
-    wrong_ts = last_ts_snapshot[last_ts_snapshot.new_solved == 0]
+    last_ts_snapshots.new_correct = 0 + last_ts_snapshots.new_correct  # convert bool to int
+    last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct / last_ts_snapshots.new_correct  # convert int to nan/1
+    last_ts_snapshots.new_solved = last_ts_snapshots.new_solved.fillna(0)  # convert nan/1 to 0/1
+
+    wrong_ts = last_ts_snapshots[last_ts_snapshots.new_solved == 0]
     #wrong_ts = wrong_ts.iloc[:100]    ###########
     print(wrong_ts.shape[0])
     #TMP = wrong_ts.groupby("task").agg({"program": "count"})
@@ -362,7 +370,7 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
                                                                        tasks_path=tasks_path)
     wrong_ts["string_square_sequence"] = square_sequences_to_strings(wrong_ts.square_sequence)
 
-    del last_ts_snapshot
+    del last_ts_snapshots
     tasks_stuck = wrong_ts.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True),
                                                                             "new_solved": "count"})
     tasks_stuck["distinct_programs"] = len_of_programs_dict(tasks_stuck.program)
@@ -378,6 +386,7 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
+    data = data[[isinstance(x, str) for x in data.program]]
     #data = data.iloc[:2000]  ###################
     print(data.shape[0])
     #TMP = data.groupby("task").agg({"program": "count"})
@@ -411,9 +420,9 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     tasks = pd.DataFrame(index=tasks_stuck.index.levels[0])
     tasks["frequent_leaving_ratio"], tasks["unique_frequent_leaving"], tasks["leaving_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_stuck, abs_threshold=20, rel_threshold=0.10)
+        tasks=tasks_stuck, abs_threshold=10, rel_threshold=0.10)
     tasks["frequent_submissions_ratio"], tasks["unique_frequent_submissions"], tasks["submissions_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_all_wrong, abs_threshold=100, rel_threshold=0.10)
+        tasks=tasks_all_wrong, abs_threshold=50, rel_threshold=0.10)
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #    print(tasks_all_wrong)
     #    print("PPP")
@@ -422,6 +431,8 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
     #    print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
     #    print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
+    for column in ["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]:
+        print(column, statistics(tasks[column]))
 
     return tasks[["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]]
 
@@ -523,20 +534,6 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=difficulty_measures,
-                 variable_group_title="difficulty measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=complexity_measures,
-                 variable_group_title="complexity measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=difficulty_and_complexity_measures,
                  variable_group_title="difficulty and complexity measures")
 """
@@ -547,13 +544,13 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
 """
-"""
+
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=task_similarity_measures,
                  variable_group_title="task similarity measures")
-"""
+
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
@@ -574,8 +571,7 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=mistakes_measures,
                  variable_group_title="mistakes measures",
-                 plot=False)
+                 plot=True)
 """
 
-# TODO: VYPSAT DO DASHBOARDU SKUPINY SPRAVNYCH A SPATNYCH RESENI - REPREZENTANT = NEJCASTEJSI RESENI VE SKUPINE
 # TODO: STUCK POINTS PREJMENOVAT NA LEAVING POINTS
