@@ -113,8 +113,8 @@ def is_crashed(row_pos, col_pos, game_board, verbose):
 def load_game_board(tasks_path, task_id):
     """
     Loads information about initial game_board, maximal length of program and maximal shoots.
-    :param tasks_path: path to tasks.csv
-    :param task_id: id of task played
+    :param tasks_path: string; path to tasks .csv file
+    :param task_id: int; id of task solved
     :return game_board: pd.DataFrame; initial game_board state
     :return length: int; maximal length of program
     :return energy: int; maximal shoots
@@ -243,7 +243,7 @@ def search_in_game_board(content, game_board, first=False):
     Searches positions of game_board which contain particular character/string
     :param content: string; searched character
     :param game_board: pd.DataFrame; game_board state
-    :param first: bool, if True, returns only first found result
+    :param first: bool; if True, returns only first found result
     :return: list of 2-int-tuples OR 2-int-tuple; position(s) of found squares
     """
     results = []

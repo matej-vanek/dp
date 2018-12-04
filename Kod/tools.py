@@ -1,27 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
 from ast import literal_eval
 from functools import partial
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+import re
 from scipy.cluster.hierarchy import fcluster, linkage
 
 from robomission_ast import *
 from minirobocode_interpreter import run_task
 
 
-# Runs submits again and tests their correctness.
-# Computes sequence of visited squares during the run.
-def synchronous_interpreter_correctness_and_square_sequence(
-        snapshots_path=None, task_sessions_path=None, tasks_path=None,
-        output_snapshots_path=None, only_executions=True, only_edits=False,
-        dataframe=None, save=True):
-    #print("Interpreter")
-    if dataframe is not None:
-        data = dataframe
+def synchronous_interpreter_run(snapshots_path=None, task_sessions_path=None, tasks_path=None,
+                                output_snapshots_path=None, only_executions=True, only_edits=False,
+                                data_frame=None, save=True):
+    """
+    Reruns submits in data with synchronous interpreter, computes new information about program correctness and visited
+    squares sequences.
+    :param snapshots_path: string; path to snapshots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :param output_snapshots_path: string; output path to new snapshots .csv file
+    :param only_executions: bool; if True, only executions records are rerun
+    :param only_edits: bool; if True, only edits records are rerun
+    :param data_frame: pd.DataFrame; if present, data load from data_frame instead of file paths
+    :param save: bool; if True, extended snapshots .csv file with new correctness and visited squares sequences is saved
+    :return: pd.DataFrame; extended snapshots .csv file with new correctness and visited squares sequences
+    """
+    if data_frame is not None:
+        data = data_frame
     else:
         data = load_extended_snapshots(snapshots_path=snapshots_path,
                                        task_sessions_path=task_sessions_path,
@@ -30,7 +39,6 @@ def synchronous_interpreter_correctness_and_square_sequence(
                                        tasks_cols=[])
         data["new_correct"] = pd.Series(None, index=data.index)
         data["square_sequence"] = pd.Series(None, index=data.index)
-    #print(data.shape[0])
     for i in data.index:
         if only_executions:
             if data.loc[i].granularity != "execution":
@@ -38,12 +46,10 @@ def synchronous_interpreter_correctness_and_square_sequence(
         if only_edits:
             if data.loc[i].granularity != "edit":
                 continue
-        #print(i)
         correct, square_sequence = run_task(tasks_path=tasks_path,
                                             task_id=data.loc[i].task,
                                             program=data.loc[i].program,
                                             verbose=False)
-
         data.new_correct.loc[i] = str(correct)
         data.square_sequence.loc[i] = str(square_sequence)
     if save:
@@ -52,8 +58,12 @@ def synchronous_interpreter_correctness_and_square_sequence(
     return data
 
 
-# Counts bag of blocks characteristics of tasks.
 def bag_of_blocks(series):
+    """
+    Counts bag-of-blocks characteristics of tasks.
+    :param series: pd.Series; solutions series
+    :return: pd.Series; bag-of-blocks vectors series
+    """
     blocks = {"f": 0, "l": 1, "r": 2, "s": 3, "R": 4, "W": 5, "I": 6, "/": 7, "x": 8,
               "y": 9, "b": 9, "k": 9, "d": 9, "g": 9}  # color condition does not have its own symbol
     output = []
@@ -68,16 +78,18 @@ def bag_of_blocks(series):
     return output
 
 
-# Counts bag of task game-world entities.
 def bag_of_entities(task_setting_series):
-    # b, k, y, g, d(r) -> all, y-g-d (colorful)
-    # D, A, M, W, X, Y, Z, (S) -> wormholes, diamonds, asteroids, meteoroids
+    """
+    Counts bag-of-task_game_world_entities.
+    :param task_setting_series: pd.Series; task settineg series
+    :return: pd.Series; bag-of-entities vectors series
+    """
     bag = []
     for i in task_setting_series.index:
         task = literal_eval(task_setting_series.loc[i])
         task = re.sub("r", "d", task["fields"])
 
-        entities = [0 for _ in range(6)]  # [size, colorful, diamonds, wormholes, asteroids, meteoroids]
+        entities = [0 for _ in range(6)]  # [all_squares, colorful_squares, diamonds, wormholes, asteroids, meteoroids]
         entities[0] = len(re.findall("[bkygd]", task))
         entities[1] = len(re.findall("[ygd]", task))
         entities[2] = len(re.findall("D", task))
@@ -89,11 +101,15 @@ def bag_of_entities(task_setting_series):
     return bag
 
 
-# Counts deletions
-# mode: all -> difference of lengths of strings
-#       line -> one per each shortened line
-#       bit -> one if shortened wherever
 def count_deletions(series, mode):
+    """
+    Counts deletions in code.
+    :param series: pd.Series; program series
+    :param mode: string; if "all"   -> difference of lengths of strings
+                         if "edits" -> number of program-shortening edits
+                         if "1_0"   -> binary flag of any program shortening in task session
+    :return: pd.Series; deletions series
+    """
     dels = 0
     last = ""
     for item in series:
@@ -104,74 +120,22 @@ def count_deletions(series, mode):
         if len(item) < len(last):
             if mode == "all":
                 dels += len(last) - len(item)
-            elif mode == "line":
+            elif mode == "edits":
                 dels += 1
-            elif mode == "bit":
+            elif mode == "1_0":
                 dels = 1
         last = item
     return dels
 
 
-# Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
-# prunes where cophenetic dist is > 5, returns number of clusters
-def count_program_clusters2(programs):
-    clusters_count = pd.Series(index=programs.index)
-    program_info = {}
-    cluster_info = {}
-    for task in programs.index:
-        program_list = list(programs.loc[task][0].keys())
-        if len(programs.loc[task][0].keys()) > 1:
-            condensed_dist_matrix = []
-            print(len(program_list))
-            program_ast_list = np.array(list(map(partial(build_ast), program_list)))
-            #print(program_ast_list)
-            for i in range(len(program_ast_list)):
-                print(i)
-                for j in range(len(program_ast_list)):
-                    if i < j:
-                        condensed_dist_matrix.append(ast_ted(program_ast_list[i], program_ast_list[j]))
-            #print(condensed_dist_matrix)
-            condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
-        else:
-            condensed_dist_matrix = [0]
-
-        hier_clust = linkage(condensed_dist_matrix)
-        #print(hier_clust)
-        #print(programs.loc[task])
-        cluster_assign = fcluster(hier_clust, 5, criterion="distance")
-        #print(program_list)
-        #cluster_info[task] = {cluster:
-        #                          {'programs': [program for program in program_info[task] if program["cluster"] == cluster],
-        #                           'representant': max(program_info[task][0], key=program_info[task][0].get)}
-        #                           for cluster in set(cluster_assign)}
-
-        print(set(cluster_assign))
-        for cluster in set(cluster_assign):
-            print(cluster)
-            print(program_info[task])
-            programs = [program_info[task][program] for program in program_info[task] if
-                                                program_info[task][program]["cluster"] == cluster]
-            representant = max(program_info[task][0], key=program_info[task][0].get)
-
-            cluster_info[task] = {cluster: {"programs": programs, "representant": representant}}
-
-        #cluster_info[task] = {cluster:
-        #                          {'programs': [program_info[task][program] for program in program_info[task] if
-        #                                        program_info[task][program]["cluster"] == cluster],
-        #                           'representant': max(program_info[task][0], key=program_info[task][0].get)}
-        #                      for cluster in set(cluster_assign)}
-
-
-
-        #print(cluster_assign)
-        #print("Number of found clusters: ", len(set(cluster_assign)))
-        clusters_count.loc[task] = len(set(cluster_assign))
-        print(program_info[task])
-        print(cluster_info)
-        print(cluster_info[task])
-    return clusters_count, program_info, cluster_info
-
 def count_program_clusters(programs):
+    """
+    Counts number of program clusters of tasks.
+    Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
+    prunes where cophenetic dist is > 5, returns number of clusters.
+    :param programs: pd.Series of {string: int} dicts; programs frequency series
+    :return: pd.Series, dict, dict; number of clusters series, info about each program, info about each cluster
+    """
     clusters_count = pd.Series(index=programs.index)
     program_info = {}
     cluster_info = {}
@@ -179,34 +143,27 @@ def count_program_clusters(programs):
         program_list = list(programs.loc[task][0].keys())
         if len(programs.loc[task][0].keys()) > 1:
             condensed_dist_matrix = []
-            #print(len(program_list))
             program_ast_list = np.array(list(map(partial(build_ast), program_list)))
-            #print(program_ast_list)
             for i in range(len(program_ast_list)):
-                #print(i)
                 for j in range(len(program_ast_list)):
                     if i < j:
                         condensed_dist_matrix.append(ast_ted(program_ast_list[i], program_ast_list[j]))
-            #print(condensed_dist_matrix)
             condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
         else:
             condensed_dist_matrix = [0]
-        hier_clust = linkage(condensed_dist_matrix)
-        #print(hier_clust)
-        #print(programs.loc[task])
-        cluster_assign = fcluster(hier_clust, 5, criterion="distance")
-        #print(program_list)
-        program_info[task] = {program: {'cluster': cluster, 'freq': programs.loc[task][0][program]} for program, cluster in zip(program_list, cluster_assign)}
-        #print(program_info[task])
-        #print([prog for prog in program_info[task] if program_info[task][prog]["cluster"] == 1])
+        cluster_assign = fcluster(linkage(condensed_dist_matrix), 5, criterion="distance")
 
-        cluster_info[task] = {cluster: {'programs': [program for program in program_info[task] if program_info[task][program]["cluster"] == cluster],
-                                        'representant': max([prog for prog in program_info[task] if program_info[task][prog]["cluster"] == cluster], key=lambda x: program_info[task][x]["freq"])}
+        program_info[task] = {program: {'cluster': cluster, 'freq': programs.loc[task][0][program]}
+                              for program, cluster in zip(program_list, cluster_assign)}
+
+        cluster_info[task] = {cluster: {'programs': [program for program in program_info[task]
+                                                     if program_info[task][program]["cluster"] == cluster],
+                                        'representative': max([prog for prog in program_info[task]
+                                                             if program_info[task][prog]["cluster"] == cluster],
+                                                            key=lambda x: program_info[task][x]["freq"])}
                               for cluster in set(cluster_assign)}
-        #print(cluster_assign)
-        #print("Number of found clusters: ", len(set(cluster_assign)))
+        print(cluster_info[task])
         clusters_count.loc[task] = len(set(cluster_assign))
-        #print(cluster_info[task])
     return clusters_count, program_info, cluster_info
 
 
@@ -335,7 +292,7 @@ def count_used_blocks(series):
     return len(blocks)
 
 
-# Creates dict of solutions and number of their occurences
+# Creates dict of solutions and number of their occurrences
 def dict_of_counts(series, del_false=False):
     solutions = {}
     for item in series:
@@ -349,12 +306,12 @@ def dict_of_counts(series, del_false=False):
     return [solutions]
 
 
-def entropy(occurence_dict):
-    if len(occurence_dict[0]) == 1:
-        #print(occurence_dict[0].values())
+def entropy(occurrence_dict):
+    if len(occurrence_dict[0]) == 1:
+        #print(occurrence_dict[0].values())
         return 0
-    occurence_list = occurence_dict[0].values()
-    frequency_list = [i/sum(occurence_list) for i in occurence_list]
+    occurrence_list = occurrence_dict[0].values()
+    frequency_list = [i/sum(occurrence_list) for i in occurrence_list]
     return 1/np.log2(len(frequency_list)) * sum([- x * np.log2(x) for x in frequency_list])
 
 
@@ -483,7 +440,7 @@ def median_of_lens(series):
     return np.median([len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=str(x))) for x in series])
 
 
-# Draws 3D wireframe plot of frequent wrong programs ratio based on absolute and relative count of program occurences.
+# Draws 3D wireframe plot of frequent wrong programs ratio based on absolute and relative count of program occurrences.
 def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, abs_end, rel_step, rel_begin, rel_end, title=""):
     from mpl_toolkits.mplot3d import Axes3D
 
@@ -526,14 +483,15 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, ab
 
 # Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"
 # and saves the dataset
-def replace_red_by_d(file_path, output_path, column_name):
+def replace_red_by_d(file_path, output_path, column_names):
     data = pd.read_csv(file_path)
     for i in data.index:
-        text = data[column_name].loc[i]
-        if isinstance(text, str):
-            #print(data[column_name].loc[i])
-            data[column_name].loc[i] = text.replace("r{", "d{")
+        for column_name in column_names:
+            text = data[column_name].loc[i]
+            if isinstance(text, str):
+                data[column_name].loc[i] = text.replace("r{", "d{")
     data.to_csv(output_path, index=False)
+    return data
 
 
 # Determines whether the sample solution is the most used correct solution
@@ -579,6 +537,78 @@ def task_sessions_plot(task_sessions_path):
     plt.show()
 
 
+def correlation_plot(series1, series2, series1_label, series2_label, series1_limit, series2_limit):
+    plt.scatter(series1, series2, edgecolors="black")
+    plt.xlabel(series1_label)
+    plt.ylabel(series2_label)
+    plt.xlim(series1_limit[0], series1_limit[1])
+    plt.ylim(series2_limit[0], series2_limit[1])
+    plt.show()
+
+
+
+"""
+# Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
+# prunes where cophenetic dist is > 5, returns number of clusters
+def count_program_clusters2(programs):
+    clusters_count = pd.Series(index=programs.index)
+    program_info = {}
+    cluster_info = {}
+    for task in programs.index:
+        program_list = list(programs.loc[task][0].keys())
+        if len(programs.loc[task][0].keys()) > 1:
+            condensed_dist_matrix = []
+            print(len(program_list))
+            program_ast_list = np.array(list(map(partial(build_ast), program_list)))
+            #print(program_ast_list)
+            for i in range(len(program_ast_list)):
+                print(i)
+                for j in range(len(program_ast_list)):
+                    if i < j:
+                        condensed_dist_matrix.append(ast_ted(program_ast_list[i], program_ast_list[j]))
+            #print(condensed_dist_matrix)
+            condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
+        else:
+            condensed_dist_matrix = [0]
+
+        hier_clust = linkage(condensed_dist_matrix)
+        #print(hier_clust)
+        #print(programs.loc[task])
+        cluster_assign = fcluster(hier_clust, 5, criterion="distance")
+        #print(program_list)
+        #cluster_info[task] = {cluster:
+        #                          {'programs': [program for program in program_info[task] if program["cluster"] == cluster],
+        #                           'representative': max(program_info[task][0], key=program_info[task][0].get)}
+        #                           for cluster in set(cluster_assign)}
+
+        print(set(cluster_assign))
+        for cluster in set(cluster_assign):
+            print(cluster)
+            print(program_info[task])
+            programs = [program_info[task][program] for program in program_info[task] if
+                                                program_info[task][program]["cluster"] == cluster]
+            representative = max(program_info[task][0], key=program_info[task][0].get)
+
+            cluster_info[task] = {cluster: {"programs": programs, "representative": representative}}
+
+        #cluster_info[task] = {cluster:
+        #                          {'programs': [program_info[task][program] for program in program_info[task] if
+        #                                        program_info[task][program]["cluster"] == cluster],
+        #                           'representative': max(program_info[task][0], key=program_info[task][0].get)}
+        #                      for cluster in set(cluster_assign)}
+
+
+
+        #print(cluster_assign)
+        #print("Number of found clusters: ", len(set(cluster_assign)))
+        clusters_count.loc[task] = len(set(cluster_assign))
+        print(program_info[task])
+        print(cluster_info)
+        print(cluster_info[task])
+    return clusters_count, program_info, cluster_info
+"""
+
+
 #task_sessions_plot(task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv")
 """
 replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
@@ -597,7 +627,7 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
 """
 """
-synchronous_interpreter_correctness_and_square_sequence(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
+synchronous_interpreter_run(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
                                                         task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                                                         tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                                                         output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv")

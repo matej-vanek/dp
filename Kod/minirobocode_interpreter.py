@@ -314,7 +314,7 @@ def run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
 def run_task(tasks_path, task_id, program, verbose=False):
     """
     Runs selected task with given program.
-    :param tasks_path: path to tasks.csv
+    :param tasks_path: path to tasks .csv file
     :param task_id: id of task played
     :param program: string; program to run
     :param verbose: bool; verbosity

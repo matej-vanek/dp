@@ -22,11 +22,13 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                                      "granularity": count_submits,
                                                      "new_correct": count_true,
                                                      "solution": last_with_empty_values})
-    all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
-    all_sessions.new_solved = all_sessions.new_solved.fillna(0)
+    #all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
+    #all_sessions.new_solved = all_sessions.new_solved.fillna(0)
+    all_sessions["new_solved"] = all_sessions.new_correct.astype(bool)
 
     # successfulness of sessions
-    successful_sessions = all_sessions[all_sessions.new_solved > 0]
+    #successful_sessions = all_sessions[all_sessions.new_solved > 0]
+    successful_sessions = all_sessions[all_sessions.new_solved]
 
     all_sessions_by_tasks = all_sessions.groupby("task").agg({"new_solved": "count"})
     successful_sessions_by_tasks = successful_sessions.groupby("task").agg({"new_solved": "count"})
@@ -75,8 +77,8 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
                                                       "granularity_submits": count_submits,
                                                       "program": last_with_empty_values,
                                                       "program_all": partial(count_deletions, mode="all"),
-                                                      "program_edits": partial(count_deletions, mode="line"),
-                                                      "program_1_0": partial(count_deletions, mode="bit")})
+                                                      "program_edits": partial(count_deletions, mode="edits"),
+                                                      "program_1_0": partial(count_deletions, mode="1_0")})
 
     tasks = task_sessions.groupby("task").agg({"time_spent": "median",
                                                "granularity": "median",
@@ -137,6 +139,9 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
 
     for column in uniqueness:
         print(column, statistics(uniqueness[column]))
+
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(uniqueness)
 
     return uniqueness
 
@@ -263,18 +268,19 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
     data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
 
     data["granularity_submits"] = data.granularity
-    data["program_line"] = data.program
+    data["program_edits"] = data.program
     data["program_1_0"] = data.program
 
     ts = data.groupby("task_session").agg({"task_session": "max",
                                            "new_correct": count_true,
-                                           "time_spent": "max",
+                                           "time_spent": lambda x: np.log(max(x)),
                                            "granularity": count_edits,
                                            "granularity_submits": count_submits,
                                            "program": partial(count_deletions, mode="all"),
-                                           "program_line": partial(count_deletions, mode="line"),
-                                           "program_1_0": partial(count_deletions, mode="bit")})
-    ts.new_correct = 0 + ts.new_correct  # transformation bool -> int
+                                           "program_edits": partial(count_deletions, mode="edits"),
+                                           "program_1_0": partial(count_deletions, mode="1_0")})
+    #ts.new_correct = 0 + ts.new_correct  # transformation bool -> int
+    ts.new_correct = ts.new_correct.astype(int)
 
     performance = pd.DataFrame(index=ts.task_session)
 
@@ -284,7 +290,7 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
     performance["edits"] = ts.granularity
     performance["submissions"] = ts.granularity_submits
     performance["deletions_all"] = ts.program
-    performance["deletions_edits"] = ts.program_line
+    performance["deletions_edits"] = ts.program_edits
     performance["deletions_1_0"] = ts.program_1_0
 
     print(performance)
@@ -311,10 +317,12 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
                                            "new_correct": count_true,
                                            "program": last_with_empty_values,
                                            "time_spent": "max"})
-    ts.new_correct = 0 + ts.new_correct
-    ts["new_solved"] = ts.new_correct / ts.new_correct
-    ts.new_solved = ts.new_solved.fillna(0)
-    ts = ts[ts.new_solved > 0]
+    #ts.new_correct = 0 + ts.new_correct
+    #ts["new_solved"] = ts.new_correct / ts.new_correct
+    #ts.new_solved = ts.new_solved.fillna(0)
+    ts.new_solved = ts.new_correct.astype(bool)
+    #ts = ts[ts.new_solved > 0]
+    ts = ts[ts.new_solved]
     ts["credits"] = ts.new_solved * ts.level
 
     students = ts.groupby("student").agg({"task": pd.Series.nunique,
@@ -353,9 +361,10 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     last_ts_snapshots = last_ts_snapshots[[isinstance(x, str) for x in last_ts_snapshots.program]]
 
-    last_ts_snapshots.new_correct = 0 + last_ts_snapshots.new_correct  # convert bool to int
-    last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct / last_ts_snapshots.new_correct  # convert int to nan/1
-    last_ts_snapshots.new_solved = last_ts_snapshots.new_solved.fillna(0)  # convert nan/1 to 0/1
+    #last_ts_snapshots.new_correct = 0 + last_ts_snapshots.new_correct  # convert bool to int
+    #last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct / last_ts_snapshots.new_correct  # convert int to nan/1
+    #last_ts_snapshots.new_solved = last_ts_snapshots.new_solved.fillna(0)  # convert nan/1 to 0/1
+    last_ts_snapshots.new_solved = last_ts_snapshots.new_correct.astype(bool)
 
     wrong_ts = last_ts_snapshots[last_ts_snapshots.new_solved == 0]
     #wrong_ts = wrong_ts.iloc[:100]    ###########
@@ -363,11 +372,11 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     #TMP = wrong_ts.groupby("task").agg({"program": "count"})
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     #    print(TMP)
-    wrong_ts = synchronous_interpreter_correctness_and_square_sequence(dataframe=wrong_ts,
-                                                                       only_executions=False,
-                                                                       only_edits=True,
-                                                                       save=False,
-                                                                       tasks_path=tasks_path)
+    wrong_ts = synchronous_interpreter_run(data_frame=wrong_ts,
+                                           only_executions=False,
+                                           only_edits=True,
+                                           save=False,
+                                           tasks_path=tasks_path)
     wrong_ts["string_square_sequence"] = square_sequences_to_strings(wrong_ts.square_sequence)
 
     del last_ts_snapshots
@@ -544,13 +553,13 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=solution_uniqueness_measures,
                  variable_group_title="solution uniqueness measures")
 """
-
+"""
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=task_similarity_measures,
                  variable_group_title="task similarity measures")
-
+"""
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",

@@ -3,6 +3,7 @@
 # from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 # from AST import *
 # from functools import partial
+import matplotlib
 from matplotlib import pyplot as plt
 # import ast
 from random import randint, choice
@@ -14,9 +15,9 @@ b = pd.DataFrame([[10, 8, 3], [2, 5, 9], [16, 45, 88], [13, 5, 8]], index=['a', 
 c = pd.DataFrame([[4, 6, 11], [4, 82, 0], [31, 1, 2], [15, 3, 3]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 d = pd.DataFrame([["flrsRI/Wxkbdyg{}><=!0123456789", 6, 1], ["lIf/1", 82, 1], ["056123!>/", 1, 1], ["Ir///", 3, 2]], index=['a', 'b', 'c', 'd'], columns=['one', 'two', 'three'])
 
-
-print(min(3, np.nan, 2, 4, 38))
-print(None != False)
+occurence_list = [11, 2, 6]
+frequency_list = [i/sum(occurence_list) for i in occurence_list]
+print(1/np.log2(len(frequency_list)) * sum([- x * np.log2(x) for x in frequency_list]))
 
 """
 from mpl_toolkits.mplot3d import Axes3D

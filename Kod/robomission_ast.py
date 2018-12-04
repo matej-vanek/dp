@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+MiniRoboCode abstract syntax tree builder.
+"""
+
+"""
+File name: robomission_ast.py
+Author: Matej Vanek
+Created: 2018-12-
+Python Version: 3.6
+"""
+
 import betterast
 import zss
 
