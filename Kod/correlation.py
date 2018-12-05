@@ -288,7 +288,7 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
     #performance.incorrectness = 1 - performance.incorrectness.fillna(0)  ############## INcorrectness!
     performance["time"] = ts.time_spent
     performance["edits"] = ts.granularity
-    performance["submissions"] = ts.granularity_submits
+    performance["submits"] = ts.granularity_submits
     performance["deletions_all"] = ts.program
     performance["deletions_edits"] = ts.program_edits
     performance["deletions_1_0"] = ts.program_1_0
@@ -316,11 +316,11 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
                                            "level": "max",
                                            "new_correct": count_true,
                                            "program": last_with_empty_values,
-                                           "time_spent": "max"})
+                                           "time_spent": lambda x: np.log(max(x))})
     #ts.new_correct = 0 + ts.new_correct
     #ts["new_solved"] = ts.new_correct / ts.new_correct
     #ts.new_solved = ts.new_solved.fillna(0)
-    ts.new_solved = ts.new_correct.astype(bool)
+    ts["new_solved"] = ts.new_correct.astype(bool)
     #ts = ts[ts.new_solved > 0]
     ts = ts[ts.new_solved]
     ts["credits"] = ts.new_solved * ts.level
@@ -567,13 +567,13 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=student_task_performance_measures,
                  variable_group_title="students' task performance measures")
 """
-"""
+
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
-"""
+
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",

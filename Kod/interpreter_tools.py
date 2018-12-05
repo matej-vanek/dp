@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import ast
-from io import StringIO
+from StringIO import StringIO
 import pandas as pd
 import random
 import re
