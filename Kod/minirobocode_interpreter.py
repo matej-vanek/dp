@@ -344,7 +344,6 @@ def run_task(tasks_path, task_id, program, verbose=False):
     if not program or len(re.sub("[{}0123456789<>=!xbkygd/]", "", program)) > length:
         if verbose:
             print("Correct: {}".format(False))
-            # print("Square sequence: {}\n{}\n".format(square_sequence, game_board))
         return False, square_sequence
 
     row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps = \
@@ -360,16 +359,13 @@ def run_task(tasks_path, task_id, program, verbose=False):
     if correct == False:  # "if not correct" would succeed if correct was None
         if verbose:
             print("Correct: {}".format(False))
-            # print("Square sequence: {}\n{}\n".format(square_sequence, game_board))
         return False, square_sequence
     if it.is_completed(row_pos, col_pos, game_board, diamonds, verbose):
         if verbose:
             print("Correct: {}".format(True))
-            # print("Square sequence: {}\n{}\n".format(square_sequence, game_board))
         return True, square_sequence
     if verbose:
         print("Correct: {}".format(False))
-        # print("Square sequence: {}\n{}\n".format(square_sequence, game_board))
     return False, square_sequence
 
 

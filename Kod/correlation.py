@@ -126,7 +126,6 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
                                       "square_sequence": dict_of_counts,
                                       "solution": "last"})
 
-    #tasks["sample_solution_most_frequent"] = sample_solution_not_most_frequent(tasks.solution, tasks.program)
     uniqueness = pd.DataFrame(index=tasks.index)
     uniqueness["solutions_entropy"] = list(map(entropy, tasks.program))
     uniqueness["squares_sequences_entropy"] = list(map(entropy, tasks.square_sequence))
@@ -134,7 +133,6 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     tasks["distinct_squares_sequences"] = [len(x[0]) for x in tasks.square_sequence]
     uniqueness["unique_solutions"] = tasks.distinct_solutions
     uniqueness["unique_squares_sequences"] = tasks.distinct_squares_sequences
-    #uniqueness["sample_solution_not_most_frequent"] = tasks.sample_solution_most_frequent  ############# is NOT most frequent!!!
     uniqueness["program_clusters_count"], _, _ = count_program_clusters(tasks.program)
 
     for column in uniqueness:
@@ -327,7 +325,7 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
 
     students = ts.groupby("student").agg({"task": pd.Series.nunique,
                                           "credits": "sum",
-                                          "program": count_used_blocks,
+                                          "program": partial(count_distinct_blocks, basic_block_types_number=1)#count_used_blocks,
                                           "time_spent": "sum"})
     students.rename(columns={"program": "used_blocks",
                              "task": "solved_tasks",
@@ -351,7 +349,7 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
 
     data.correct = data.correct.fillna(False)
     data.new_correct = data.new_correct.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system  # NAPSAT, ZE BYLY NESOUHLASNE VYLOUCENY
+    data = data[data.new_correct == data.correct]
 
     last_ts_snapshots = data.groupby("task_session").agg({"task": "max",
                                                          "new_correct": count_true,
@@ -364,10 +362,10 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     #last_ts_snapshots.new_correct = 0 + last_ts_snapshots.new_correct  # convert bool to int
     #last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct / last_ts_snapshots.new_correct  # convert int to nan/1
     #last_ts_snapshots.new_solved = last_ts_snapshots.new_solved.fillna(0)  # convert nan/1 to 0/1
-    last_ts_snapshots.new_solved = last_ts_snapshots.new_correct.astype(bool)
+    last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct.astype(bool)
 
     wrong_ts = last_ts_snapshots[last_ts_snapshots.new_solved == 0]
-    #wrong_ts = wrong_ts.iloc[:100]    ###########
+    #wrong_ts = wrong_ts.iloc[:100]    ########################################################################################x
     print(wrong_ts.shape[0])
     #TMP = wrong_ts.groupby("task").agg({"program": "count"})
     #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
@@ -388,19 +386,11 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     tasks_stuck["task_freq"] = count_task_frequency(tasks_stuck)
     tasks_stuck["rel_count"] = tasks_stuck.abs_count / tasks_stuck.task_freq
 
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    #    print(tasks_stuck)
-
     # --------------------
 
     data = data[data.granularity == "execution"]
     data = data[data.new_correct == False]
     data = data[[isinstance(x, str) for x in data.program]]
-    #data = data.iloc[:2000]  ###################
-    print(data.shape[0])
-    #TMP = data.groupby("task").agg({"program": "count"})
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    #    print(TMP)
 
     data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
     tasks_all_wrong = data.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
@@ -411,18 +401,12 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
     tasks_all_wrong["task_freq"] = count_task_frequency(tasks_all_wrong)
     tasks_all_wrong["rel_count"] = tasks_all_wrong.abs_count / tasks_all_wrong.task_freq
 
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    #    print(tasks_all_wrong)
 
     if kwargs["plot"]:
         plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
-                                           total_sum=tasks_all_wrong.task_freq,
-                                           #title="All wrong submits",
                                            abs_step=30, abs_begin=1, abs_end=11,
                                            rel_step=0.05, rel_begin=1, rel_end=11)
         plot_frequent_wrong_programs_ratio(tasks=tasks_stuck[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
-                                           total_sum=tasks_stuck.task_freq,
-                                           #title="Unsolved task sessions",
                                            abs_step=5, abs_begin=1, abs_end=11,
                                            rel_step=0.05, rel_begin=1, rel_end=11)
 
@@ -432,18 +416,12 @@ def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
         tasks=tasks_stuck, abs_threshold=10, rel_threshold=0.10)
     tasks["frequent_submissions_ratio"], tasks["unique_frequent_submissions"], tasks["submissions_frequent_programs"] = count_frequent_wrong_programs_ratio(
         tasks=tasks_all_wrong, abs_threshold=50, rel_threshold=0.10)
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    #    print(tasks_all_wrong)
-    #    print("PPP")
-    #    print(tasks_stuck)
 
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.max_colwidth', -1):
-    #    print(tasks_stuck[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
-    #    print(tasks_all_wrong[["total_wrong", "distinct_wrong", "highest_abs_count", "highest_rel_count"]])
     for column in ["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]:
         print(column, statistics(tasks[column]))
 
     return tasks[["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]]
+
 
 # Computes correlation of task measures and creates heat table
 def measures_correlations(measures_table, method, title):
@@ -567,13 +545,13 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=student_task_performance_measures,
                  variable_group_title="students' task performance measures")
 """
-
+"""
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=student_total_performance_measures,
                  variable_group_title="students' total performance measures")
-
+"""
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
@@ -582,5 +560,17 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  variable_group_title="mistakes measures",
                  plot=True)
 """
+
+
+
+"""
+all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_extended.csv",
+                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
+                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
+                 measures_function=mistakes_measures,
+                 variable_group_title="mistakes measures",
+                 plot=True)
+"""
+
 
 # TODO: STUCK POINTS PREJMENOVAT NA LEAVING POINTS

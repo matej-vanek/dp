@@ -3,23 +3,15 @@
 
 """
 Matej Vanek's RoboMission dashboard creator.
-"""
-
-"""
-File name: dashboard_creator.py
-Author: Matej Vanek
-Created: 2018-12-
 Python Version: 3.6
 """
 
-import editdistance
-import numpy as np
-import pandas as pd
 import squarify
 from yattag import Doc, indent
 from argparse import ArgumentParser
 from collections import Counter
 from matplotlib import colors, cm
+from os.path import dirname, realpath
 
 from tools import *
 
@@ -103,42 +95,38 @@ def compute(args):
                                        })
     tasks["success_rate"] = success_rate
 
-    levenshtein_matrix = pd.DataFrame(data=None, index=sorted(tasks.index), columns=sorted(tasks.index))
-    for i in levenshtein_matrix.index:
-        for j in levenshtein_matrix.index:
+    asts = pd.Series(list(map(build_ast, tasks.solution)), index=tasks.index)
+    ast_ted_matrix = pd.DataFrame(data=None, index=sorted(tasks.index), columns=sorted(tasks.index))
+    for i in ast_ted_matrix.index:
+        for j in ast_ted_matrix.index:
             if i < j:
-                levenshtein_matrix.loc[i][j] = editdistance.eval(tasks.loc[i].solution, tasks.loc[j].solution)
-    flat_levenshtein_matrix = flatten_table_remove_nan(levenshtein_matrix)
-    for i in levenshtein_matrix.index:
-        for j in levenshtein_matrix.index:
+                ast_ted_matrix.loc[i][j] = ast_ted(asts.loc[i], asts.loc[j])
+    flat_ast_ted_matrix = flatten_table_remove_nan(ast_ted_matrix)
+    for i in ast_ted_matrix.index:
+        for j in ast_ted_matrix.index:
             if i > j:
-                levenshtein_matrix.loc[i][j] = levenshtein_matrix.loc[j][i]
-    tasks["levenshtein_5"] = count_similar_tasks(levenshtein_matrix, np.quantile(flat_levenshtein_matrix, 0.05))
-    tasks["closest_distance"], tasks["closest_task"] = get_shortest_distance(levenshtein_matrix, negative=False)
-    del flat_levenshtein_matrix
-    del levenshtein_matrix
+                ast_ted_matrix.loc[i][j] = ast_ted_matrix.loc[j][i]
+    tasks["ast_ted_5"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.05))
+    tasks["closest_distance"], tasks["closest_task"] = get_shortest_distance(ast_ted_matrix, negative=False)
+    tasks.closest_task = task_ids_to_phases(args["tasks_path"], list(tasks.closest_task))
+    del flat_ast_ted_matrix
+    del ast_ted_matrix
 
     print("CORRECT PROGRAMS")
     correct_programs = data[data.granularity == "execution"][data.new_correct]
-    tasks["unique_correct_programs"] = correct_programs.groupby("task").agg({"program": partial(pd.Series.nunique, dropna=True)})
+    tasks["unique_correct_programs"] = correct_programs.groupby("task").\
+        agg({"program": partial(pd.Series.nunique, dropna=True)})
 
     correct_programs["occurrences"] = correct_programs.program
-    correct_programs = correct_programs.groupby(["task", "program"]).agg({"program": "last",
-                                                                          "occurrences": "count",
-                                                                          "square_sequence": "last"})
-    
     correct_programs.square_sequence = square_sequences_to_strings(correct_programs.square_sequence)
-    correct_programs = correct_programs.groupby(["task", "square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
+    correct_programs = correct_programs.groupby(["task", "square_sequence"]). \
+        agg({"program": partial(dict_of_counts, del_false=True),
+             "occurrences": "count"})
 
     correct_programs["representative"] = pd.Series([max(correct_programs.loc[i].program[0],
-                                                      key=correct_programs.loc[i].program[0].get)
-                                                  for i in correct_programs.index],
-                                                 index=correct_programs.index)
-    correct_programs["occurrences"] = pd.Series([sum([correct_programs.loc[i].program[0][solution]
-                                                     for solution in correct_programs.loc[i].program[0]])
-                                                for i in correct_programs.index],
-                                               index=correct_programs.index)
-
+                                                        key=correct_programs.loc[i].program[0].get)
+                                                    for i in correct_programs.index],
+                                                   index=correct_programs.index)
 
     print("WRONG SUBMISSIONS")
     wrong = data[data.granularity == "execution"]
@@ -147,13 +135,13 @@ def compute(args):
     wrong.square_sequence = square_sequences_to_strings(wrong.square_sequence)
     wrong = wrong.groupby(["task", "square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
     wrong["representative"] = pd.Series([max(wrong.loc[i].program[0],
-                                           key=wrong.loc[i].program[0].get)
-                                       for i in wrong.index],
-                                      index=wrong.index)
+                                             key=wrong.loc[i].program[0].get)
+                                         for i in wrong.index],
+                                        index=wrong.index)
     wrong["occurrences"] = pd.Series([sum([wrong.loc[i].program[0][solution]
-                                          for solution in wrong.loc[i].program[0]])
-                                     for i in wrong.index],
-                                    index=wrong.index)
+                                           for solution in wrong.loc[i].program[0]])
+                                      for i in wrong.index],
+                                     index=wrong.index)
 
     print("LEAVING POINTS")
     left = data.groupby("task_session").agg({"task": "max",
@@ -174,13 +162,13 @@ def compute(args):
     left.square_sequence = square_sequences_to_strings(left.square_sequence)
     left = left.groupby(["task", "square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
     left["representative"] = pd.Series([max(left.loc[i].program[0],
-                                          key=left.loc[i].program[0].get)
-                                      for i in left.index],
-                                     index=left.index)
+                                            key=left.loc[i].program[0].get)
+                                        for i in left.index],
+                                       index=left.index)
     left["occurrences"] = pd.Series([sum([left.loc[i].program[0][solution]
-                                         for solution in left.loc[i].program[0]])
-                                    for i in left.index],
-                                   index=left.index)
+                                          for solution in left.loc[i].program[0]])
+                                     for i in left.index],
+                                    index=left.index)
 
     print("LEARNERS' TASK SESSIONS")
     data["time_log"] = data.time_spent
@@ -197,10 +185,10 @@ def compute(args):
                                                        "solution": "last"
                                                        })
     learners_total["new_solved"] = learners_total.new_correct.astype(bool)
-    learners_total = learners_total.groupby(["student","task"]).agg({"student": "max",
-                                                                     "new_solved": "max",
-                                                                     "level": "max",
-                                                                     "solution": "count"})
+    learners_total = learners_total.groupby(["student", "task"]).agg({"student": "max",
+                                                                      "new_solved": "max",
+                                                                      "level": "max",
+                                                                      "solution": "count"})
     learners_total["points"] = learners_total.new_solved * learners_total.level
     learners_total = learners_total[learners_total.new_solved]
     learners_total = learners_total.groupby("student").agg({"points": "sum",
@@ -209,7 +197,7 @@ def compute(args):
 
     # PLOTS
     # =====
-    frequencies = [dict(Counter(tasks.levenshtein_5)), dict(Counter(tasks.closest_distance)),
+    frequencies = [dict(Counter(tasks.ast_ted_5)), dict(Counter(tasks.closest_distance)),
                    dict(Counter(tasks.unique_correct_programs))]
     xlabels = ["AST_TED_5", "closest_distance", "unique_correct_solutions"]
     for i, variable in enumerate(frequencies):
@@ -227,12 +215,18 @@ def compute(args):
     plt.savefig(args["output_path"] + "/treemap.png")
     plt.clf()
 
-    hists = ((tasks.time_spent, 60, 660, 30, 11, 3, 11, "unsuccessful", "hist_time.png", "time, 60-seconds bins", "time"),
-             (correct_programs.occurrences, 5, 55, 250, 11, 25, 11, "occurrences", "correct_programs.png", "occurrences, 5-units bins", "unique programs"),
-             (wrong.occurrences, 5, 55, 2000, 11, 200, 11, "occurrences", "wrong_submits.png", "occurrences, 5-units bins", "unique programs"),
-             (left.occurrences, 5, 55, 2000, 11, 200, 11, "occurrences", "leaving_points.png", "occurrences, 5-units bins", "unique programs"),
-             (learners_ts.time_log, 1, 11, 2000, 11, 200, 11, "time", "learners_ts_time.png", "occurrences, 1-unit bins", "log(time)"),
-             (learners_total.points, 10, 110, 2000, 11, 200, 11, "points", "learners_total_points.png", "occurrences, 10-units bins", "points"))
+    hists = ((tasks.time_spent, 60, 660, 30, 11, 3, 11,
+              "unsuccessful", "hist_time.png", "time, 60-seconds bins", "time"),
+             (correct_programs.occurrences, 5, 55, 250, 11, 25, 11,
+              "occurrences", "correct_programs.png", "occurrences, 5-units bins", "unique programs"),
+             (wrong.occurrences, 5, 55, 10000, 11, 1000, 11,
+              "occurrences", "wrong_submits.png", "occurrences, 5-units bins", "unique programs"),
+             (left.occurrences, 5, 55, 3000, 11, 300, 11,
+              "occurrences", "leaving_points.png", "occurrences, 5-units bins", "unique programs"),
+             (learners_ts.time_log, 1, 11, 15000, 11, 1500, 11,
+              "time", "learners_ts_time.png", "occurrences, 1-unit bins", "log(time)"),
+             (learners_total.points, 10, 110, 2000, 11, 200, 11,
+              "points", "learners_total_points.png", "occurrences, 10-units bins", "points"))
 
     for hist_variable in hists:
         plt.figure(figsize=(7, 5))
@@ -250,7 +244,6 @@ def compute(args):
         ax.set_xticklabels(labels)
         plt.savefig(args["output_path"] + "/" + hist_variable[8])
         plt.clf()
-
     # =====
 
     return tasks, correct_programs, wrong, left, learners_ts, learners_total
@@ -268,7 +261,8 @@ def value_to_color(series, yellow_highest=True):
         series = series.sort_values()
     else:
         series = series.sort_values(ascending=False)
-    min_max = (series.iloc[len(series.index)//20], series.iloc[- len(series.index)//20] - series.iloc[len(series.index)//20]) # 5 % shora i zdola je pro potreby minima a maxima oriznuto
+    min_max = (series.iloc[len(series.index)//20],
+               series.iloc[- len(series.index)//20] - series.iloc[len(series.index)//20])
 
     for i in value_colors.index:
         value = (series.loc[i] - min_max[0]) / float(min_max[1])
@@ -285,14 +279,16 @@ def visualize_tasks(tasks, output_path):
     """
     Creates tasks dashboard.
     :param tasks: pd.DataFrame; tasks DataFrame
+    :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return: 
     """
     print("CREATING TASKS DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
+    this_dir = dirname(realpath(__file__))
+
     success_rate_colors = value_to_color(tasks.success_rate)
-    task_session_colors = value_to_color(tasks.task_session)
-    levenshtein_5_colors = value_to_color(tasks.levenshtein_5)
+    ast_ted_5_colors = value_to_color(tasks.ast_ted_5)
     closest_distance_colors = value_to_color(tasks.closest_distance, yellow_highest=False)
     unique_correct_programs_colors = value_to_color(tasks.unique_correct_programs, yellow_highest=False)
 
@@ -322,23 +318,28 @@ def visualize_tasks(tasks, output_path):
                 text('Variables Distribution')
             with tag('p'):
                 doc.stag('img', src='hist_time.png', alt='Histogram of median times', width="500", height="366")
-                doc.stag('img', src='hist_AST_TED_5.png', alt='Histogram of AST TED, 5th percentile', width="500", height="366")
+                doc.stag('img', src='hist_AST_TED_5.png', alt='Histogram of AST TED, 5th percentile',
+                         width="500", height="366")
             with tag('p'):
-                doc.stag('img', src='hist_closest_distance.png', alt='Histogram of closest distances', width="500", height="366")
-                doc.stag('img', src='hist_unique_correct_solutions.png', alt='Histogram of unique solutions', width="500", height="366")
+                doc.stag('img', src='hist_closest_distance.png', alt='Histogram of closest distances',
+                         width="500", height="366")
+                doc.stag('img', src='hist_unique_correct_solutions.png', alt='Histogram of unique solutions',
+                         width="500", height="366")
 
             with tag('h2'):
-                text('Tasks by Task Sessions and Success Rate')
+                text('Tasks by the Number of Task Sessions and the Success Rate')
             with tag('p'):
                 with tag('figure'):
-                    doc.stag('img', src='treemap.png', alt='Tasks by number of task sessions (area) and success rate (color, the brighter the better)', width="1000", height="625")
+                    doc.stag('img', src='treemap.png', alt="""Tasks by the number of task sessions (area) and the 
+                    success rate (color, the brighter the better)""", width="1000", height="625")
                     with tag('figcaption'):
-                        text('Tasks by number of task sessions (area) and success rate (color, the brighter the better)')
+                        text("""Tasks by number of task sessions (area) and success rate 
+                        (color, the brighter the better)""")
 
             with tag('h2'):
                 text('Table')
             with tag('p'):
-                text('Filter columns by >/</= sign and given value; e. g. \'>35\' or \'=zig-zag\'')
+                text('Filter columns by >/</= sign and the given value; e. g. \'>35\' or \'=zig-zag\'')
                 doc.stag('br')
                 doc.stag('input', type='text', id='filterInput0', onkeyup='filterTable(0, "True", "filterInput0")',
                          placeholder='Task', title='Write Task')
@@ -349,16 +350,16 @@ def visualize_tasks(tasks, output_path):
                 doc.stag('input', type='text', id='filterInput3', onkeyup='filterTable(3, "", "filterInput3")',
                          placeholder='Sample Solution', title='Write Sample Solution')
                 doc.stag('input', type='text', id='filterInput4', onkeyup='filterTable(4, "True", "filterInput4")',
-                         placeholder='Success Rate', title='Write Success Rate')
-                doc.stag('input', type='text', id='filterInput5', onkeyup='filterTable(5, "True", "filterInput5")',
                          placeholder='Total Successful Task Sessions', title='Write Total Successful Task Sessions')
+                doc.stag('input', type='text', id='filterInput5', onkeyup='filterTable(5, "True", "filterInput5")',
+                         placeholder='Success Rate', title='Write Success Rate')
                 doc.stag('input', type='text', id='filterInput6', onkeyup='filterTable(6, "True", "filterInput6")',
-                         placeholder='Levenshtein 5', title='Write Levenshtein 5')
+                         placeholder='AST TED 5', title='Write ASt TED 5')
                 doc.stag('input', type='text', id='filterInput7', onkeyup='filterTable(7, "True", "filterInput7")',
                          placeholder='Closest Distance', title='Write Closest Distance')
                 doc.stag('input', type='text', id='filterInput8', onkeyup='filterTable(8, "True", "filterInput8")',
                          placeholder='Closest Task', title='Write Closest Task')
-                doc.stag('input', type='text', id='filterInput9', onkeyup='filterTable(9, "True", "filterInput9")',
+                doc.stag('input', type='text', id='filterInput9', onkeyup='filterTable(9, "", "filterInput9")',
                          placeholder='Unique Correct Solutions', title='Write Unique Correct Solutions')
 
             with tag('p'):
@@ -375,15 +376,15 @@ def visualize_tasks(tasks, output_path):
                         with tag('th'):
                             text('Sample Solution')
                         with tag('th'):
-                            text('Success Rate')
-                        with tag('th'):
                             text('Total Successful Task Sessions')
                         with tag('th'):
-                            text('No. of close tasks, Levenshtein, 5th percentile')
+                            text('Success Rate')
+                        with tag('th'):
+                            text('No. of close tasks, AST TED, 5th percentile')
                         with tag('th'):
                             text('Closest Distance')
                         with tag('th'):
-                            text('Closest-Task ID')
+                            text('Closest Task')
                         with tag('th'):
                             text('Unique Correct Solutions')
                     for i in tasks.index:
@@ -399,20 +400,16 @@ def visualize_tasks(tasks, output_path):
                                 text(tasks.loc[i].section)
                             with tag('td'):
                                 text(tasks.loc[i].solution)
+                            with tag('td'):
+                                text(tasks.loc[i].task_session)
                             with tag('td', bgcolor=success_rate_colors.loc[i]):
                                 text(round(tasks.loc[i].success_rate, 3))
-                            with tag('td', bgcolor=task_session_colors.loc[i]):
-                                text(tasks.loc[i].task_session)
-                            with tag('td', bgcolor=levenshtein_5_colors.loc[i]):
-                                text(tasks.loc[i].levenshtein_5)
+                            with tag('td', bgcolor=ast_ted_5_colors.loc[i]):
+                                text(tasks.loc[i].ast_ted_5)
                             with tag('td', bgcolor=closest_distance_colors.loc[i]):
                                 text(tasks.loc[i].closest_distance)
                             with tag('td'):
-                                if len(str(int(tasks.loc[i].closest_task))) > 1:
-                                    text(str(int(tasks.loc[i].closest_task)))
-                                else:
-                                    text('0'+str(int(tasks.loc[i].closest_task)))
-
+                                text(tasks.loc[i].closest_task)
                             with tag('td', bgcolor=unique_correct_programs_colors.loc[i]):
                                 text(tasks.loc[i].unique_correct_programs)
 
@@ -459,9 +456,8 @@ def visualize_tasks(tasks, output_path):
                       }
                     }
                 """)
-            with tag('script', src='sorttable.js'):
+            with tag('script', src=this_dir + '/sorttable.js'):
                 pass
-            
     with open(output_path + "/tasks_dashboard.html", "w") as f:
         f.write(indent(doc.getvalue()))
 
@@ -470,10 +466,13 @@ def visualize_correct_programs(correct_programs, output_path):
     """
     Creates correct programs dashboard.
     :param correct_programs: pd.DataFrame; correct programs DataFrame
+    :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return: 
     """
     print("CREATING CORRECT PROGRAMS DASHBOARD")
     doc, tag, text = Doc().tagtext()
+
+    this_dir = dirname(realpath(__file__))
 
     occurrences_colors = value_to_color(correct_programs.occurrences)
 
@@ -499,12 +498,13 @@ def visualize_correct_programs(correct_programs, output_path):
             with tag('h2'):
                 text('Correct Programs Distribution')
             with tag('p'):
-                doc.stag('img', src='correct_programs.png', alt="Histogram of unique programs' occurrences", width="500", height="366")
+                doc.stag('img', src='correct_programs.png', alt="Histogram of unique programs' occurrences",
+                         width="500", height="366")
 
             with tag('h2'):
                 text('Table')
             with tag('p'):
-                text('Filter columns by >/</= sign and given value; e. g. \'>35\' or \'=zig-zag\'')
+                text('Filter columns by >/</= sign and the given value; e. g. \'>35\' or \'=zig-zag\'')
                 doc.stag('br')
                 doc.stag('input', type='text', id='filterInput0', onkeyup='filterTable(0, "True", "filterInput0")',
                          placeholder='Task', title='Write Task')
@@ -521,7 +521,7 @@ def visualize_correct_programs(correct_programs, output_path):
                         with tag('th'):
                             text('Task')
                         with tag('th'):
-                            text('Program')
+                            text('Program Group')
                         with tag('th'):
                             text('Occurrences')
                     for i in correct_programs.index:
@@ -579,7 +579,7 @@ def visualize_correct_programs(correct_programs, output_path):
                       }
                     }
                 """)
-            with tag('script', src='sorttable.js'):
+            with tag('script', src=this_dir + '/sorttable.js'):
                 pass
 
     with open(output_path + "/correct_programs_dashboard.html", "w") as f:
@@ -590,10 +590,13 @@ def visualize_wrong(wrong, output_path):
     """
     Creates wrong submissions dashboard.
     :param wrong: pd.DataFrame; wrong submissions DataFrame
+    :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
     print("CREATING WRONG SUBMISSIONS DASHBOARD")
     doc, tag, text = Doc().tagtext()
+
+    this_dir = dirname(realpath(__file__))
 
     occurrences_colors = value_to_color(wrong.occurrences)
 
@@ -625,7 +628,7 @@ def visualize_wrong(wrong, output_path):
             with tag('h2'):
                 text('Table')
             with tag('p'):
-                text('Filter columns by >/</= sign and given value; e. g. \'>35\' or \'=zig-zag\'')
+                text('Filter columns by >/</= sign and the given value; e. g. \'>35\' or \'=zig-zag\'')
                 doc.stag('br')
                 doc.stag('input', type='text', id='filterInput0', onkeyup='filterTable(0, "True", "filterInput0")',
                          placeholder='Task', title='Write Task')
@@ -642,7 +645,7 @@ def visualize_wrong(wrong, output_path):
                         with tag('th'):
                             text('Task')
                         with tag('th'):
-                            text('Program')
+                            text('Program Group')
                         with tag('th'):
                             text('Occurrences')
                     for i in wrong.index:
@@ -700,7 +703,7 @@ def visualize_wrong(wrong, output_path):
                       }
                     }
                 """)
-            with tag('script', src='sorttable.js'):
+            with tag('script', src=this_dir + '/sorttable.js'):
                 pass
 
     with open(output_path + "/wrong_submissions_dashboard.html", "w") as f:
@@ -711,10 +714,13 @@ def visualize_left(left, output_path):
     """
     Creates leaving points dashboard.
     :param left: pd.DataFrame; leaving points DataFrame
+    :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
     print("CREATING LEAVING POINTS DASHBOARD")
     doc, tag, text = Doc().tagtext()
+
+    this_dir = dirname(realpath(__file__))
 
     occurrences_colors = value_to_color(left.occurrences)
 
@@ -746,7 +752,7 @@ def visualize_left(left, output_path):
             with tag('h2'):
                 text('Table')
             with tag('p'):
-                text('Filter columns by >/</= sign and given value; e. g. \'>35\' or \'=zig-zag\'')
+                text('Filter columns by >/</= sign and the given value; e. g. \'>35\' or \'=zig-zag\'')
                 doc.stag('br')
                 doc.stag('input', type='text', id='filterInput0', onkeyup='filterTable(0, "True", "filterInput0")',
                          placeholder='Task', title='Write Task')
@@ -763,7 +769,7 @@ def visualize_left(left, output_path):
                         with tag('th'):
                             text('Task')
                         with tag('th'):
-                            text('Program')
+                            text('Program Group')
                         with tag('th'):
                             text('Occurrences')
                     for i in left.index:
@@ -821,7 +827,7 @@ def visualize_left(left, output_path):
                       }
                     }
                 """)
-            with tag('script', src='sorttable.js'):
+            with tag('script', src=this_dir + '/sorttable.js'):
                 pass
 
     with open(output_path + "/leaving_points_dashboard.html", "w") as f:
@@ -832,10 +838,13 @@ def visualize_learners_ts(learners_ts, output_path):
     """
     Creates learners' task sessions dashboard.
     :param learners_ts: pd.DataFrame; learners' task sessions DataFrame
+    :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
     print("CREATING LEARNERS' TASK SESSIONS DASHBOARD")
     doc, tag, text = Doc().tagtext()
+
+    this_dir = dirname(realpath(__file__))
 
     time_spent_colors = value_to_color(learners_ts.time_spent)
 
@@ -867,7 +876,7 @@ def visualize_learners_ts(learners_ts, output_path):
             with tag('h2'):
                 text('Table')
             with tag('p'):
-                text('Filter columns by >/</= sign and given value; e. g. \'>35\' or \'=zig-zag\'')
+                text('Filter columns by >/</= sign and the given value; e. g. \'>35\' or \'=zig-zag\'')
                 doc.stag('br')
                 doc.stag('input', type='text', id='filterInput0', onkeyup='filterTable(0, "True", "filterInput0")',
                          placeholder='Learner', title='Write Learner')
@@ -909,14 +918,14 @@ def visualize_learners_ts(learners_ts, output_path):
                                     text(i[1])
                             with tag('td'):
                                 if len(str(int(learners_ts.loc[i].task))) < 2:
-                                    text("0" * (2 - len(str(learners_ts.loc[i].task))) + str(learners_ts.loc[i].task))
+                                    text("0" * (2 - len(str(learners_ts.loc[i].task))) +
+                                         str(int(learners_ts.loc[i].task)))
                                 else:
                                     text(learners_ts.loc[i].task)
-                            with tag('td', bgcolor = time_spent_colors.loc[i]):
+                            with tag('td', bgcolor=time_spent_colors.loc[i]):
                                 text(round(learners_ts.loc[i].time_log, 3))
                             with tag('td'):
                                 text(learners_ts.loc[i].time_spent)
-
 
             with tag('script'):
                 doc.asis("""
@@ -961,7 +970,7 @@ def visualize_learners_ts(learners_ts, output_path):
                       }
                     }
                 """)
-            with tag('script', src='sorttable.js'):
+            with tag('script', src=this_dir + '/sorttable.js'):
                 pass
 
     with open(output_path + "/learners_task_session_dashboard.html", "w") as f:
@@ -972,10 +981,13 @@ def visualize_learners_total(learners_total, output_path):
     """
     Creates learners' total dashboard.
     :param learners_total: pd.DataFrame; learners' total DataFrame
+    :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
     print("CREATING LEARNER'S TOTAL DASHBOARD")
     doc, tag, text = Doc().tagtext()
+
+    this_dir = dirname(realpath(__file__))
 
     points_colors = value_to_color(learners_total.points)
 
@@ -1008,7 +1020,7 @@ def visualize_learners_total(learners_total, output_path):
             with tag('h2'):
                 text('Table')
             with tag('p'):
-                text('Filter columns by >/</= sign and given value; e. g. \'>35\' or \'=zig-zag\'')
+                text('Filter columns by >/</= sign and the given value; e. g. \'>35\' or \'=zig-zag\'')
                 doc.stag('br')
                 doc.stag('input', type='text', id='filterInput0', onkeyup='filterTable(0, "True", "filterInput0")',
                          placeholder='Learner', title='Write Learner')
@@ -1082,7 +1094,7 @@ def visualize_learners_total(learners_total, output_path):
                       }
                     }
                 """)
-            with tag('script', src='sorttable.js'):
+            with tag('script', src=this_dir + '/sorttable.js'):
                 pass
 
     with open(output_path + "/learners_total_dashboard.html", "w") as f:

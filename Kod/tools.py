@@ -13,51 +13,6 @@ from robomission_ast import *
 from minirobocode_interpreter import run_task
 
 
-def synchronous_interpreter_run(snapshots_path=None, task_sessions_path=None, tasks_path=None,
-                                output_snapshots_path=None, only_executions=True, only_edits=False,
-                                data_frame=None, save=True):
-    """
-    Reruns submits in data with synchronous interpreter, computes new information about program correctness and visited
-    squares sequences.
-    :param snapshots_path: string; path to snapshots .csv file
-    :param task_sessions_path: string; path to task sessions .csv file
-    :param tasks_path: string; path to tasks .csv file
-    :param output_snapshots_path: string; output path to new snapshots .csv file
-    :param only_executions: bool; if True, only executions records are rerun
-    :param only_edits: bool; if True, only edits records are rerun
-    :param data_frame: pd.DataFrame; if present, data load from data_frame instead of file paths
-    :param save: bool; if True, extended snapshots .csv file with new correctness and visited squares sequences is saved
-    :return: pd.DataFrame; extended snapshots .csv file with new correctness and visited squares sequences
-    """
-    if data_frame is not None:
-        data = data_frame
-    else:
-        data = load_extended_snapshots(snapshots_path=snapshots_path,
-                                       task_sessions_path=task_sessions_path,
-                                       tasks_path=tasks_path,
-                                       task_sessions_cols=["id", "task"],
-                                       tasks_cols=[])
-        data["new_correct"] = pd.Series(None, index=data.index)
-        data["square_sequence"] = pd.Series(None, index=data.index)
-    for i in data.index:
-        if only_executions:
-            if data.loc[i].granularity != "execution":
-                continue
-        if only_edits:
-            if data.loc[i].granularity != "edit":
-                continue
-        correct, square_sequence = run_task(tasks_path=tasks_path,
-                                            task_id=data.loc[i].task,
-                                            program=data.loc[i].program,
-                                            verbose=False)
-        data.new_correct.loc[i] = str(correct)
-        data.square_sequence.loc[i] = str(square_sequence)
-    if save:
-        data = data.drop(["task"], axis=1)
-        data.to_csv(output_snapshots_path, index=False)
-    return data
-
-
 def bag_of_blocks(series):
     """
     Counts bag-of-blocks characteristics of tasks.
@@ -128,6 +83,84 @@ def count_deletions(series, mode):
     return dels
 
 
+def count_distinct_blocks(series, basic_block_types_number):
+    """
+    Counts distinct blocks used in MiniRoboCode programs.
+    :param series: pd.Series; series of MiniRoboCode programs
+    :param basic_block_types_number: int; determines how many of "f", "l", "r" and "s" blocks collapse into the only one
+    :return: pd.Series; series of counts
+    """
+    colors = {"b", "k", "d", "g", "y"}
+    if basic_block_types_number == 4:
+        basic_blocks = {"f", "l", "r", "s"}
+    elif basic_block_types_number == 3:
+        basic_blocks = {"f", "l", "r"}
+    elif basic_block_types_number == 1:
+        basic_blocks = set()
+
+    counts_series = pd.Series(None for _ in range(len(series)))
+    for i in series.index:
+        counts_series.loc[i] = 0.
+        for color in colors:
+            if color in series.loc[i]:
+                counts_series.loc[i] += 1
+                break
+        for basic_block in basic_blocks:
+            if basic_block in series.loc[i]:
+                counts_series.loc[i] += 1
+                break
+        counts_series.loc[i] += len(set(series.loc[i])
+                                    - {"{", "}", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "!", "=", ">", "<"}
+                                    - colors - basic_blocks)
+    return counts_series
+
+
+def count_edits(series):
+    """
+    Counts edit operations.
+    :param series: pd.Series; 'granularity' series
+    :return: int; number of edit operations
+    """
+    count = 0
+    for item in series:
+        if item == "edit":
+            count += 1
+    return count
+
+
+def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
+    """
+    Counts ratio of frequent wrong programs to all wrong programs.
+    :param tasks: pd.DataFrame; tasks DataFrame
+    :param abs_threshold: number; minimal threshold on the minimal absolute frequency of a problem to be frequent
+    :param rel_threshold: number; minimal threshold on the minimal relative frequency of a problem to be frequent
+    :return: pd.Series, pd.Series, pd.Series; ratio series, number of unique programs series,
+    all programs + their absolute frequency series
+    """
+    frequency = pd.Series(index=tasks.index.levels[0])
+    unique = pd.Series(index=tasks.index.levels[0])
+    frequent_programs_series = pd.Series(index=tasks.index.levels[0])
+    for task in tasks.index.levels[0]:
+        frequent_ratio = 0
+        unique_programs = 0
+        frequent_programs = [{}]
+        for seq in tasks.index:
+            if seq[0] == task:
+                this_seq = tasks.loc[seq]
+                print(type(this_seq.most_frequent_program), this_seq.most_frequent_program)
+                if this_seq.abs_count >= abs_threshold and \
+                        this_seq.rel_count >= rel_threshold and \
+                        isinstance(this_seq.most_frequent_program, str):
+                    frequent_ratio += this_seq.rel_count
+                    unique_programs += 1
+                    frequent_programs[0][this_seq.most_frequent_program] = this_seq.abs_count
+        frequency.loc[task] = frequent_ratio
+        unique.loc[task] = unique_programs
+        frequent_programs_series.loc[task] = frequent_programs
+
+    return frequency, unique, frequent_programs_series
+
+
 def count_program_clusters(programs):
     """
     Counts number of program clusters of tasks.
@@ -159,85 +192,22 @@ def count_program_clusters(programs):
         cluster_info[task] = {cluster: {'programs': [program for program in program_info[task]
                                                      if program_info[task][program]["cluster"] == cluster],
                                         'representative': max([prog for prog in program_info[task]
-                                                             if program_info[task][prog]["cluster"] == cluster],
-                                                            key=lambda x: program_info[task][x]["freq"])}
+                                                               if program_info[task][prog]["cluster"] == cluster],
+                                                              key=lambda x: program_info[task][x]["freq"])}
                               for cluster in set(cluster_assign)}
         print(cluster_info[task])
         clusters_count.loc[task] = len(set(cluster_assign))
     return clusters_count, program_info, cluster_info
 
 
-# Counts distinct blocks used in miniRobocode.
-# basic_block_types_number determines how many of "f", "l", "r" and "s" blocks collapse into the only one.
-def count_distinct_blocks(series, basic_block_types_number):
-    colors = {"b", "k", "d", "g", "y"}
-    if basic_block_types_number == 4:
-        basic_blocks = {"f", "l", "r", "s"}
-    elif basic_block_types_number == 3:
-        basic_blocks = {"f", "l", "r"}
-    elif basic_block_types_number == 1:
-        basic_blocks = set()
-
-    counts_series = pd.Series(None for _ in range(len(series)))
-    for i in series.index:
-        counts_series.loc[i] = 0.
-        for color in colors:
-            if color in series.loc[i]:
-                counts_series.loc[i] += 1
-                break
-        for basic_block in basic_blocks:
-            if basic_block in series.loc[i]:
-                counts_series.loc[i] += 1
-                break
-        counts_series.loc[i] += len(set(series.loc[i])
-                                    - {"{", "}", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "!", "=", ">", "<"}
-                                    - colors - basic_blocks)
-    return counts_series
-
-
-def count_edits(series):
-    count = 0
-    for item in series:
-        if item == "edit":
-            count += 1
-    return count
-
-
-def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
-    frequency = pd.Series(index=tasks.index.levels[0])
-    unique = pd.Series(index=tasks.index.levels[0])
-    frequent_programs_series = pd.Series(index=tasks.index.levels[0])
-    for task in tasks.index.levels[0]:
-        frequent_ratio = 0
-        unique_programs = 0
-        frequent_programs = [{}]
-        for seq in tasks.index:
-            if seq[0] == task:
-                this_seq = tasks.loc[seq]
-                print(type(this_seq.most_frequent_program), this_seq.most_frequent_program)
-                if this_seq.abs_count >= abs_threshold and \
-                        this_seq.rel_count >= rel_threshold and \
-                        isinstance(this_seq.most_frequent_program, str):
-                    frequent_ratio += this_seq.rel_count
-                    unique_programs += 1
-                    frequent_programs[0][this_seq.most_frequent_program] = this_seq.abs_count
-        frequency.loc[task] = frequent_ratio
-        unique.loc[task] = unique_programs
-        frequent_programs_series.loc[task] = frequent_programs
-
-    return frequency, unique, frequent_programs_series
-
-
-def count_total_abs_freq(series):
-    abs_freq = pd.Series(index=series.index)
-    for i in series.index:
-        abs_freq.loc[i] = sum([series.loc[i][0][key] for key in series.loc[i][0]])
-    return abs_freq
-
-
-# Counts how many tasks in the distance matrix have lower distance to the source task than threshold.
-# Computes for all rows of the distance matrix.
 def count_similar_tasks(distance_matrix, threshold):
+    """
+    Counts how many tasks in the distance matrix have lower distance to the source task than threshold. Computes this
+    for all rows of the distance matrix.
+    :param distance_matrix: pd.DataFrame; distance matrix
+    :param threshold: number; the upper threshold determining whether tasks are similar or not
+    :return: pd.Series; series of the number of similar tasks
+    """
     output = pd.Series(index=distance_matrix.index)
     for i in distance_matrix.index:
         x = [1 for task in distance_matrix if distance_matrix.loc[i, task] <= threshold]
@@ -246,6 +216,11 @@ def count_similar_tasks(distance_matrix, threshold):
 
 
 def count_submits(series):
+    """
+    Counts submit operations.
+    :param series: pd.Series; 'granularity' series
+    :return: int; number of submit operations
+    """
     count = 0
     for item in series:
         if item == "execution":
@@ -253,23 +228,18 @@ def count_submits(series):
     return count
 
 
-def count_true(series):
-    count = 0
-    for item in series:
-        if item is True:
-            count += 1
-    return count
-
-
 def count_task_frequency(dataframe):
-    #print(dataframe.index)
-
+    """
+    Counts absolute frequency of task in two-level index dataframe
+    :param dataframe: pd.DataFrame; two-level index dataframe, task is the first level of index,
+    dataframe has column 'abs_freq'
+    :return: pd.Series; series of task absolute frequencies
+    """
     task_freq_series = pd.Series(index=dataframe.index)
     for i in dataframe.index.levels[0]:
         task_freq = 0
         for j in dataframe.index:
             if j[0] == i:
-                #print(dataframe.loc[j])
                 task_freq += dataframe.loc[j].abs_count
         for j in dataframe.index:
             if j[0] == i:
@@ -277,9 +247,35 @@ def count_task_frequency(dataframe):
     return task_freq_series
 
 
+def count_total_abs_freq(series):
+    """
+    Counts total absolute frequency of a frequency series.
+    :param series: pd.Series; frequency series
+    :return: pd.Series; total absolute frequency series
+    """
+    abs_freq = pd.Series(index=series.index)
+    for i in series.index:
+        abs_freq.loc[i] = sum([series.loc[i][0][key] for key in series.loc[i][0]])
+    return abs_freq
 
+
+def count_true(series):
+    """
+    Counts True values.
+    :param series: pd.Series; series of boolean values
+    :return: pd.Series; number of True values
+    """
+    count = 0
+    for item in series:
+        if item is True:
+            count += 1
+    return count
+
+
+""" <<<count_distinct_blocks>>>
 # counts all block types used in all items of series
 def count_used_blocks(series):
+
     blocks = set()
     for i in series.index:
         for char in series.loc[i]:
@@ -290,10 +286,16 @@ def count_used_blocks(series):
             else:
                 blocks.add(char)
     return len(blocks)
+"""
 
 
-# Creates dict of solutions and number of their occurrences
 def dict_of_counts(series, del_false=False):
+    """
+    Counts occurrences of items in series.
+    :param series: pd.Series; series of items to count
+    :param del_false: bool; if True, items equal to False are deleted from the result
+    :return: dict in list; dict of items and numbers of their occurrences
+    """
     solutions = {}
     for item in series:
         if item not in solutions:
@@ -302,21 +304,29 @@ def dict_of_counts(series, del_false=False):
     if del_false:
         if False in solutions:
             del solutions[False]
-    #print(solutions)
     return [solutions]
 
 
 def entropy(occurrence_dict):
+    """
+    Counts n-ary entropy of items.
+    :param occurrence_dict: dict; item: relative frequencies of items dictionary
+    :return: n-ary entropy of items
+    """
     if len(occurrence_dict[0]) == 1:
-        #print(occurrence_dict[0].values())
         return 0
     occurrence_list = occurrence_dict[0].values()
     frequency_list = [i/sum(occurrence_list) for i in occurrence_list]
     return 1/np.log2(len(frequency_list)) * sum([- x * np.log2(x) for x in frequency_list])
 
 
-# Flattens table and omits None values
 def flatten_table_remove_nan(table, triangle=False):
+    """
+    Transforms table to one-row representation, deletes None values,
+    :param table: pd.DataFrame; table to be flattened
+    :param triangle: bool; if True, it omits all values above the main diagonal
+    :return: list; flattened table
+    """
     output = []
     for i in table.index:
         for j in table:
@@ -329,41 +339,26 @@ def flatten_table_remove_nan(table, triangle=False):
     return output
 
 
-# Computes flattened lower triangle table (without main diagonal) from a square table
-def flattened_triangle_table(table):
-    reduced_table = []
-    for i in range(len(table)):
-        for j in range(i):
-            reduced_table.append(table[i][j])
-    return reduced_table
-
-
 def get_most_frequent_program(program_series):
+    """
+    Returns the most frequent program for each row of series
+    :param program_series: pd.Series; series of dicts in list, [{program: frequency}]
+    :return: pd.Series; series of most frequent programs
+    """
     most_freq_program = pd.Series(index=program_series.index)
     for i in program_series.index:
-        #print(program_series.loc[i])
         most_freq_program.loc[i] = max(program_series.loc[i][0], key=lambda x: program_series.loc[i][0][x])
     return most_freq_program
 
 
-
-def get_relative_counts(abs_counts):
-    output = pd.Series(index=abs_counts.index)
-    total_sum = 0
-    for i in abs_counts.index:
-        task_rel_counts = {}
-        programs = abs_counts.loc[i][0]
-        task_sum = sum(programs.values())
-        for program in programs:
-            task_rel_counts[program] = programs[program] / task_sum
-        output.loc[i] = [task_rel_counts]
-        total_sum += task_sum
-    return output, total_sum
-
-
-# Computes shortest distance series from distance matrix
-# NEGATIVE DISTANCE IN ORDER TO KEEP POSITIVE CORRELATIONS!!!
 def get_shortest_distance(distance_matrix, negative=True):
+    """
+    Finds shortest distance in each row of matrix. Distances returns implicitly AS NEGATIVE NUMBERS in order to keep
+    correlations with other measures positive
+    :param distance_matrix: pd.DataFrame; distance matrix
+    :param negative: bool if True, distances are transformed to negative numbers
+    :return: pd.Series, pd.Series; shortest distances series, closest tasks series
+    """
     distances = pd.Series(index=distance_matrix.index)
     tasks = pd.Series(index=distance_matrix.index)
     distance_matrix.fillna(1000000, inplace=True)
@@ -377,22 +372,23 @@ def get_shortest_distance(distance_matrix, negative=True):
     return distances, tasks
 
 
-def incorrect_evaluation(snapshots_path, task_sessions_path, tasks_path):
-    data = load_extended_snapshots(snapshots_path=snapshots_path, task_sessions_path=task_sessions_path, tasks_path=tasks_path, task_sessions_cols=["id", "task"], tasks_cols=["id", "solution"])
-    data = data[data.granularity == "execution"]
-    print(data)
-    data = data.fillna(False)
-    data = data[data.new_correct != data.correct]
-    print(data[["id", "correct", "new_correct"]])
-
-    incorrect = data[data.new_correct == False]
-    print(incorrect[["id", "task", "program", "solution", "correct", "new_correct"]])
-    incorrect_non_51 = incorrect[data.task != 51]
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(incorrect_non_51[["id", "task", "program", "solution", "correct", "new_correct"]])
-
 def last_with_empty_values(series):
+    """
+    Returns last value of the series, regardless whether it is empty or not.
+    :param series: pd.Series; series
+    :return: ???; last value
+    """
     return series.iloc[-1]
+
+
+def len_of_last(series):
+    """
+    Returns length of the last item of series.
+    :param series:
+    :return: int; length of last item
+    """
+    return len(re.sub("[{}0123456789<>=!]", "", series.iloc[-1]))
+
 
 def len_of_programs_dict(series):
     length = pd.Series(index=series.index)
@@ -401,13 +397,16 @@ def len_of_programs_dict(series):
     return length
 
 
-# Counts length of the last item of series
-def len_of_last(series):
-    return len(re.sub("[{}0123456789<>=!]", "", series.iloc[-1]))
-
-
-# Merges snapshots, task_sessions and tasks together (left outer join) and returns the result.
 def load_extended_snapshots(snapshots_path, task_sessions_path, tasks_path, task_sessions_cols, tasks_cols):
+    """
+    Merges snapshots, task_sessions and tasks together (left outer join) and returns the result.
+    :param snapshots_path: string; path to .csv file with RoboMission program snapshots
+    :param task_sessions_path: string; path to .csv file with RoboMission task sessions
+    :param tasks_path: string; path to .csv file with RoboMission tasks
+    :param task_sessions_cols: list of strings; list of task-sessions columns to be merged to snapshots
+    :param tasks_cols: list of strings; list of tasks columns to be merged to snapshots
+    :return: pd.DataFrame; merged dataframe
+    """
     snapshots = pd.read_csv(snapshots_path)
     task_sessions = pd.read_csv(task_sessions_path, usecols=task_sessions_cols)
     task_sessions.rename(index=str, columns={"id": "task_session"}, inplace=True)
@@ -420,35 +419,32 @@ def load_extended_snapshots(snapshots_path, task_sessions_path, tasks_path, task
     return snapshots_with_tasks
 
 
-# Merges snapshots and ts together (left outer join) and returns the result.
-def load_extended_task_sessions(task_sessions_path, snapshots_path, snapshots_cols):
-    task_sessions = pd.read_csv(task_sessions_path)
-    snapshots = pd.read_csv(snapshots_path, usecols=snapshots_cols)
-    snapshots.rename(index=str, columns={"id": "snapshot", "task_session": "id"}, inplace=True)
-    task_sessions_with_snapshots = pd.merge(task_sessions, snapshots, how="left", on="task_session")
-    return task_sessions_with_snapshots
-
-
-def load_task_names_levels(tasks_path):
-    tasks = pd.read_csv(tasks_path, usecols=["id", "name", "level"])
-    task_names_levels = {task[1].id: {"name": task[1].loc.name, "level": task[1].level} for task in tasks.iterrows()}
-    return task_names_levels
-
-
-# Computes median of lengths of a string series
 def median_of_lens(series):
+    """
+    Computes median of lengths of a string series.
+    :param series: pd.Series; series of strings
+    :return: float; median of string lengths
+    """
     return np.median([len(re.sub(pattern="[{}0123456789<>=!]", repl="", string=str(x))) for x in series])
 
 
-# Draws 3D wireframe plot of frequent wrong programs ratio based on absolute and relative count of program occurrences.
-def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, abs_end, rel_step, rel_begin, rel_end, title=""):
-    from mpl_toolkits.mplot3d import Axes3D
+def plot_frequent_wrong_programs_ratio(tasks, abs_step, abs_begin, abs_end, rel_step, rel_begin, rel_end):
+    """
+    Creates plots of frequent wrong programs ratio based on thresholds.
+    :param tasks: string; path to .csv file with RoboMission tasks
+    :param abs_step: number; interval between two absolute thresholds values
+    :param abs_begin: number; first value of abs_step to be computed
+    :param abs_end: number; last value of abs_step to be computed
+    :param rel_step: number; interval between two relative thresholds values
+    :param rel_begin: number; first value of rel_step to be computed
+    :param rel_end: number; last value of rel_step to be computed
+    :return:
+    """
+    abs_thresholds = [round(abs_step * i, 2) for i in range(abs_begin, abs_end)]
+    rel_thresholds = [round(rel_step * i, 2) for i in range(rel_begin, rel_end)]
 
-    abs_thresholds = [abs_step * i for i in range(abs_begin, abs_end)]
-    rel_thresholds = [rel_step * i for i in range(rel_begin, rel_end)]
-    frequents = [[] for _ in range(len(rel_thresholds))]
-    for i, rel_threshold in enumerate(rel_thresholds):
-        print(i)
+    frequents = pd.DataFrame(index=rel_thresholds, columns=abs_thresholds)
+    for rel_threshold in rel_thresholds:
         for abs_threshold in abs_thresholds:
             frequent = 0
             total_sum = 0
@@ -463,27 +459,35 @@ def plot_frequent_wrong_programs_ratio(tasks, total_sum, abs_step, abs_begin, ab
                         if not total_sum:
                             task_total_sum = this_seq.task_freq
                 total_sum += task_total_sum
-                #print((frequent, total_sum))
-            frequents[i].append(round(frequent / total_sum, 4))
+            frequents.loc[rel_threshold][abs_threshold] = round(frequent / total_sum, 4)
+    frequents.index.name = "relative_threshold"
+    print(frequents)
 
-    abs_axis = np.array([abs_thresholds for _ in range(len(rel_thresholds))])
-    rel_axis = np.array([[item for _ in range(len(abs_thresholds))] for item in rel_thresholds])
+    colors = ['darkred', 'red', 'pink', 'orange', 'yellow', 'lawngreen', 'cyan', 'dodgerblue', 'navy', 'black']
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_wireframe(abs_axis, rel_axis, np.array(frequents), color="b")
-    ax.set_xlabel("absolute count threshold")
-    ax.set_ylabel("relative count threshold")
-    ax.set_zlabel("frequent wrong programs ratio")
-    if title:
-        ax.set_title(title)
-    ax.set_zlim3d(0., 0.35)
+    for i in range(len(frequents.index)):
+        plt.plot(frequents.index, frequents.iloc[i], marker='', color=colors[i], linewidth=2)
+    plt.legend(title="absolute count threshold", labels=abs_thresholds)
+    plt.xlabel("relative count threshold")
+    plt.ylabel("frequent wrong programs ratio")
+    plt.show()
+
+    for i in range(len(frequents.iloc[0])):
+        plt.plot(list(frequents), frequents.iloc[:, [i]], marker='', color=colors[i], linewidth=2)
+    plt.legend(title="relative count threshold", labels=rel_thresholds)
+    plt.xlabel("absolute count threshold")
+    plt.ylabel("frequent wrong programs ratio")
     plt.show()
 
 
-# Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right"
-# and saves the dataset
 def replace_red_by_d(file_path, output_path, column_names):
+    """
+    Replaces ambiguous "r" for "right" and "red" by "d" for "red", keeps "r" for "right" and saves the dataset.
+    :param file_path: string; path to .csv file to be processed
+    :param output_path: string; path to folder where modified file will be saved
+    :param column_names: list of strings; list of column names to be processed
+    :return: pd.DataFrame; file with replaced "red" symbol
+    """
     data = pd.read_csv(file_path)
     for i in data.index:
         for column_name in column_names:
@@ -494,27 +498,15 @@ def replace_red_by_d(file_path, output_path, column_names):
     return data
 
 
-# Determines whether the sample solution is the most used correct solution
-def sample_solution_not_most_frequent(solutions, programs):
-    output = pd.Series(index=solutions.index)
-    for i in solutions.index:
-        #print(max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
-        if solutions.loc[i] == max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]).replace("r{", "d{"):
-            output.loc[i] = 0  #############
-        else:
-            #print(i, solutions.loc[i], max(programs.loc[i][0], key=lambda x: programs.loc[i][0][x]))
-            output.loc[i] = 1  #############
-    return output
-
-
 def square_sequences_to_strings(sequence_series):
-    print("Stringing")
+    """
+    Transforms square sequences to string representation.
+    :param sequence_series: pd.Series; series of square sequences
+    :return: pd.Series; series of square sequences string representation
+    """
     string_sequences = pd.Series(index=sequence_series.index)
     for i in sequence_series.index:
-        #print(sequence_series.loc[i])
         seq = eval(sequence_series.loc[i])
-        #if not np.isnan(sequence_series.loc[i]):
-        #print(sequence_series.loc[i])
         string_square_sequence = ""
         for square in seq:
             for coord in square:
@@ -524,28 +516,78 @@ def square_sequences_to_strings(sequence_series):
 
 
 def statistics(series):
+    """
+    Returns 0.1, 0.5 and 0.9 -th quantile and number of unique values of series
+    :param series: pd.Series of numbers; series with values to be processed
+    :return: [float, float, float, int]; 0.1, 0.5 and 0.9 -th quantile, number of unique values
+    """
     return [series.quantile(0.1), series.quantile(0.5), series.quantile(0.9), series.nunique(dropna=True)]
 
 
-def task_sessions_plot(task_sessions_path):
-    ts = pd.read_csv(task_sessions_path)
-    ts = ts.groupby("student").agg({"id": "count"})
-    print(ts)
-    ts.sort_values(by="id", ascending=False).plot.bar()
-    plt.ylabel("number_of_task_sessions learners")
-    plt.xlabel("learners")
-    plt.show()
+def synchronous_interpreter_run(snapshots_path=None, task_sessions_path=None, tasks_path=None,
+                                output_snapshots_path=None, only_executions=True, only_edits=False,
+                                data_frame=None, save=True):
+    """
+    Reruns submits in data with synchronous interpreter, computes new information about program correctness and visited
+    squares sequences.
+    :param snapshots_path: string; path to snapshots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :param output_snapshots_path: string; output path to new snapshots .csv file
+    :param only_executions: bool; if True, only executions records are rerun
+    :param only_edits: bool; if True, only edits records are rerun
+    :param data_frame: pd.DataFrame; if present, data load from data_frame instead of file paths
+    :param save: bool; if True, extended snapshots .csv file with new correctness and visited squares sequences is saved
+    :return: pd.DataFrame; extended snapshots .csv file with new correctness and visited squares sequences
+    """
+    if data_frame is not None:
+        data = data_frame
+    else:
+        data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                       task_sessions_path=task_sessions_path,
+                                       tasks_path=tasks_path,
+                                       task_sessions_cols=["id", "task"],
+                                       tasks_cols=[])
+        data["new_correct"] = pd.Series(None, index=data.index)
+        data["square_sequence"] = pd.Series(None, index=data.index)
+    for i in data.index:
+        if only_executions:
+            if data.loc[i].granularity != "execution":
+                continue
+        if only_edits:
+            if data.loc[i].granularity != "edit":
+                continue
+        correct, square_sequence = run_task(tasks_path=tasks_path,
+                                            task_id=data.loc[i].task,
+                                            program=data.loc[i].program,
+                                            verbose=False)
+        data.new_correct.loc[i] = str(correct)
+        data.square_sequence.loc[i] = str(square_sequence)
+    if save:
+        data = data.drop(["task"], axis=1)
+        data.to_csv(output_snapshots_path, index=False)
+    return data
 
 
-def correlation_plot(series1, series2, series1_label, series2_label, series1_limit, series2_limit):
-    plt.scatter(series1, series2, edgecolors="black")
-    plt.xlabel(series1_label)
-    plt.ylabel(series2_label)
-    plt.xlim(series1_limit[0], series1_limit[1])
-    plt.ylim(series2_limit[0], series2_limit[1])
-    plt.show()
+def task_ids_to_phases(tasks_path, task_ids):
+    """
+    Translates task-ids to phase value
+    :param tasks_path: string; path to .csv file with RoboMission tasks
+    :param task_ids: pd.Series; task ids series
+    :return: pd.Series; phases series
+    """
+    tasks = pd.read_csv(tasks_path)
+    phases = []
+    for task_id in task_ids:
+        phases.extend(list(tasks[tasks.id == task_id].section))
+    return phases
 
 
+
+
+
+
+#print(task_ids_to_phases("/home/matejvanek/dp/Data/robomission-2018-11-03/tasks.csv", [11, 3, 51, 83, 14]))
 
 """
 # Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
@@ -615,10 +657,9 @@ replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
                  output_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  column_name="solution")
 print("SNAPSHOTS")
-replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/program_snapshots.csv",
-                 output_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
-                 column_name="program")
-
+replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq.csv",
+                 output_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_red_to_d.csv",
+                 column_names=["program"])
 """
 """
 load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_extended.csv",
@@ -627,10 +668,10 @@ load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/ro
 load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
 """
 """
-synchronous_interpreter_run(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_red_to_d.csv",
+synchronous_interpreter_run(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_red_to_d.csv",
                                                         task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                                                         tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                                                        output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv")
+                                                        output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_extended.csv")
 """
 """
 incorrect_evaluation(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
