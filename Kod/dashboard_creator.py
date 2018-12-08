@@ -11,7 +11,8 @@ from yattag import Doc, indent
 from argparse import ArgumentParser
 from collections import Counter
 from matplotlib import colors, cm
-from os.path import dirname, realpath
+from os.path import dirname, exists, realpath
+from os import makedirs
 
 from tools import *
 
@@ -62,6 +63,9 @@ def compute(args):
         )
         args["snapshots_path"] = args["output_path"] + "snapshots_with_sequences.csv"
 
+    if not exists(args["output_path"] + "img"):
+        makedirs(args["output_path"] + "img")
+
     data = load_extended_snapshots(snapshots_path=args["snapshots_path"],
                                    task_sessions_path=args["task_sessions_path"],
                                    tasks_path=args["tasks_path"],
@@ -106,7 +110,7 @@ def compute(args):
         for j in ast_ted_matrix.index:
             if i > j:
                 ast_ted_matrix.loc[i][j] = ast_ted_matrix.loc[j][i]
-    tasks["ast_ted_5"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.05))
+    tasks["ast_ted_10"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.10))
     tasks["closest_distance"], tasks["closest_task"] = get_shortest_distance(ast_ted_matrix, negative=False)
     tasks.closest_task = task_ids_to_phases(args["tasks_path"], list(tasks.closest_task))
     del flat_ast_ted_matrix
@@ -128,7 +132,7 @@ def compute(args):
                                                     for i in correct_programs.index],
                                                    index=correct_programs.index)
 
-    print("WRONG SUBMISSIONS")
+    print("INCORRECT SUBMISSIONS")
     wrong = data[data.granularity == "execution"]
     wrong = wrong[data.new_correct == False]
     wrong = wrong[[isinstance(x, str) for x in wrong.program]]
@@ -197,14 +201,14 @@ def compute(args):
 
     # PLOTS
     # =====
-    frequencies = [dict(Counter(tasks.ast_ted_5)), dict(Counter(tasks.closest_distance)),
+    frequencies = [dict(Counter(tasks.ast_ted_10)), dict(Counter(tasks.closest_distance)),
                    dict(Counter(tasks.unique_correct_programs))]
-    xlabels = ["AST_TED_5", "closest_distance", "unique_correct_solutions"]
+    xlabels = ["AST_TED_10", "closest_distance", "unique_correct_solutions"]
     for i, variable in enumerate(frequencies):
         plt.bar(list(variable.keys()), list(variable.values()), width=0.5, color='b')
         plt.xlabel(xlabels[i])
         plt.ylabel("count")
-        plt.savefig(args["output_path"] + "/hist_{}.png".format(xlabels[i]))
+        plt.savefig(args["output_path"] + "/img/hist_{}.png".format(xlabels[i]))
         plt.clf()
 
     plt.figure(figsize=(16, 10))
@@ -212,18 +216,18 @@ def compute(args):
                   label=list(tasks.sort_values(by="section").section),
                   color=list(value_to_color(tasks.sort_values(by="section").success_rate)))
     plt.axis('off')
-    plt.savefig(args["output_path"] + "/treemap.png")
+    plt.savefig(args["output_path"] + "/img/treemap.png")
     plt.clf()
 
     hists = ((tasks.time_spent, 60, 660, 30, 11, 3, 11,
               "unsuccessful", "hist_time.png", "time, 60-seconds bins", "time"),
-             (correct_programs.occurrences, 5, 55, 250, 11, 25, 11,
+             (correct_programs.occurrences, 5, 55, 150, 11, 15, 11,
               "occurrences", "correct_programs.png", "occurrences, 5-units bins", "unique programs"),
              (wrong.occurrences, 5, 55, 10000, 11, 1000, 11,
               "occurrences", "wrong_submits.png", "occurrences, 5-units bins", "unique programs"),
              (left.occurrences, 5, 55, 3000, 11, 300, 11,
               "occurrences", "leaving_points.png", "occurrences, 5-units bins", "unique programs"),
-             (learners_ts.time_log, 1, 11, 15000, 11, 1500, 11,
+             (learners_ts.time_log, 1, 11, 20000, 11, 2000, 11,
               "time", "learners_ts_time.png", "occurrences, 1-unit bins", "log(time)"),
              (learners_total.points, 10, 110, 2000, 11, 200, 11,
               "points", "learners_total_points.png", "occurrences, 10-units bins", "points"))
@@ -242,7 +246,7 @@ def compute(args):
         labels = [i * hist_variable[1] for i in range(hist_variable[4])]
         labels.append(u"∞")
         ax.set_xticklabels(labels)
-        plt.savefig(args["output_path"] + "/" + hist_variable[8])
+        plt.savefig(args["output_path"] + "/img/" + hist_variable[8])
         plt.clf()
     # =====
 
@@ -288,7 +292,7 @@ def visualize_tasks(tasks, output_path):
     this_dir = dirname(realpath(__file__))
 
     success_rate_colors = value_to_color(tasks.success_rate)
-    ast_ted_5_colors = value_to_color(tasks.ast_ted_5)
+    ast_ted_10_colors = value_to_color(tasks.ast_ted_10)
     closest_distance_colors = value_to_color(tasks.closest_distance, yellow_highest=False)
     unique_correct_programs_colors = value_to_color(tasks.unique_correct_programs, yellow_highest=False)
 
@@ -312,25 +316,25 @@ def visualize_tasks(tasks, output_path):
 
         with tag('body'):
             with tag('h1'):
-                text('RoboMission Tasks Dashboard')
+                text('RoboMission Task Dashboard')
 
             with tag('h2'):
-                text('Variables Distribution')
+                text('Distribution of Variables')
             with tag('p'):
-                doc.stag('img', src='hist_time.png', alt='Histogram of median times', width="500", height="366")
-                doc.stag('img', src='hist_AST_TED_5.png', alt='Histogram of AST TED, 5th percentile',
+                doc.stag('img', src='img/hist_time.png', alt='Histogram of median times', width="500", height="366")
+                doc.stag('img', src='img/hist_AST_TED_10.png', alt='Histogram of AST TED, 10th percentile',
                          width="500", height="366")
             with tag('p'):
-                doc.stag('img', src='hist_closest_distance.png', alt='Histogram of closest distances',
+                doc.stag('img', src='img/hist_closest_distance.png', alt='Histogram of closest distances',
                          width="500", height="366")
-                doc.stag('img', src='hist_unique_correct_solutions.png', alt='Histogram of unique solutions',
+                doc.stag('img', src='img/hist_unique_correct_solutions.png', alt='Histogram of unique solutions',
                          width="500", height="366")
 
             with tag('h2'):
                 text('Tasks by the Number of Task Sessions and the Success Rate')
             with tag('p'):
                 with tag('figure'):
-                    doc.stag('img', src='treemap.png', alt="""Tasks by the number of task sessions (area) and the 
+                    doc.stag('img', src='img/treemap.png', alt="""Tasks by the number of task sessions (area) and the 
                     success rate (color, the brighter the better)""", width="1000", height="625")
                     with tag('figcaption'):
                         text("""Tasks by number of task sessions (area) and success rate 
@@ -354,7 +358,7 @@ def visualize_tasks(tasks, output_path):
                 doc.stag('input', type='text', id='filterInput5', onkeyup='filterTable(5, "True", "filterInput5")',
                          placeholder='Success Rate', title='Write Success Rate')
                 doc.stag('input', type='text', id='filterInput6', onkeyup='filterTable(6, "True", "filterInput6")',
-                         placeholder='AST TED 5', title='Write ASt TED 5')
+                         placeholder='AST TED 10', title='Write ASt TED 10')
                 doc.stag('input', type='text', id='filterInput7', onkeyup='filterTable(7, "True", "filterInput7")',
                          placeholder='Closest Distance', title='Write Closest Distance')
                 doc.stag('input', type='text', id='filterInput8', onkeyup='filterTable(8, "True", "filterInput8")',
@@ -380,7 +384,7 @@ def visualize_tasks(tasks, output_path):
                         with tag('th'):
                             text('Success Rate')
                         with tag('th'):
-                            text('No. of close tasks, AST TED, 5th percentile')
+                            text('No. of close tasks, AST TED, 10th percentile')
                         with tag('th'):
                             text('Closest Distance')
                         with tag('th'):
@@ -404,8 +408,8 @@ def visualize_tasks(tasks, output_path):
                                 text(tasks.loc[i].task_session)
                             with tag('td', bgcolor=success_rate_colors.loc[i]):
                                 text(round(tasks.loc[i].success_rate, 3))
-                            with tag('td', bgcolor=ast_ted_5_colors.loc[i]):
-                                text(tasks.loc[i].ast_ted_5)
+                            with tag('td', bgcolor=ast_ted_10_colors.loc[i]):
+                                text(tasks.loc[i].ast_ted_10)
                             with tag('td', bgcolor=closest_distance_colors.loc[i]):
                                 text(tasks.loc[i].closest_distance)
                             with tag('td'):
@@ -496,9 +500,9 @@ def visualize_correct_programs(correct_programs, output_path):
                 text('RoboMission Correct Programs Dashboard')
 
             with tag('h2'):
-                text('Correct Programs Distribution')
+                text("Distribution of Correct Programs' Occurrences")
             with tag('p'):
-                doc.stag('img', src='correct_programs.png', alt="Histogram of unique programs' occurrences",
+                doc.stag('img', src='img/correct_programs.png', alt="Histogram of unique programs' occurrences",
                          width="500", height="366")
 
             with tag('h2'):
@@ -588,12 +592,12 @@ def visualize_correct_programs(correct_programs, output_path):
 
 def visualize_wrong(wrong, output_path):
     """
-    Creates wrong submissions dashboard.
+    Creates incorrect submissions dashboard.
     :param wrong: pd.DataFrame; wrong submissions DataFrame
     :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
-    print("CREATING WRONG SUBMISSIONS DASHBOARD")
+    print("CREATING INCORRECT SUBMISSIONS DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
     this_dir = dirname(realpath(__file__))
@@ -604,7 +608,7 @@ def visualize_wrong(wrong, output_path):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('Wrong Submissions Dashboard')
+                text('Incorrect Submissions Dashboard')
             with tag('style'):
                 text("""
                      table {border-spacing: 0;
@@ -617,12 +621,12 @@ def visualize_wrong(wrong, output_path):
 
         with tag('body'):
             with tag('h1'):
-                text('RoboMission Wrong Submissions Dashboard')
+                text('RoboMission Incorrect Submissions Dashboard')
 
             with tag('h2'):
-                text('Wrong Submissions Distribution')
+                text("Distribution of incorrect Submissions' Occurrences")
             with tag('p'):
-                doc.stag('img', src='wrong_submits.png', alt="Histogram of wrong submissions' occurrences",
+                doc.stag('img', src='img/wrong_submits.png', alt="Histogram of incorrect submissions' occurrences",
                          width="500", height="366")
 
             with tag('h2'):
@@ -744,9 +748,9 @@ def visualize_left(left, output_path):
                 text('RoboMission Leaving Points Dashboard')
 
             with tag('h2'):
-                text('Leaving Points Distribution')
+                text("Distribution of Leaving Points' Occurrences")
             with tag('p'):
-                doc.stag('img', src='leaving_points.png', alt="Histogram of leaving points' occurrences",
+                doc.stag('img', src='img/leaving_points.png', alt="Histogram of leaving points' occurrences",
                          width="500", height="366")
 
             with tag('h2'):
@@ -868,9 +872,9 @@ def visualize_learners_ts(learners_ts, output_path):
                 text("RoboMission Learners' Task Sessions Dashboard")
 
             with tag('h2'):
-                text('Time Distribution')
+                text('Distribution of Time')
             with tag('p'):
-                doc.stag('img', src='learners_ts_time.png', alt="Histogram of time",
+                doc.stag('img', src='img/learners_ts_time.png', alt="Histogram of time",
                          width="500", height="366")
 
             with tag('h2'):
@@ -984,7 +988,7 @@ def visualize_learners_total(learners_total, output_path):
     :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
-    print("CREATING LEARNER'S TOTAL DASHBOARD")
+    print("CREATING LEARNERS' TOTAL DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
     this_dir = dirname(realpath(__file__))
@@ -1012,9 +1016,9 @@ def visualize_learners_total(learners_total, output_path):
                 text("RoboMission Learners' Total Dashboard")
 
             with tag('h2'):
-                text('Points Distribution')
+                text('Distribution of Points')
             with tag('p'):
-                doc.stag('img', src='learners_total_points.png', alt="Histogram of points",
+                doc.stag('img', src='img/learners_total_points.png', alt="Histogram of points",
                          width="500", height="366")
 
             with tag('h2'):

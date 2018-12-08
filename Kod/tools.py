@@ -147,7 +147,6 @@ def count_frequent_wrong_programs_ratio(tasks, abs_threshold, rel_threshold):
         for seq in tasks.index:
             if seq[0] == task:
                 this_seq = tasks.loc[seq]
-                print(type(this_seq.most_frequent_program), this_seq.most_frequent_program)
                 if this_seq.abs_count >= abs_threshold and \
                         this_seq.rel_count >= rel_threshold and \
                         isinstance(this_seq.most_frequent_program, str):
@@ -195,7 +194,7 @@ def count_program_clusters(programs):
                                                                if program_info[task][prog]["cluster"] == cluster],
                                                               key=lambda x: program_info[task][x]["freq"])}
                               for cluster in set(cluster_assign)}
-        print(cluster_info[task])
+        #print(cluster_info[task])
         clusters_count.loc[task] = len(set(cluster_assign))
     return clusters_count, program_info, cluster_info
 
@@ -272,10 +271,14 @@ def count_true(series):
     return count
 
 
-""" <<<count_distinct_blocks>>>
+
 # counts all block types used in all items of series
 def count_used_blocks(series):
-
+    """
+    Counts distinct blocks in series (aggregating function).
+    :param series: pd.Series; series of programs
+    :return: number of distinct blocks
+    """
     blocks = set()
     for i in series.index:
         for char in series.loc[i]:
@@ -286,7 +289,7 @@ def count_used_blocks(series):
             else:
                 blocks.add(char)
     return len(blocks)
-"""
+
 
 
 def dict_of_counts(series, del_false=False):
@@ -337,6 +340,19 @@ def flatten_table_remove_nan(table, triangle=False):
                 else:
                     output.append(table.loc[i, j])
     return output
+
+
+def flattened_triangle_table_from_array(table):
+    """
+    Transforms table to one-row representation, deletes None values,
+    :param table: np.array; table to be flattened
+    :return: list; flattened table
+        """
+    reduced_table = []
+    for i in range(len(table)):
+        for j in range(i):
+            reduced_table.append(table[i][j])
+    return reduced_table
 
 
 def get_most_frequent_program(program_series):
@@ -466,14 +482,14 @@ def plot_frequent_wrong_programs_ratio(tasks, abs_step, abs_begin, abs_end, rel_
     colors = ['darkred', 'red', 'pink', 'orange', 'yellow', 'lawngreen', 'cyan', 'dodgerblue', 'navy', 'black']
 
     for i in range(len(frequents.index)):
-        plt.plot(frequents.index, frequents.iloc[i], marker='', color=colors[i], linewidth=2)
+        plt.plot(frequents.index, frequents.iloc[:, [i]], marker='', color=colors[i], linewidth=2)
     plt.legend(title="absolute count threshold", labels=abs_thresholds)
     plt.xlabel("relative count threshold")
     plt.ylabel("frequent wrong programs ratio")
     plt.show()
 
     for i in range(len(frequents.iloc[0])):
-        plt.plot(list(frequents), frequents.iloc[:, [i]], marker='', color=colors[i], linewidth=2)
+        plt.plot(list(frequents), frequents.iloc[i], marker='', color=colors[i], linewidth=2)
     plt.legend(title="relative count threshold", labels=rel_thresholds)
     plt.xlabel("absolute count threshold")
     plt.ylabel("frequent wrong programs ratio")

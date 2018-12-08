@@ -10,43 +10,38 @@ from tools import *
 
 
 def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks_path):
+    """
+    Computes difficulty and complexity measures.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :return: pd.DataFrame; difficulty and complexity measures
+    """
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "student", "task", "solved", "time_spent"],
                                    tasks_cols=["id", "solution"])
-
+    data = data.fillna(False)
     data = data[data.correct == data.new_correct]
 
     all_sessions = data.groupby("task_session").agg({"task": "max",
                                                      "granularity": count_submits,
                                                      "new_correct": count_true,
                                                      "solution": last_with_empty_values})
-    #all_sessions["new_solved"] = all_sessions.new_correct / all_sessions.new_correct
-    #all_sessions.new_solved = all_sessions.new_solved.fillna(0)
     all_sessions["new_solved"] = all_sessions.new_correct.astype(bool)
 
-    # successfulness of sessions
-    #successful_sessions = all_sessions[all_sessions.new_solved > 0]
     successful_sessions = all_sessions[all_sessions.new_solved]
-
     all_sessions_by_tasks = all_sessions.groupby("task").agg({"new_solved": "count"})
     successful_sessions_by_tasks = successful_sessions.groupby("task").agg({"new_solved": "count"})
 
-    difficulty_and_complexity = 1 - successful_sessions_by_tasks / all_sessions_by_tasks  ####################xx 1 -
+    difficulty_and_complexity = 1 - successful_sessions_by_tasks / all_sessions_by_tasks
     difficulty_and_complexity.rename(columns={"new_solved": "task_sessions_unsolved"}, inplace=True)
 
     del all_sessions_by_tasks
     del successful_sessions_by_tasks
     del successful_sessions
 
-    # successfulness of submits
-    #submits_by_tasks = all_sessions.groupby("task").agg({"granularity": "sum", "new_correct": "sum"})
-    #difficulty_and_complexity["submits_incorrect"] = 1 - submits_by_tasks.new_correct / submits_by_tasks.granularity  ####################xx 1 -
-
-    #del submits_by_tasks
-
-    # number of block types
     distinct_blocks_by_task = all_sessions.groupby("task").agg({"solution": "last"})
     difficulty_and_complexity["distinct_blocks_1"] = count_distinct_blocks(distinct_blocks_by_task.solution, 1)
     difficulty_and_complexity.distinct_blocks_1 = difficulty_and_complexity.distinct_blocks_1.astype("int64")
@@ -56,14 +51,6 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
 
     difficulty_and_complexity["distinct_blocks_4"] = count_distinct_blocks(distinct_blocks_by_task.solution, 4)
     difficulty_and_complexity.distinct_blocks_4 = difficulty_and_complexity.distinct_blocks_4.astype("int64")
-
-    data = load_extended_snapshots(snapshots_path=snapshots_path,
-                                   task_sessions_path=task_sessions_path,
-                                   tasks_path=tasks_path,
-                                   task_sessions_cols=["id", "student", "task", "time_spent"],
-                                   tasks_cols=["id", "solution"])
-    data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with the system's one
 
     data["granularity_submits"] = data.granularity
     data["program_all"] = data.program
@@ -103,16 +90,17 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
     for column in difficulty_and_complexity:
         print(column, statistics(difficulty_and_complexity[column]))
 
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    #    print(difficulty_and_complexity)
     return difficulty_and_complexity
 
 
-# Computes task solution uniqueness dataframe
-# Creates task dataframe of distinct solutions, distinct visited squares sequences,
-# solutions distribution entropy, visited squares sequence distribution entropy,
-# sample-solution-most-frequent flag and count of program AST clusters by TED hier. clustering
 def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path):
+    """
+    Computes solution uniqueness measures.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :return: pd.DataFrame; solution uniqueness measures
+    """
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
@@ -138,17 +126,17 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
     for column in uniqueness:
         print(column, statistics(uniqueness[column]))
 
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(uniqueness)
-
     return uniqueness
 
 
-# Computes task similarity dataframe
-# Computes similarity of tasks by abstract-syntax-tree tree-edit-distance, by euclidean bag-of-used-blocks distance and
-# by levensthein distance.
-# Finds out how many tasks are in 1-, 5- and 10-quantile distance to the source task (w.r.t. all distances in distance matrix).
 def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
+    """
+    Computes similarity measures.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :return: pd.DataFrame; similarity measures
+    """
     del snapshots_path
     del task_sessions_path
 
@@ -158,13 +146,16 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     bags_of_blocks = bag_of_blocks(sample_solutions)
     bags_of_entities = bag_of_entities(tasks.setting)
 
-    ast_ted_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
-    levenshtein_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
-    bag_of_blocks_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
-    bag_of_entities_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index), columns=sorted(sample_solutions.index))
+    ast_ted_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index),
+                                  columns=sorted(sample_solutions.index))
+    levenshtein_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index),
+                                      columns=sorted(sample_solutions.index))
+    bag_of_blocks_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index),
+                                        columns=sorted(sample_solutions.index))
+    bag_of_entities_matrix = pd.DataFrame(data=None, index=sorted(sample_solutions.index),
+                                          columns=sorted(sample_solutions.index))
 
     for i in sorted(sample_solutions.index):
-        print(i)
         for j in sorted(sample_solutions.index):
             if i < j:
                 ast_ted_matrix.loc[i][j] = ast_ted(asts.loc[i], asts.loc[j])
@@ -172,63 +163,28 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
                 bag_of_blocks_matrix.loc[i][j] = euclidean(bags_of_blocks.loc[i], bags_of_blocks.loc[j])
                 bag_of_entities_matrix.loc[i][j] = euclidean(bags_of_entities.loc[i], bags_of_entities.loc[j])
 
-
-    print(ast_ted_matrix)
-    frequencies = dict(Counter(ast_ted_matrix.values.flatten()))
-    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
-    plt.title("AST TED distances distribution")
-    plt.xlabel("distance")
-    plt.ylabel("count")
-    plt.show()
-
-    print(levenshtein_matrix)
-    frequencies = dict(Counter(levenshtein_matrix.values.flatten()))
-    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
-    plt.title("Levenshtein distances distribution")
-    plt.xlabel("distance")
-    plt.ylabel("count")
-    plt.show()
-
-    print(bag_of_blocks_matrix)
-    frequencies = dict(Counter(bag_of_blocks_matrix.values.flatten()))
-    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
-    plt.title("Bag-of-blocks distances distribution")
-    plt.xlabel("distance")
-    plt.ylabel("count")
-    plt.show()
-
-    print(bag_of_entities_matrix)
-    frequencies = dict(Counter(bag_of_entities_matrix.values.flatten()))
-    plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
-    plt.title("Bag-of-entities distances distribution")
-    plt.xlabel("distance")
-    plt.ylabel("count")
-    plt.show()
-
+    matrices = [ast_ted_matrix, levenshtein_matrix, bag_of_blocks_matrix, bag_of_entities_matrix]
+    titles = ["AST TED", "Levenshtein", "Bag-of-blocks", "Bag-of-entities"]
+    for i in range(len(matrices)):
+        frequencies = dict(Counter(matrices[i].values.flatten()))
+        plt.bar(list(frequencies.keys()), list(frequencies.values()), width=0.05, color='g')
+        plt.title(titles[i] + " distances distribution")
+        plt.xlabel("distance")
+        plt.ylabel("count")
+        plt.show()
 
     flat_ast_ted_matrix = flatten_table_remove_nan(ast_ted_matrix)
     flat_levenshtein_matrix = flatten_table_remove_nan(levenshtein_matrix)
     flat_bag_of_blocks_matrix = flatten_table_remove_nan(bag_of_blocks_matrix)
     flat_bag_of_entities_matrix = flatten_table_remove_nan(bag_of_entities_matrix)
 
-    print(flat_ast_ted_matrix)
-    print(flat_levenshtein_matrix)
-    print(flat_bag_of_blocks_matrix)
-    print(flat_bag_of_entities_matrix)
-
     for i in sorted(sample_solutions.index):
-        print(i)
         for j in sorted(sample_solutions.index):
             if i > j:
                 ast_ted_matrix.loc[i][j] = ast_ted_matrix.loc[j][i]
                 levenshtein_matrix.loc[i][j] = levenshtein_matrix.loc[j][i]
                 bag_of_blocks_matrix.loc[i][j] = bag_of_blocks_matrix.loc[j][i]
                 bag_of_entities_matrix.loc[i][j] = bag_of_entities_matrix.loc[j][i]
-
-    print("AST", ast_ted_matrix)
-    print("levenshtein", levenshtein_matrix)
-    print("b-o-b", bag_of_blocks_matrix)
-    print("b-o-e", bag_of_entities_matrix)
 
     similarity = pd.DataFrame(index=tasks.index)
     similarity["ast_ted2"] = count_similar_tasks(ast_ted_matrix, np.quantile(flat_ast_ted_matrix, 0.02))
@@ -248,22 +204,117 @@ def task_similarity_measures(snapshots_path, task_sessions_path, tasks_path):
     similarity["closest_blocks"], _ = get_shortest_distance(bag_of_blocks_matrix)
     similarity["closest_entities"], _ = get_shortest_distance(bag_of_entities_matrix)
 
-    print(similarity)
     for column in similarity:
         print(column, statistics(similarity[column]))
     return similarity
 
 
-# Computes student's task performance dataframe
-# Computes task correctness, spent time, number of edits, number of submits, number of deletions
-def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_path):
+def frequent_problems_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
+    """
+    Computes frequent problems measures.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :return: pd.DataFrame; frequent problems measures
+    """
+    data = load_extended_snapshots(snapshots_path=snapshots_path,
+                                   task_sessions_path=task_sessions_path,
+                                   tasks_path=tasks_path,
+                                   task_sessions_cols=["id", "task"],
+                                   tasks_cols=[])
+    data = data.fillna(False)
+    data = data[data.new_correct == data.correct]
+
+    last_ts_snapshots = data.groupby("task_session").agg({"task": "max",
+                                                          "new_correct": count_true,
+                                                          "granularity": "last",
+                                                          "program": last_with_empty_values,
+                                                          "square_sequence": last_with_empty_values})
+
+    last_ts_snapshots = last_ts_snapshots[[isinstance(x, str) for x in last_ts_snapshots.program]]
+    last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct.astype(bool)
+
+    wrong_ts = last_ts_snapshots[last_ts_snapshots.new_solved == 0]
+    wrong_ts = synchronous_interpreter_run(data_frame=wrong_ts,
+                                           only_executions=False,
+                                           only_edits=True,
+                                           save=False,
+                                           tasks_path=tasks_path)
+    wrong_ts["string_square_sequence"] = square_sequences_to_strings(wrong_ts.square_sequence)
+
+    del last_ts_snapshots
+    tasks_left = wrong_ts.groupby(["task", "string_square_sequence"]).agg(
+        {"program": partial(dict_of_counts, del_false=True), "new_solved": "count"})
+    del wrong_ts
+    tasks_left["distinct_programs"] = len_of_programs_dict(tasks_left.program)
+    tasks_left["most_frequent_program"] = get_most_frequent_program(tasks_left.program)
+    tasks_left["abs_count"] = count_total_abs_freq(tasks_left.program)
+    tasks_left["task_freq"] = count_task_frequency(tasks_left)
+    tasks_left["rel_count"] = tasks_left.abs_count / tasks_left.task_freq
+
+    # --------------------
+
+    data = data[data.granularity == "execution"]
+    data = data[data.new_correct == False]
+    data = data[[isinstance(x, str) for x in data.program]]
+
+    data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
+    incorrect_submits = data.groupby(["task", "string_square_sequence"]).agg(
+        {"program": partial(dict_of_counts, del_false=True)})
+
+    incorrect_submits["distinct_programs"] = len_of_programs_dict(incorrect_submits.program)
+    incorrect_submits["most_frequent_program"] = get_most_frequent_program(incorrect_submits.program)
+    incorrect_submits["abs_count"] = count_total_abs_freq(incorrect_submits.program)
+    incorrect_submits["task_freq"] = count_task_frequency(incorrect_submits)
+    incorrect_submits["rel_count"] = incorrect_submits.abs_count / incorrect_submits.task_freq
+
+    if kwargs["plot"]:
+        print("incorrect submits")
+        plot_frequent_wrong_programs_ratio(
+            tasks=incorrect_submits[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
+            abs_step=30, abs_begin=1, abs_end=11,
+            rel_step=0.05, rel_begin=1, rel_end=11)
+        print("leaving points")
+        plot_frequent_wrong_programs_ratio(
+            tasks=tasks_left[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
+            abs_step=5, abs_begin=1, abs_end=11,
+            rel_step=0.05, rel_begin=1, rel_end=11)
+
+    tasks = pd.DataFrame(index=tasks_left.index.levels[0])
+    tasks["frequent_leaving_points_ratio"], \
+    tasks["unique_frequent_leaving_points"], \
+    tasks["frequent_leaving_points_programs"] = count_frequent_wrong_programs_ratio(tasks=tasks_left,
+                                                                                    abs_threshold=10,
+                                                                                    rel_threshold=0.10)
+    tasks["frequent_incorrect_submits_ratio"], \
+    tasks["unique_frequent_incorrect_submits"], \
+    tasks["frequent_incorrect_submits_programs"] = count_frequent_wrong_programs_ratio(tasks=incorrect_submits,
+                                                                                       abs_threshold=50,
+                                                                                       rel_threshold=0.10)
+
+    for column in ["frequent_leaving_points_ratio", "unique_frequent_leaving_points",
+                   "frequent_incorrect_submits_ratio", "unique_frequent_incorrect_submits_submissions"]:
+        print(column, statistics(tasks[column]))
+
+    return tasks[["frequent_leaving_points_ratio", "unique_frequent_leaving_points",
+                  "frequent_incorrect_submits_ratio", "unique_frequent_incorrect_submits_submissions"]]
+
+
+def learner_task_session_performance_measures(snapshots_path, task_sessions_path, tasks_path):
+    """
+    Computes task session performance measures.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :return: pd.DataFrame; task session performance measures
+    """
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=[])
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
+    data = data[data.new_correct == data.correct]
 
     data["granularity_submits"] = data.granularity
     data["program_edits"] = data.program
@@ -277,13 +328,9 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
                                            "program": partial(count_deletions, mode="all"),
                                            "program_edits": partial(count_deletions, mode="edits"),
                                            "program_1_0": partial(count_deletions, mode="1_0")})
-    #ts.new_correct = 0 + ts.new_correct  # transformation bool -> int
     ts.new_correct = ts.new_correct.astype(int)
 
     performance = pd.DataFrame(index=ts.task_session)
-
-    #performance["incorrectness"] = ts.new_correct / ts.new_correct
-    #performance.incorrectness = 1 - performance.incorrectness.fillna(0)  ############## INcorrectness!
     performance["time"] = ts.time_spent
     performance["edits"] = ts.granularity
     performance["submits"] = ts.granularity_submits
@@ -291,23 +338,26 @@ def student_task_performance_measures(snapshots_path, task_sessions_path, tasks_
     performance["deletions_edits"] = ts.program_edits
     performance["deletions_1_0"] = ts.program_1_0
 
-    print(performance)
     for column in performance:
         print(column, statistics(performance[column]))
-
     return performance
 
 
-# Computes student's total performance dataframe
-# Computes number of solved tasks, total credits, number of types of used blocks, total time
-def student_total_performance_measures(snapshots_path, task_sessions_path, tasks_path):
+def learner_total_performance_measures(snapshots_path, task_sessions_path, tasks_path):
+    """
+    Computes total performance measures.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :return: pd.DataFrame; total performance measures
+    """
     data = load_extended_snapshots(snapshots_path=snapshots_path,
                                    task_sessions_path=task_sessions_path,
                                    tasks_path=tasks_path,
                                    task_sessions_cols=["id", "student", "task", "time_spent"],
                                    tasks_cols=["id", "level"])
     data = data.fillna(False)
-    data = data[data.new_correct == data.correct]  # = snapshots whose actual correctness agree with system
+    data = data[data.new_correct == data.correct]
 
     ts = data.groupby("task_session").agg({"task": "max",
                                            "student": "max",
@@ -315,205 +365,94 @@ def student_total_performance_measures(snapshots_path, task_sessions_path, tasks
                                            "new_correct": count_true,
                                            "program": last_with_empty_values,
                                            "time_spent": lambda x: np.log(max(x))})
-    #ts.new_correct = 0 + ts.new_correct
-    #ts["new_solved"] = ts.new_correct / ts.new_correct
-    #ts.new_solved = ts.new_solved.fillna(0)
     ts["new_solved"] = ts.new_correct.astype(bool)
-    #ts = ts[ts.new_solved > 0]
     ts = ts[ts.new_solved]
     ts["credits"] = ts.new_solved * ts.level
 
     students = ts.groupby("student").agg({"task": pd.Series.nunique,
                                           "credits": "sum",
-                                          "program": partial(count_distinct_blocks, basic_block_types_number=1)#count_used_blocks,
+                                          "program": count_used_blocks,
                                           "time_spent": "sum"})
     students.rename(columns={"program": "used_blocks",
                              "task": "solved_tasks",
                              "time_spent": "total_time"},
                     inplace=True)
 
-    print(students)
     for column in students:
         print(column, statistics(students[column]))
-
     return students
 
 
-#
-def mistakes_measures(snapshots_path, task_sessions_path, tasks_path, **kwargs):
-    data = load_extended_snapshots(snapshots_path=snapshots_path,
-                                   task_sessions_path=task_sessions_path,
-                                   tasks_path=tasks_path,
-                                   task_sessions_cols=["id", "task"],
-                                   tasks_cols=[])
-
-    data.correct = data.correct.fillna(False)
-    data.new_correct = data.new_correct.fillna(False)
-    data = data[data.new_correct == data.correct]
-
-    last_ts_snapshots = data.groupby("task_session").agg({"task": "max",
-                                                         "new_correct": count_true,
-                                                         "granularity": "last",
-                                                         "program": last_with_empty_values,
-                                                         "square_sequence": last_with_empty_values})
-
-    last_ts_snapshots = last_ts_snapshots[[isinstance(x, str) for x in last_ts_snapshots.program]]
-
-    #last_ts_snapshots.new_correct = 0 + last_ts_snapshots.new_correct  # convert bool to int
-    #last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct / last_ts_snapshots.new_correct  # convert int to nan/1
-    #last_ts_snapshots.new_solved = last_ts_snapshots.new_solved.fillna(0)  # convert nan/1 to 0/1
-    last_ts_snapshots["new_solved"] = last_ts_snapshots.new_correct.astype(bool)
-
-    wrong_ts = last_ts_snapshots[last_ts_snapshots.new_solved == 0]
-    #wrong_ts = wrong_ts.iloc[:100]    ########################################################################################x
-    print(wrong_ts.shape[0])
-    #TMP = wrong_ts.groupby("task").agg({"program": "count"})
-    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    #    print(TMP)
-    wrong_ts = synchronous_interpreter_run(data_frame=wrong_ts,
-                                           only_executions=False,
-                                           only_edits=True,
-                                           save=False,
-                                           tasks_path=tasks_path)
-    wrong_ts["string_square_sequence"] = square_sequences_to_strings(wrong_ts.square_sequence)
-
-    del last_ts_snapshots
-    tasks_stuck = wrong_ts.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True),
-                                                                            "new_solved": "count"})
-    tasks_stuck["distinct_programs"] = len_of_programs_dict(tasks_stuck.program)
-    tasks_stuck["most_frequent_program"] = get_most_frequent_program(tasks_stuck.program)
-    tasks_stuck["abs_count"] = count_total_abs_freq(tasks_stuck.program)
-    tasks_stuck["task_freq"] = count_task_frequency(tasks_stuck)
-    tasks_stuck["rel_count"] = tasks_stuck.abs_count / tasks_stuck.task_freq
-
-    # --------------------
-
-    data = data[data.granularity == "execution"]
-    data = data[data.new_correct == False]
-    data = data[[isinstance(x, str) for x in data.program]]
-
-    data["string_square_sequence"] = square_sequences_to_strings(data.square_sequence)
-    tasks_all_wrong = data.groupby(["task", "string_square_sequence"]).agg({"program": partial(dict_of_counts, del_false=True)})
-
-    tasks_all_wrong["distinct_programs"] = len_of_programs_dict(tasks_all_wrong.program)
-    tasks_all_wrong["most_frequent_program"] = get_most_frequent_program(tasks_all_wrong.program)
-    tasks_all_wrong["abs_count"] = count_total_abs_freq(tasks_all_wrong.program)
-    tasks_all_wrong["task_freq"] = count_task_frequency(tasks_all_wrong)
-    tasks_all_wrong["rel_count"] = tasks_all_wrong.abs_count / tasks_all_wrong.task_freq
-
-
-    if kwargs["plot"]:
-        plot_frequent_wrong_programs_ratio(tasks=tasks_all_wrong[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
-                                           abs_step=30, abs_begin=1, abs_end=11,
-                                           rel_step=0.05, rel_begin=1, rel_end=11)
-        plot_frequent_wrong_programs_ratio(tasks=tasks_stuck[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
-                                           abs_step=5, abs_begin=1, abs_end=11,
-                                           rel_step=0.05, rel_begin=1, rel_end=11)
-
-
-    tasks = pd.DataFrame(index=tasks_stuck.index.levels[0])
-    tasks["frequent_leaving_ratio"], tasks["unique_frequent_leaving"], tasks["leaving_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_stuck, abs_threshold=10, rel_threshold=0.10)
-    tasks["frequent_submissions_ratio"], tasks["unique_frequent_submissions"], tasks["submissions_frequent_programs"] = count_frequent_wrong_programs_ratio(
-        tasks=tasks_all_wrong, abs_threshold=50, rel_threshold=0.10)
-
-    for column in ["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]:
-        print(column, statistics(tasks[column]))
-
-    return tasks[["frequent_leaving_ratio", "unique_frequent_leaving", "frequent_submissions_ratio", "unique_frequent_submissions"]]
-
-
-# Computes correlation of task measures and creates heat table
-def measures_correlations(measures_table, method, title):
+def measures_correlations(measures_table, method):
+    """
+    Computes correlation of task measures and creates its heat table.
+    :param measures_table: pd.DataFrame; table of measures
+    :param method: string; "pearson" or "spearman"
+    :return: pd.DataFrame; correlation table of measures
+    """
     correlations = measures_table.corr(method=method)
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
-    #plt.title(title)
     plt.tight_layout()
-    #plt.savefig("~/dp/Obrazky/BBB.png")
     plt.show()
 
-    sns.clustermap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1, figsize=(8,5))
-    #plt.title(title)
+    sns.clustermap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1, figsize=(8, 5))
     plt.gcf().subplots_adjust(bottom=0.35, left=0.25, right=0.75, top=0.95)
-    #plt.savefig("~/dp/Obrazky/CCC.png")
     plt.show()
 
     return correlations
 
 
-# Computes correlation of correlation methods and creates heat table
-# BE AWARE of difference between cerrelation of FULL CORRELATION TABLES and of TRIANGLE CORRELATION TABLES!!!
-def correlation_methods_correlations(pearson_measures_correlation, spearman_measures_correlation, variable_group_title, full_or_triangle):
+def correlation_methods_correlations(pearson_measures_correlation, spearman_measures_correlation, full_or_triangle):
+    """
+    Computes correlation of correlation methods and creates its heat table.
+    :param pearson_measures_correlation: pd.DataFrame; correlation table by Pearson
+    :param spearman_measures_correlation: pd.DataFrame; correlation table by Spearman
+    :param full_or_triangle: string; "full" or "triangle", type of correlation table processing mode
+    :return: correlation table of correlation tables
+    """
     if full_or_triangle == "full":
         correlations = np.corrcoef(np.ndarray.flatten(pearson_measures_correlation.as_matrix()),
                                    np.ndarray.flatten(spearman_measures_correlation.as_matrix()))
     elif full_or_triangle == "triangle":
-        correlations = np.corrcoef(flattened_triangle_table(pearson_measures_correlation.as_matrix()),
-                                   flattened_triangle_table(spearman_measures_correlation.as_matrix()))
+        correlations = np.corrcoef(flattened_triangle_table_from_array(pearson_measures_correlation.as_matrix()),
+                                   flattened_triangle_table_from_array(spearman_measures_correlation.as_matrix()))
     correlations = pd.DataFrame(correlations, index=["Pearson's", "Spearman's"], columns=["Pearson's", "Spearman's"])
     print(correlations)
 
     sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
-    #plt.title("""
-    #Pearson's {}-matrix correlation of Pearson's and Spearman's correlation methods\n
-    #applied to {}
-    #""".format(full_or_triangle, variable_group_title))
-    plt.tight_layout()
-    #plt.gcf().subplots_adjust(left=0.3, right=0.75, top=0.8)
-    plt.show()
-
-    return correlations
-
-
-# Computes correlation between matrices resulting from full and triangle mode. Does not make sense while there are only 2x2 matrices -> always correlates totally linearly.
-def full_and_triangle_correlation(corr_of_full_corr_tables, corr_of_triangle_corr_tables, variable_group_title):
-    correlations = np.corrcoef(np.ndarray.flatten(np.array(corr_of_full_corr_tables)),
-                               np.ndarray.flatten(np.array(corr_of_triangle_corr_tables)))
-    correlations = pd.DataFrame(correlations, index=["full", "triangle"], columns=["full", "triangle"])
-    print(correlations)
-
-    sns.heatmap(correlations, cmap='viridis', annot=True, vmin=-1, vmax=1)
-    #plt.title("""
-    #Pearson's correlation of full and triangle method\n
-    #applied to {}
-    #""".format(variable_group_title))
     plt.tight_layout()
     plt.show()
 
     return correlations
 
 
-# Computes all levels of correlation
-def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_function, variable_group_title, **kwargs):
+def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_function, **kwargs):
+    """
+    Computes all levels of correlation.
+    :param snapshots_path: string; path to snaphots .csv file
+    :param task_sessions_path: string; path to task sessions .csv file
+    :param tasks_path: string; path to tasks .csv file
+    :param measures_function: function; function which computes measures
+    :return:
+    """
     measures_table = measures_function(snapshots_path=snapshots_path,
                                        task_sessions_path=task_sessions_path,
                                        tasks_path=tasks_path,
                                        **kwargs)
     pearson_measures_correlation = measures_correlations(measures_table=measures_table,
-                                                         method="pearson",
-                                                         title="Pearson's correlation of {}"
-                                                         .format(variable_group_title))
+                                                         method="pearson")
     spearman_measures_correlation = measures_correlations(measures_table=measures_table,
-                                                          method="spearman",
-                                                          title="Spearman's correlation of {}"
-                                                          .format(variable_group_title))
-    corr_of_full_corr_tables = \
-        correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
-                                         spearman_measures_correlation=spearman_measures_correlation,
-                                         variable_group_title=variable_group_title,
-                                         full_or_triangle="full")
-    corr_of_triangle_corr_tables = \
-        correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
-                                         spearman_measures_correlation=spearman_measures_correlation,
-                                         variable_group_title=variable_group_title,
-                                         full_or_triangle="triangle")
+                                                          method="spearman")
 
+    correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
+                                     spearman_measures_correlation=spearman_measures_correlation,
+                                     full_or_triangle="full")
 
-    #full_and_triangle_correlation(corr_of_full_corr_tables=corr_of_full_corr_tables,
-    #                              corr_of_triangle_corr_tables=corr_of_triangle_corr_tables,
-    #                              variable_group_title=variable_group_title)
+    correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
+                                     spearman_measures_correlation=spearman_measures_correlation,
+                                     full_or_triangle="triangle")
 
 
 
@@ -542,23 +481,23 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=student_task_performance_measures,
+                 measures_function=learner_task_session_performance_measures,
                  variable_group_title="students' task performance measures")
 """
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=student_total_performance_measures,
+                 measures_function=learner_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
 """
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=mistakes_measures,
+                 measures_function=frequent_problems_measures,
                  variable_group_title="mistakes measures",
-                 plot=True)
+                 plot=False)
 """
 
 
@@ -567,10 +506,7 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=mistakes_measures,
+                 measures_function=frequent_problems_measures,
                  variable_group_title="mistakes measures",
                  plot=True)
 """
-
-
-# TODO: STUCK POINTS PREJMENOVAT NA LEAVING POINTS
