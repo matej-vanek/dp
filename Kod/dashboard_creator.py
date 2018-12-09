@@ -713,7 +713,7 @@ def visualize_wrong(wrong, output_path):
             with tag('script', src='js/sorttable.js'):
                 pass
 
-    with open(output_path + "/wrong_submissions_dashboard.html", "w") as f:
+    with open(output_path + "/incorrect_submits_dashboard.html", "w") as f:
         f.write(indent(doc.getvalue()))
 
 

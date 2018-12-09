@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
-    </list>
+    <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,30 +16,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="472" column="3" lean-forward="true" selection-start-line="472" selection-start-column="3" selection-end-line="472" selection-end-column="3" />
+            <state relative-caret-position="392">
+              <caret line="444" column="76" lean-forward="true" selection-start-line="444" selection-start-column="76" selection-end-line="444" selection-end-column="76" />
               <folding>
                 <element signature="e#47#78#0" expanded="true" />
                 <element signature="e#281#5342#0" />
-                <element signature="e#7183#12093#0" />
                 <element signature="e#17412#19433#0" />
                 <element signature="e#19528#21359#0" />
                 <element signature="e#21417#22068#0" />
                 <element signature="e#22192#23384#0" />
-                <element signature="e#23490#24921#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="780">
-              <caret line="151" column="72" selection-start-line="151" selection-start-column="72" selection-end-line="151" selection-end-column="72" />
+            <state relative-caret-position="628">
+              <caret line="583" column="45" lean-forward="true" selection-start-line="583" selection-start-column="45" selection-end-line="583" selection-end-column="45" />
               <folding>
                 <element signature="e#47#75#0" expanded="true" />
               </folding>
@@ -53,8 +48,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/minirobocode_interpreter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4740">
-              <caret line="316" column="23" selection-start-line="316" selection-start-column="23" selection-end-line="316" selection-end-column="46" />
+            <state relative-caret-position="478">
+              <caret line="346" lean-forward="true" selection-start-line="346" selection-end-line="346" />
               <folding>
                 <element signature="e#47#56#0" expanded="true" />
               </folding>
@@ -65,8 +60,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/interpreter_tools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+            <state relative-caret-position="-692">
+              <caret line="181" column="96" selection-start-line="181" selection-start-column="96" selection-end-line="181" selection-end-column="96" />
               <folding>
                 <element signature="e#47#57#0" expanded="true" />
               </folding>
@@ -77,8 +72,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/robomission_ast.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+            <state relative-caret-position="688">
+              <caret line="325" column="48" lean-forward="true" selection-start-line="325" selection-start-column="48" selection-end-line="325" selection-end-column="48" />
               <folding>
                 <element signature="e#119#135#0" expanded="true" />
               </folding>
@@ -89,8 +84,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dashboard_creator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="1120" column="4" selection-start-line="1120" selection-start-column="4" selection-end-line="1120" selection-end-column="4" />
+            <state relative-caret-position="808">
+              <caret line="1113" lean-forward="true" selection-start-line="1113" selection-end-line="1113" />
               <folding>
                 <element signature="e#121#136#0" expanded="true" />
                 <element signature="e#13473#14366#0" />
@@ -100,28 +95,6 @@
                 <element signature="e#31548#35939#0" />
                 <element signature="e#35535#41008#0" />
                 <element signature="e#41662#48459#0" />
-                <element signature="e#48448#53996#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/kkk.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="17" column="26" selection-start-line="17" selection-start-column="26" selection-end-line="17" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jjj.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="39" selection-start-line="39" selection-end-line="39" />
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -138,9 +111,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>load_extended_task_sessi</find>
-      <find>load_ex</find>
-      <find>load_task_names</find>
       <find>median_of</find>
       <find>replace_re</find>
       <find>sample_solution_n</find>
@@ -168,6 +138,9 @@
       <find>clus</find>
       <find>freque</find>
       <find>count_frequ</find>
+      <find>print</find>
+      <find>#</find>
+      <find>this_dir</find>
     </findStrings>
     <replaceStrings>
       <replace>successful_sessions</replace>
@@ -223,13 +196,13 @@
         <option value="$PROJECT_DIR$/DashboardCreator.py" />
         <option value="$PROJECT_DIR$/ddd.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
-        <option value="$PROJECT_DIR$/minirobocode_interpreter.py" />
-        <option value="$PROJECT_DIR$/interpreter_tools.py" />
         <option value="$USER_HOME$/envs/dp/lib/python2.7/site-packages/betterast/ast.py" />
-        <option value="$PROJECT_DIR$/robomission_ast.py" />
+        <option value="$PROJECT_DIR$/interpreter_tools.py" />
         <option value="$PROJECT_DIR$/dashboard_creator.py" />
         <option value="$PROJECT_DIR$/correlation.py" />
         <option value="$PROJECT_DIR$/tools.py" />
+        <option value="$PROJECT_DIR$/minirobocode_interpreter.py" />
+        <option value="$PROJECT_DIR$/robomission_ast.py" />
       </list>
     </option>
   </component>
@@ -481,20 +454,19 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-2" width="1920" height="1082" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.05640485" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32843652" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.39979014" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.39979014" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.55279505" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32948583" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.29485834" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.29485834" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.32829374" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -683,26 +655,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/minirobocode_interpreter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4740">
-          <caret line="316" column="23" selection-start-line="316" selection-start-column="23" selection-end-line="316" selection-end-column="46" />
-          <folding>
-            <element signature="e#47#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/interpreter_tools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
-          <folding>
-            <element signature="e#47#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/envs/dp/lib/python2.7/site-packages/betterast/ast.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="174">
@@ -720,10 +672,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="628">
+          <caret line="583" column="45" lean-forward="true" selection-start-line="583" selection-start-column="45" selection-end-line="583" selection-end-column="45" />
+          <folding>
+            <element signature="e#47#75#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/minirobocode_interpreter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="478">
+          <caret line="346" lean-forward="true" selection-start-line="346" selection-end-line="346" />
+          <folding>
+            <element signature="e#47#56#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/interpreter_tools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-692">
+          <caret line="181" column="96" selection-start-line="181" selection-start-column="96" selection-end-line="181" selection-end-column="96" />
+          <folding>
+            <element signature="e#47#57#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/robomission_ast.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+        <state relative-caret-position="688">
+          <caret line="325" column="48" lean-forward="true" selection-start-line="325" selection-start-column="48" selection-end-line="325" selection-end-column="48" />
           <folding>
             <element signature="e#119#135#0" expanded="true" />
           </folding>
@@ -732,8 +714,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dashboard_creator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="1120" column="4" selection-start-line="1120" selection-start-column="4" selection-end-line="1120" selection-end-column="4" />
+        <state relative-caret-position="808">
+          <caret line="1113" lean-forward="true" selection-start-line="1113" selection-end-line="1113" />
           <folding>
             <element signature="e#121#136#0" expanded="true" />
             <element signature="e#13473#14366#0" />
@@ -743,34 +725,21 @@
             <element signature="e#31548#35939#0" />
             <element signature="e#35535#41008#0" />
             <element signature="e#41662#48459#0" />
-            <element signature="e#48448#53996#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="472" column="3" lean-forward="true" selection-start-line="472" selection-start-column="3" selection-end-line="472" selection-end-column="3" />
+        <state relative-caret-position="392">
+          <caret line="444" column="76" lean-forward="true" selection-start-line="444" selection-start-column="76" selection-end-line="444" selection-end-column="76" />
           <folding>
             <element signature="e#47#78#0" expanded="true" />
             <element signature="e#281#5342#0" />
-            <element signature="e#7183#12093#0" />
             <element signature="e#17412#19433#0" />
             <element signature="e#19528#21359#0" />
             <element signature="e#21417#22068#0" />
             <element signature="e#22192#23384#0" />
-            <element signature="e#23490#24921#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="780">
-          <caret line="151" column="72" selection-start-line="151" selection-start-column="72" selection-end-line="151" selection-end-column="72" />
-          <folding>
-            <element signature="e#47#75#0" expanded="true" />
           </folding>
         </state>
       </provider>
