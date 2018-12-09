@@ -293,11 +293,11 @@ def frequent_problems_measures(snapshots_path, task_sessions_path, tasks_path, *
                                                                                        rel_threshold=0.10)
 
     for column in ["frequent_leaving_points_ratio", "unique_frequent_leaving_points",
-                   "frequent_incorrect_submits_ratio", "unique_frequent_incorrect_submits_submissions"]:
+                   "frequent_incorrect_submits_ratio", "unique_frequent_incorrect_submits"]:
         print(column, statistics(tasks[column]))
 
     return tasks[["frequent_leaving_points_ratio", "unique_frequent_leaving_points",
-                  "frequent_incorrect_submits_ratio", "unique_frequent_incorrect_submits_submissions"]]
+                  "frequent_incorrect_submits_ratio", "unique_frequent_incorrect_submits"]]
 
 
 def learner_task_session_performance_measures(snapshots_path, task_sessions_path, tasks_path):
@@ -491,14 +491,14 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=learner_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
-"""
+
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=frequent_problems_measures,
                  variable_group_title="mistakes measures",
                  plot=False)
-"""
+
 
 
 

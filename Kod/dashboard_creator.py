@@ -13,6 +13,7 @@ from collections import Counter
 from matplotlib import colors, cm
 from os.path import dirname, exists, realpath
 from os import makedirs
+from shutil import copy
 
 from tools import *
 
@@ -48,6 +49,11 @@ def compute(args):
     """
     if args["replace_red"]:
         print("Replacing red's 'r' symbol by 'd'")
+        replace_red_by_d(file_path=args["tasks_path"],
+                         output_path=args["output_path"] + "tasks_red_replaced.csv",
+                         column_names=["solution"])
+        args["tasks_path"] = args["output_path"] + "tasks_red_replaced.csv"
+
         replace_red_by_d(file_path=args["snapshots_path"],
                          output_path=args["output_path"] + "snapshots_red_replaced.csv",
                          column_names=["program"])
@@ -65,6 +71,9 @@ def compute(args):
 
     if not exists(args["output_path"] + "img"):
         makedirs(args["output_path"] + "img")
+    if not exists(args["output_path"] + "js"):
+        makedirs(args["output_path"] + "js")
+    copy("sorttable.js", args["output_path"] + "/js/sorttable.js")
 
     data = load_extended_snapshots(snapshots_path=args["snapshots_path"],
                                    task_sessions_path=args["task_sessions_path"],
@@ -132,7 +141,7 @@ def compute(args):
                                                     for i in correct_programs.index],
                                                    index=correct_programs.index)
 
-    print("INCORRECT SUBMISSIONS")
+    print("INCORRECT SUBMITS")
     wrong = data[data.granularity == "execution"]
     wrong = wrong[data.new_correct == False]
     wrong = wrong[[isinstance(x, str) for x in wrong.program]]
@@ -220,17 +229,17 @@ def compute(args):
     plt.clf()
 
     hists = ((tasks.time_spent, 60, 660, 30, 11, 3, 11,
-              "unsuccessful", "hist_time.png", "time, 60-seconds bins", "time"),
+              "unsuccessful", "hist_time.png", "time, 60-seconds bins", "count"),
              (correct_programs.occurrences, 5, 55, 150, 11, 15, 11,
-              "occurrences", "correct_programs.png", "occurrences, 5-units bins", "unique programs"),
+              "occurrences", "correct_programs.png", "task's unique programs, 5-units bins", "occurrences"),
              (wrong.occurrences, 5, 55, 10000, 11, 1000, 11,
-              "occurrences", "wrong_submits.png", "occurrences, 5-units bins", "unique programs"),
+              "occurrences", "wrong_submits.png", "task's unique programs, 5-units bins", "occurrences"),
              (left.occurrences, 5, 55, 3000, 11, 300, 11,
-              "occurrences", "leaving_points.png", "occurrences, 5-units bins", "unique programs"),
+              "occurrences", "leaving_points.png", "task's unique programs, 5-units bins", "occurrences"),
              (learners_ts.time_log, 1, 11, 20000, 11, 2000, 11,
-              "time", "learners_ts_time.png", "occurrences, 1-unit bins", "log(time)"),
+              "time", "learners_ts_time.png", "log(time), 1-unit bins", "occurrences"),
              (learners_total.points, 10, 110, 2000, 11, 200, 11,
-              "points", "learners_total_points.png", "occurrences, 10-units bins", "points"))
+              "points", "learners_total_points.png", "points, 10-units bins", "occurrences"))
 
     for hist_variable in hists:
         plt.figure(figsize=(7, 5))
@@ -335,7 +344,7 @@ def visualize_tasks(tasks, output_path):
             with tag('p'):
                 with tag('figure'):
                     doc.stag('img', src='img/treemap.png', alt="""Tasks by the number of task sessions (area) and the 
-                    success rate (color, the brighter the better)""", width="1000", height="625")
+                    success rate (color, the brighter the higher)""", width="1000", height="625")
                     with tag('figcaption'):
                         text("""Tasks by number of task sessions (area) and success rate 
                         (color, the brighter the better)""")
@@ -363,7 +372,7 @@ def visualize_tasks(tasks, output_path):
                          placeholder='Closest Distance', title='Write Closest Distance')
                 doc.stag('input', type='text', id='filterInput8', onkeyup='filterTable(8, "True", "filterInput8")',
                          placeholder='Closest Task', title='Write Closest Task')
-                doc.stag('input', type='text', id='filterInput9', onkeyup='filterTable(9, "", "filterInput9")',
+                doc.stag('input', type='text', id='filterInput9', onkeyup='filterTable(9, "True", "filterInput9")',
                          placeholder='Unique Correct Solutions', title='Write Unique Correct Solutions')
 
             with tag('p'):
@@ -384,7 +393,7 @@ def visualize_tasks(tasks, output_path):
                         with tag('th'):
                             text('Success Rate')
                         with tag('th'):
-                            text('No. of close tasks, AST TED, 10th percentile')
+                            text('Number of close tasks, AST TED, 10th percentile')
                         with tag('th'):
                             text('Closest Distance')
                         with tag('th'):
@@ -460,7 +469,7 @@ def visualize_tasks(tasks, output_path):
                       }
                     }
                 """)
-            with tag('script', src=this_dir + '/sorttable.js'):
+            with tag('script', src='js/sorttable.js'):
                 pass
     with open(output_path + "/tasks_dashboard.html", "w") as f:
         f.write(indent(doc.getvalue()))
@@ -525,7 +534,7 @@ def visualize_correct_programs(correct_programs, output_path):
                         with tag('th'):
                             text('Task')
                         with tag('th'):
-                            text('Program Group')
+                            text('Visited-Squares Sequence Group')
                         with tag('th'):
                             text('Occurrences')
                     for i in correct_programs.index:
@@ -583,7 +592,7 @@ def visualize_correct_programs(correct_programs, output_path):
                       }
                     }
                 """)
-            with tag('script', src=this_dir + '/sorttable.js'):
+            with tag('script', src='js/sorttable.js'):
                 pass
 
     with open(output_path + "/correct_programs_dashboard.html", "w") as f:
@@ -597,7 +606,7 @@ def visualize_wrong(wrong, output_path):
     :param output_path: string; path to the directory where the dashboard and additional file will be stored
     :return:
     """
-    print("CREATING INCORRECT SUBMISSIONS DASHBOARD")
+    print("CREATING INCORRECT SUBMITS DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
     this_dir = dirname(realpath(__file__))
@@ -608,7 +617,7 @@ def visualize_wrong(wrong, output_path):
     with tag('html'):
         with tag('head'):
             with tag('title'):
-                text('Incorrect Submissions Dashboard')
+                text('Incorrect Submits Dashboard')
             with tag('style'):
                 text("""
                      table {border-spacing: 0;
@@ -621,10 +630,10 @@ def visualize_wrong(wrong, output_path):
 
         with tag('body'):
             with tag('h1'):
-                text('RoboMission Incorrect Submissions Dashboard')
+                text('RoboMission Incorrect Submits Dashboard')
 
             with tag('h2'):
-                text("Distribution of incorrect Submissions' Occurrences")
+                text("Distribution of Incorrect Submits' Occurrences")
             with tag('p'):
                 doc.stag('img', src='img/wrong_submits.png', alt="Histogram of incorrect submissions' occurrences",
                          width="500", height="366")
@@ -649,7 +658,7 @@ def visualize_wrong(wrong, output_path):
                         with tag('th'):
                             text('Task')
                         with tag('th'):
-                            text('Program Group')
+                            text('Visited-Squares Sequence Group')
                         with tag('th'):
                             text('Occurrences')
                     for i in wrong.index:
@@ -707,7 +716,7 @@ def visualize_wrong(wrong, output_path):
                       }
                     }
                 """)
-            with tag('script', src=this_dir + '/sorttable.js'):
+            with tag('script', src='js/sorttable.js'):
                 pass
 
     with open(output_path + "/wrong_submissions_dashboard.html", "w") as f:
@@ -773,7 +782,7 @@ def visualize_left(left, output_path):
                         with tag('th'):
                             text('Task')
                         with tag('th'):
-                            text('Program Group')
+                            text('Visited-Squares Sequence Group')
                         with tag('th'):
                             text('Occurrences')
                     for i in left.index:
@@ -831,7 +840,7 @@ def visualize_left(left, output_path):
                       }
                     }
                 """)
-            with tag('script', src=this_dir + '/sorttable.js'):
+            with tag('script', src='js/sorttable.js'):
                 pass
 
     with open(output_path + "/leaving_points_dashboard.html", "w") as f:
@@ -850,7 +859,7 @@ def visualize_learners_ts(learners_ts, output_path):
 
     this_dir = dirname(realpath(__file__))
 
-    time_spent_colors = value_to_color(learners_ts.time_spent)
+    time_spent_colors = value_to_color(learners_ts.time_spent, yellow_highest=False)
 
     doc.asis('<!DOCTYPE html>')
     with tag('html'):
@@ -974,7 +983,7 @@ def visualize_learners_ts(learners_ts, output_path):
                       }
                     }
                 """)
-            with tag('script', src=this_dir + '/sorttable.js'):
+            with tag('script', src='js/sorttable.js'):
                 pass
 
     with open(output_path + "/learners_task_session_dashboard.html", "w") as f:
@@ -1098,7 +1107,7 @@ def visualize_learners_total(learners_total, output_path):
                       }
                     }
                 """)
-            with tag('script', src=this_dir + '/sorttable.js'):
+            with tag('script', src='js/sorttable.js'):
                 pass
 
     with open(output_path + "/learners_total_dashboard.html", "w") as f:
