@@ -89,7 +89,6 @@ def difficulty_and_complexity_measures(snapshots_path, task_sessions_path, tasks
 
     for column in difficulty_and_complexity:
         print(column, statistics(difficulty_and_complexity[column]))
-
     return difficulty_and_complexity
 
 
@@ -125,7 +124,6 @@ def solution_uniqueness_measures(snapshots_path, task_sessions_path, tasks_path)
 
     for column in uniqueness:
         print(column, statistics(uniqueness[column]))
-
     return uniqueness
 
 
@@ -269,12 +267,12 @@ def frequent_problems_measures(snapshots_path, task_sessions_path, tasks_path, *
     incorrect_submits["rel_count"] = incorrect_submits.abs_count / incorrect_submits.task_freq
 
     if kwargs["plot"]:
-        print("incorrect submits")
+        print("Incorrect submits plot")
         plot_frequent_wrong_programs_ratio(
             tasks=incorrect_submits[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
             abs_step=30, abs_begin=1, abs_end=11,
             rel_step=0.05, rel_begin=1, rel_end=11)
-        print("leaving points")
+        print("Leaving points plot")
         plot_frequent_wrong_programs_ratio(
             tasks=tasks_left[["abs_count", "rel_count", "task_freq", "most_frequent_program"]],
             abs_step=5, abs_begin=1, abs_end=11,
@@ -453,60 +451,3 @@ def all_correlations(snapshots_path, task_sessions_path, tasks_path, measures_fu
     correlation_methods_correlations(pearson_measures_correlation=pearson_measures_correlation,
                                      spearman_measures_correlation=spearman_measures_correlation,
                                      full_or_triangle="triangle")
-
-
-
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=difficulty_and_complexity_measures,
-                 variable_group_title="difficulty and complexity measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=solution_uniqueness_measures,
-                 variable_group_title="solution uniqueness measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=task_similarity_measures,
-                 variable_group_title="task similarity measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=learner_task_session_performance_measures,
-                 variable_group_title="students' task performance measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=learner_total_performance_measures,
-                 variable_group_title="students' total performance measures")
-"""
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=frequent_problems_measures,
-                 variable_group_title="mistakes measures",
-                 plot=False)
-"""
-
-
-
-"""
-all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_extended.csv",
-                 task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                 tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 measures_function=frequent_problems_measures,
-                 variable_group_title="mistakes measures",
-                 plot=True)
-"""

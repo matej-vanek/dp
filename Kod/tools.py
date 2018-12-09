@@ -194,7 +194,6 @@ def count_program_clusters(programs):
                                                                if program_info[task][prog]["cluster"] == cluster],
                                                               key=lambda x: program_info[task][x]["freq"])}
                               for cluster in set(cluster_assign)}
-        #print(cluster_info[task])
         clusters_count.loc[task] = len(set(cluster_assign))
     return clusters_count, program_info, cluster_info
 
@@ -271,8 +270,6 @@ def count_true(series):
     return count
 
 
-
-# counts all block types used in all items of series
 def count_used_blocks(series):
     """
     Counts distinct blocks in series (aggregating function).
@@ -289,7 +286,6 @@ def count_used_blocks(series):
             else:
                 blocks.add(char)
     return len(blocks)
-
 
 
 def dict_of_counts(series, del_false=False):
@@ -597,100 +593,3 @@ def task_ids_to_phases(tasks_path, task_ids):
     for task_id in task_ids:
         phases.extend(list(tasks[tasks.id == task_id].section))
     return phases
-
-
-
-
-
-
-#print(task_ids_to_phases("/home/matejvanek/dp/Data/robomission-2018-11-03/tasks.csv", [11, 3, 51, 83, 14]))
-
-"""
-# Builds ASTs from programs, computes their TED matrix, hierarchically clusters them,
-# prunes where cophenetic dist is > 5, returns number of clusters
-def count_program_clusters2(programs):
-    clusters_count = pd.Series(index=programs.index)
-    program_info = {}
-    cluster_info = {}
-    for task in programs.index:
-        program_list = list(programs.loc[task][0].keys())
-        if len(programs.loc[task][0].keys()) > 1:
-            condensed_dist_matrix = []
-            print(len(program_list))
-            program_ast_list = np.array(list(map(partial(build_ast), program_list)))
-            #print(program_ast_list)
-            for i in range(len(program_ast_list)):
-                print(i)
-                for j in range(len(program_ast_list)):
-                    if i < j:
-                        condensed_dist_matrix.append(ast_ted(program_ast_list[i], program_ast_list[j]))
-            #print(condensed_dist_matrix)
-            condensed_dist_matrix = np.ndarray.flatten(np.array(condensed_dist_matrix))
-        else:
-            condensed_dist_matrix = [0]
-
-        hier_clust = linkage(condensed_dist_matrix)
-        #print(hier_clust)
-        #print(programs.loc[task])
-        cluster_assign = fcluster(hier_clust, 5, criterion="distance")
-        #print(program_list)
-        #cluster_info[task] = {cluster:
-        #                          {'programs': [program for program in program_info[task] if program["cluster"] == cluster],
-        #                           'representative': max(program_info[task][0], key=program_info[task][0].get)}
-        #                           for cluster in set(cluster_assign)}
-
-        print(set(cluster_assign))
-        for cluster in set(cluster_assign):
-            print(cluster)
-            print(program_info[task])
-            programs = [program_info[task][program] for program in program_info[task] if
-                                                program_info[task][program]["cluster"] == cluster]
-            representative = max(program_info[task][0], key=program_info[task][0].get)
-
-            cluster_info[task] = {cluster: {"programs": programs, "representative": representative}}
-
-        #cluster_info[task] = {cluster:
-        #                          {'programs': [program_info[task][program] for program in program_info[task] if
-        #                                        program_info[task][program]["cluster"] == cluster],
-        #                           'representative': max(program_info[task][0], key=program_info[task][0].get)}
-        #                      for cluster in set(cluster_assign)}
-
-
-
-        #print(cluster_assign)
-        #print("Number of found clusters: ", len(set(cluster_assign)))
-        clusters_count.loc[task] = len(set(cluster_assign))
-        print(program_info[task])
-        print(cluster_info)
-        print(cluster_info[task])
-    return clusters_count, program_info, cluster_info
-"""
-
-
-#task_sessions_plot(task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv")
-"""
-replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/tasks.csv",
-                 output_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                 column_name="solution")
-print("SNAPSHOTS")
-replace_red_by_d(file_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq.csv",
-                 output_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_red_to_d.csv",
-                 column_names=["program"])
-"""
-"""
-load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots_extended.csv",
-                        task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                        task_sessions_cols=None)
-load_task_names_levels(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks_red_to_d.csv")
-"""
-"""
-synchronous_interpreter_run(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_red_to_d.csv",
-                                                        task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
-                                                        tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-                                                        output_snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_qqq_extended.csv")
-"""
-"""
-incorrect_evaluation(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
-                     task_sessions_path="~/dp//Data/robomission-2018-11-03/task_sessions.csv",
-                     tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv")
-"""

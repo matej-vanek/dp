@@ -310,7 +310,6 @@ def run_instructions(row_pos, col_pos, game_board, correct, square_sequence,
     return row_pos, col_pos, game_board, correct, square_sequence, energy, diamonds, steps
 
 
-# flrsRI/Wxyrbkg><=!0123456789{}
 def run_task(tasks_path, task_id, program, verbose=False):
     """
     Runs selected task with given program.
@@ -367,50 +366,3 @@ def run_task(tasks_path, task_id, program, verbose=False):
     if verbose:
         print("Correct: {}".format(False))
     return False, square_sequence
-
-
-"""
-import random
-
-submits = load_extended_snapshots(snapshots_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/program_snapshots.csv",
-                                  task_sessions_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/task_sessions.csv",
-                                  tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-                                  task_sessions_cols=["id", "task"],
-                                  tasks_cols=["id", "setting", "solution"])
-submits = submits[submits["granularity"] == "execution"]
-submits = submits[["id", "program", "correct", "task"]]
-#test_ids = submits["id"].values
-test_ids = [816342, 820636]
-print(len(test_ids))
-wrong = []
-for test_id in test_ids:
-    print(test_id)
-    task_id = int(submits[submits["id"] == test_id]["task"].values[0])
-    program = str(submits[submits["id"] == test_id]["program"].values[0])
-    correct = bool(submits[submits["id"] == test_id]["correct"].values[0])
-    run_correct, _ = run_task(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-                              task_id=task_id,
-                              program=program,
-                              verbose=True)
-    agreement = correct == run_correct
-    #print("AGREEMENT: {}\n\n".format(agreement))
-    if not agreement:
-        wrong.append(test_id)
-print("Non-agree test_ids:", wrong)
-print(len(wrong))
-"""
-"""
-import pandas as pd
-task_data = pd.read_csv("C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv")
-for i in range(0, len(task_data.index)):
-    run_task(tasks_path="C:/Dokumenty/Matej/MUNI/Diplomka/Data/robomission-2018-09-08/tasks.csv",
-             task_id=int(task_data.iloc[i]["id"]),
-             program=task_data.iloc[i]["solution"],
-             verbose=True)
-"""
-"""
-print(run_task(tasks_path="/home/matejvanek/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
-               task_id=86,
-               program="f",
-               verbose=True))
-"""

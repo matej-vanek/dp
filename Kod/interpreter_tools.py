@@ -125,8 +125,8 @@ def load_game_board(tasks_path, task_id):
                              names=range(0, len(task["fields"].split(";")[0].split("|"))),
                              sep="|",
                              lineterminator=";")
-    # game_board indexed [cols][rows]
-    # game_board.values indexed [rows][cols]
+    # game_board is indexed [cols][rows]
+    # game_board.values is indexed [rows][cols]
     game_board.index = range(0, len(task["fields"].split(";")))
     length = 1000
     energy = 1000

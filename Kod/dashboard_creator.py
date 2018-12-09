@@ -11,7 +11,7 @@ from yattag import Doc, indent
 from argparse import ArgumentParser
 from collections import Counter
 from matplotlib import colors, cm
-from os.path import dirname, exists, realpath
+from os.path import exists
 from os import makedirs
 from shutil import copy
 
@@ -298,8 +298,6 @@ def visualize_tasks(tasks, output_path):
     print("CREATING TASKS DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
-    this_dir = dirname(realpath(__file__))
-
     success_rate_colors = value_to_color(tasks.success_rate)
     ast_ted_10_colors = value_to_color(tasks.ast_ted_10)
     closest_distance_colors = value_to_color(tasks.closest_distance, yellow_highest=False)
@@ -485,8 +483,6 @@ def visualize_correct_programs(correct_programs, output_path):
     print("CREATING CORRECT PROGRAMS DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
-    this_dir = dirname(realpath(__file__))
-
     occurrences_colors = value_to_color(correct_programs.occurrences)
 
     doc.asis('<!DOCTYPE html>')
@@ -608,8 +604,6 @@ def visualize_wrong(wrong, output_path):
     """
     print("CREATING INCORRECT SUBMITS DASHBOARD")
     doc, tag, text = Doc().tagtext()
-
-    this_dir = dirname(realpath(__file__))
 
     occurrences_colors = value_to_color(wrong.occurrences)
 
@@ -733,8 +727,6 @@ def visualize_left(left, output_path):
     print("CREATING LEAVING POINTS DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
-    this_dir = dirname(realpath(__file__))
-
     occurrences_colors = value_to_color(left.occurrences)
 
     doc.asis('<!DOCTYPE html>')
@@ -856,8 +848,6 @@ def visualize_learners_ts(learners_ts, output_path):
     """
     print("CREATING LEARNERS' TASK SESSIONS DASHBOARD")
     doc, tag, text = Doc().tagtext()
-
-    this_dir = dirname(realpath(__file__))
 
     time_spent_colors = value_to_color(learners_ts.time_spent, yellow_highest=False)
 
@@ -1000,8 +990,6 @@ def visualize_learners_total(learners_total, output_path):
     print("CREATING LEARNERS' TOTAL DASHBOARD")
     doc, tag, text = Doc().tagtext()
 
-    this_dir = dirname(realpath(__file__))
-
     points_colors = value_to_color(learners_total.points)
 
     doc.asis('<!DOCTYPE html>')
@@ -1123,7 +1111,3 @@ if __name__ == '__main__':
     visualize_left(results[3], args["output_path"])
     visualize_learners_ts(results[4], args["output_path"])
     visualize_learners_total(results[5], args["output_path"])
-
-
-#TODO BACHA NA STRINGIO / IO !!!!!! python3 používá io
-#TODO udelat finalni spusteni dashboardu
