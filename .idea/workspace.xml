@@ -2,6 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4414499e-f598-4d48-8629-aafd3a520ab1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/K_odevzdani/Appendix A - Code.zip" beforeDir="false" afterPath="$PROJECT_DIR$/K_odevzdani/Appendix A - Code.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/K_odevzdani/DP_Matej_Vanek.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/K_odevzdani/correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/K_odevzdani/correlation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/K_odevzdani/interpreter_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/K_odevzdani/interpreter_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/K_odevzdani/minirobocode_interpreter.py" beforeDir="false" afterPath="$PROJECT_DIR$/K_odevzdani/minirobocode_interpreter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/K_odevzdani/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/K_odevzdani/tools.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Kod/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Kod/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,8 +21,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/K_odevzdani/dashboard_creator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="371">
-              <caret line="717" lean-forward="true" selection-start-line="717" selection-end-line="717" />
+            <state relative-caret-position="10350">
+              <caret line="717" selection-start-line="717" selection-end-line="717" />
               <folding>
                 <element signature="e#121#136#0" expanded="true" />
               </folding>
@@ -46,8 +52,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -132,8 +138,8 @@
     <entry file="file://$PROJECT_DIR$/Kod/Tools.py" />
     <entry file="file://$PROJECT_DIR$/K_odevzdani/dashboard_creator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="371">
-          <caret line="717" lean-forward="true" selection-start-line="717" selection-end-line="717" />
+        <state relative-caret-position="10350">
+          <caret line="717" selection-start-line="717" selection-end-line="717" />
           <folding>
             <element signature="e#121#136#0" expanded="true" />
           </folding>

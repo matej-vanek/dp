@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+RoboMission measures's correlation analysis.
+Python Version: 3.6
+"""
+
 from collections import Counter
 import editdistance
 import seaborn as sns

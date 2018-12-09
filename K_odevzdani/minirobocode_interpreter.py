@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+MiniRoboCode interpreter.
+Python Version: 3.6
+"""
+
 import re
 import interpreter_tools as it
 

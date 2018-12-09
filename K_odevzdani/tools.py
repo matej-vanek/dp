@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Tools for RoboMission measures's correlation analysis.
+Python Version: 3.6
+"""
+
 from ast import literal_eval
 from functools import partial
 from matplotlib import pyplot as plt
