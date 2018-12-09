@@ -491,14 +491,14 @@ all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapsh
                  measures_function=learner_total_performance_measures,
                  variable_group_title="students' total performance measures")
 """
-
+"""
 all_correlations(snapshots_path="~/dp/Data/robomission-2018-11-03/program_snapshots_extended.csv",
                  task_sessions_path="~/dp/Data/robomission-2018-11-03/task_sessions.csv",
                  tasks_path="~/dp/Data/robomission-2018-11-03/tasks_red_to_d.csv",
                  measures_function=frequent_problems_measures,
                  variable_group_title="mistakes measures",
                  plot=False)
-
+"""
 
 
 
