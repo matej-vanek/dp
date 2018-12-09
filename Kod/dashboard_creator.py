@@ -414,7 +414,7 @@ def visualize_tasks(tasks, output_path):
                             with tag('td'):
                                 text(tasks.loc[i].solution)
                             with tag('td'):
-                                text(tasks.loc[i].task_session)
+                                text(int(tasks.loc[i].task_session))
                             with tag('td', bgcolor=success_rate_colors.loc[i]):
                                 text(round(tasks.loc[i].success_rate, 3))
                             with tag('td', bgcolor=ast_ted_10_colors.loc[i]):
@@ -424,7 +424,7 @@ def visualize_tasks(tasks, output_path):
                             with tag('td'):
                                 text(tasks.loc[i].closest_task)
                             with tag('td', bgcolor=unique_correct_programs_colors.loc[i]):
-                                text(tasks.loc[i].unique_correct_programs)
+                                text(int(tasks.loc[i].unique_correct_programs))
 
             with tag('script'):
                 doc.asis("""
@@ -547,7 +547,7 @@ def visualize_correct_programs(correct_programs, output_path):
                             with tag('td'):
                                 text(correct_programs.loc[i].representative)
                             with tag('td', bgcolor=occurrences_colors.loc[i]):
-                                text(correct_programs.loc[i].occurrences)
+                                text(int(correct_programs.loc[i].occurrences))
 
             with tag('script'):
                 doc.asis("""
@@ -671,7 +671,7 @@ def visualize_wrong(wrong, output_path):
                             with tag('td'):
                                 text(wrong.loc[i].representative)
                             with tag('td', bgcolor=occurrences_colors.loc[i]):
-                                text(wrong.loc[i].occurrences)
+                                text(int(wrong.loc[i].occurrences))
 
             with tag('script'):
                 doc.asis("""
@@ -795,7 +795,7 @@ def visualize_left(left, output_path):
                             with tag('td'):
                                 text(left.loc[i].representative)
                             with tag('td', bgcolor=occurrences_colors.loc[i]):
-                                text(left.loc[i].occurrences)
+                                text(int(left.loc[i].occurrences))
 
             with tag('script'):
                 doc.asis("""
@@ -1061,9 +1061,9 @@ def visualize_learners_total(learners_total, output_path):
                                 else:
                                     text(i)
                             with tag('td'):
-                                text(learners_total.loc[i].solution)
+                                text(int(learners_total.loc[i].solution))
                             with tag('td', bgcolor=points_colors.loc[i]):
-                                text(learners_total.loc[i].points)
+                                text(int(learners_total.loc[i].points))
             with tag('script'):
                 doc.asis("""
                     function filterTable(column, integer, input_name) {
@@ -1127,4 +1127,3 @@ if __name__ == '__main__':
 
 #TODO BACHA NA STRINGIO / IO !!!!!! python3 používá io
 #TODO udelat finalni spusteni dashboardu
-#TODO zkontrolovat betterast - jestli nejde rovnou z knihovny

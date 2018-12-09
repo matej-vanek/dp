@@ -4,6 +4,7 @@
     <list default="true" id="738a616a-0190-48ff-90ae-f40802ee48a1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/../Data/robomission-2018-11-03/program_snapshots_extended_old.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../Data/robomission-2018-11-03/program_snapshots_red_to_d.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dashboard_creator.py" beforeDir="false" afterPath="$PROJECT_DIR$/dashboard_creator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Obrazky/final/total_perf_corr_corr_full.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Obrazky/final/total_perf_corr_corr_full.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Obrazky/final/total_perf_corr_corr_triangle.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Obrazky/final/total_perf_corr_corr_triangle.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Obrazky/final/total_perf_pearson.png" beforeDir="false" afterPath="$PROJECT_DIR$/../Obrazky/final/total_perf_pearson.png" afterDir="false" />
@@ -38,13 +39,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/correlation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+            <state relative-caret-position="420">
+              <caret line="124" lean-forward="true" selection-start-line="124" selection-end-line="124" />
               <folding>
                 <element signature="e#47#78#0" expanded="true" />
+                <element signature="e#281#5342#0" />
+                <element signature="e#7183#12093#0" />
+                <element signature="e#12190#17310#0" />
+                <element signature="e#17412#19433#0" />
+                <element signature="e#19528#21359#0" />
+                <element signature="e#21417#22068#0" />
+                <element signature="e#22192#23384#0" />
+                <element signature="e#23490#24921#0" />
               </folding>
             </state>
           </provider>
@@ -98,19 +107,21 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dashboard_creator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="32" column="54" lean-forward="true" selection-start-line="32" selection-start-column="54" selection-end-line="32" selection-end-column="54" />
+            <state relative-caret-position="407">
+              <caret line="1120" column="4" selection-start-line="1120" selection-start-column="4" selection-end-line="1120" selection-end-column="4" />
               <folding>
                 <element signature="e#121#136#0" expanded="true" />
                 <element signature="e#13473#14366#0" />
-                <element signature="e#24343#29914#0" />
-                <element signature="e#29962#35489#0" />
+                <element signature="e#14963#24830#0" />
+                <element signature="e#24904#30488#0" />
+                <element signature="e#30532#36056#0" />
+                <element signature="e#31548#35939#0" />
                 <element signature="e#35535#41008#0" />
-                <element signature="e#41068#47852#0" />
-                <element signature="e#48140#53678#0" />
+                <element signature="e#41662#48459#0" />
+                <element signature="e#48448#53996#0" />
               </folding>
             </state>
           </provider>
@@ -148,7 +159,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_rela</find>
       <find>disti</find>
       <find>incorrect_ev</find>
       <find>.csv</find>
@@ -178,6 +188,7 @@
       <find>dirn</find>
       <find>full_and</find>
       <find>iter</find>
+      <find>int64</find>
     </findStrings>
     <replaceStrings>
       <replace>successful_sessions</replace>
@@ -234,12 +245,12 @@
         <option value="$PROJECT_DIR$/ddd.py" />
         <option value="$PROJECT_DIR$/kkk.py" />
         <option value="$PROJECT_DIR$/minirobocode_interpreter.py" />
-        <option value="$PROJECT_DIR$/correlation.py" />
         <option value="$PROJECT_DIR$/tools.py" />
         <option value="$PROJECT_DIR$/interpreter_tools.py" />
         <option value="$USER_HOME$/envs/dp/lib/python2.7/site-packages/betterast/ast.py" />
         <option value="$PROJECT_DIR$/robomission_ast.py" />
         <option value="$PROJECT_DIR$/dashboard_creator.py" />
+        <option value="$PROJECT_DIR$/correlation.py" />
       </list>
     </option>
   </component>
@@ -490,9 +501,9 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
+    <frame x="0" y="-2" width="1920" height="1082" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.058469944" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.05640485" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -503,7 +514,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32948583" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.3034557" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.29485834" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.32829374" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -692,16 +703,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/correlation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
-          <folding>
-            <element signature="e#47#78#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tools.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -761,16 +762,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dashboard_creator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="32" column="54" lean-forward="true" selection-start-line="32" selection-start-column="54" selection-end-line="32" selection-end-column="54" />
+        <state relative-caret-position="407">
+          <caret line="1120" column="4" selection-start-line="1120" selection-start-column="4" selection-end-line="1120" selection-end-column="4" />
           <folding>
             <element signature="e#121#136#0" expanded="true" />
             <element signature="e#13473#14366#0" />
-            <element signature="e#24343#29914#0" />
-            <element signature="e#29962#35489#0" />
+            <element signature="e#14963#24830#0" />
+            <element signature="e#24904#30488#0" />
+            <element signature="e#30532#36056#0" />
+            <element signature="e#31548#35939#0" />
             <element signature="e#35535#41008#0" />
-            <element signature="e#41068#47852#0" />
-            <element signature="e#48140#53678#0" />
+            <element signature="e#41662#48459#0" />
+            <element signature="e#48448#53996#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/correlation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="124" lean-forward="true" selection-start-line="124" selection-end-line="124" />
+          <folding>
+            <element signature="e#47#78#0" expanded="true" />
+            <element signature="e#281#5342#0" />
+            <element signature="e#7183#12093#0" />
+            <element signature="e#12190#17310#0" />
+            <element signature="e#17412#19433#0" />
+            <element signature="e#19528#21359#0" />
+            <element signature="e#21417#22068#0" />
+            <element signature="e#22192#23384#0" />
+            <element signature="e#23490#24921#0" />
           </folding>
         </state>
       </provider>
